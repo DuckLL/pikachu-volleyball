@@ -2138,24 +2138,27 @@ const actionType = {
 const player1Formula = [
   [
     // 0. Break net
-    { action: actionType.forward, frames: 1 },
-    { action: actionType.wait, frames: 20 },
+    { action: actionType.forward, frames: 4 },
+    { action: actionType.wait, frames: 14 },
+    { action: actionType.backward, frames: 3 },
     { action: actionType.forward, frames: 26 },
     { action: actionType.forwardUp, frames: 4 },
     { action: actionType.forwardDownSmash, frames: 1 },
   ],
   [
     // 1. Break net(fake, flat)
-    { action: actionType.forward, frames: 1 },
-    { action: actionType.wait, frames: 20 },
+    { action: actionType.forward, frames: 4 },
+    { action: actionType.wait, frames: 14 },
+    { action: actionType.backward, frames: 3 },
     { action: actionType.forward, frames: 30 },
     { action: actionType.forwardUp, frames: 1 },
     { action: actionType.forwardSmash, frames: 2 },
   ],
   [
     // 2. Head thunder
-    { action: actionType.forward, frames: 1 },
-    { action: actionType.wait, frames: 20 },
+    { action: actionType.forward, frames: 4 },
+    { action: actionType.wait, frames: 14 },
+    { action: actionType.backward, frames: 3 },
     { action: actionType.forward, frames: 11 },
     { action: actionType.forwardUp, frames: 15 },
     { action: actionType.downSmash, frames: 1 },
@@ -2163,16 +2166,18 @@ const player1Formula = [
   ],
   [
     // 3. Head thunder(fake, flat)
-    { action: actionType.forward, frames: 1 },
-    { action: actionType.wait, frames: 20 },
+    { action: actionType.forward, frames: 4 },
+    { action: actionType.wait, frames: 14 },
+    { action: actionType.backward, frames: 3 },
     { action: actionType.forward, frames: 11 },
     { action: actionType.forwardUp, frames: 15 },
     { action: actionType.forwardSmash, frames: 1 },
   ],
   [
     // 4. Net V smash
-    { action: actionType.forward, frames: 1 },
-    { action: actionType.wait, frames: 20 },
+    { action: actionType.forward, frames: 4 },
+    { action: actionType.wait, frames: 14 },
+    { action: actionType.backward, frames: 3 },
     { action: actionType.forward, frames: 31 },
     { action: actionType.forwardUpSmash, frames: 3 },
     { action: actionType.wait, frames: 16 },
@@ -2180,8 +2185,9 @@ const player1Formula = [
   ],
   [
     // 5. Net R smash
-    { action: actionType.forward, frames: 1 },
-    { action: actionType.wait, frames: 20 },
+    { action: actionType.forward, frames: 4 },
+    { action: actionType.wait, frames: 14 },
+    { action: actionType.backward, frames: 3 },
     { action: actionType.forward, frames: 31 },
     { action: actionType.forwardUpSmash, frames: 3 },
     { action: actionType.wait, frames: 16 },
@@ -2189,8 +2195,9 @@ const player1Formula = [
   ],
   [
     // 6. Net G smash
-    { action: actionType.forward, frames: 1 },
-    { action: actionType.wait, frames: 20 },
+    { action: actionType.forward, frames: 4 },
+    { action: actionType.wait, frames: 14 },
+    { action: actionType.backward, frames: 3 },
     { action: actionType.forward, frames: 31 },
     { action: actionType.forwardUpSmash, frames: 3 },
     { action: actionType.wait, frames: 16 },
@@ -2198,8 +2205,9 @@ const player1Formula = [
   ],
   [
     // 7. Net dodge
-    { action: actionType.forward, frames: 1 },
-    { action: actionType.wait, frames: 20 },
+    { action: actionType.forward, frames: 4 },
+    { action: actionType.wait, frames: 14 },
+    { action: actionType.backward, frames: 3 },
     { action: actionType.forward, frames: 31 },
     { action: actionType.forwardUpSmash, frames: 3 },
     { action: actionType.wait, frames: 16 },
@@ -2207,18 +2215,70 @@ const player1Formula = [
   ],
   [
     // 8. Tail thunder
-    { action: actionType.forward, frames: 7 },
+    { action: actionType.forward, frames: 4 },
     { action: actionType.wait, frames: 14 },
+    { action: actionType.forward, frames: 3 },
     { action: actionType.forward, frames: 11 },
     { action: actionType.forwardUp, frames: 15 },
     { action: actionType.downSmash, frames: 5 },
   ],
   [
     // 9. Tail thunder(fake, flat)
-    { action: actionType.forward, frames: 7 },
+    { action: actionType.forward, frames: 4 },
     { action: actionType.wait, frames: 14 },
+    { action: actionType.forward, frames: 3 },
     { action: actionType.forward, frames: 11 },
     { action: actionType.forwardUp, frames: 15 },
+    { action: actionType.forwardSmash, frames: 1 },
+  ],
+  [
+    // 10. double jump F smash
+    { action: actionType.forward, frames: 4 },
+    { action: actionType.wait, frames: 15 },
+    { action: actionType.backward, frames: 2 },
+    { action: actionType.wait, frames: 3 },
+    { action: actionType.forwardUp, frames: 1 },
+    { action: actionType.forward, frames: 14 },
+    { action: actionType.wait, frames: 12 },
+    { action: actionType.smash, frames: 1 },
+    { action: actionType.forwardUp, frames: 7 },
+    { action: actionType.forwardDownSmash, frames: 1 },
+  ],
+  [
+    // 11. double jump G smash
+    { action: actionType.forward, frames: 4 },
+    { action: actionType.wait, frames: 15 },
+    { action: actionType.backward, frames: 2 },
+    { action: actionType.wait, frames: 3 },
+    { action: actionType.forwardUp, frames: 1 },
+    { action: actionType.forward, frames: 14 },
+    { action: actionType.wait, frames: 12 },
+    { action: actionType.smash, frames: 1 },
+    { action: actionType.forwardUp, frames: 7 },
+    { action: actionType.forwardSmash, frames: 1 },
+  ],
+  [
+    // 12. double jump R smash
+    { action: actionType.forward, frames: 4 },
+    { action: actionType.wait, frames: 15 },
+    { action: actionType.backward, frames: 2 },
+    { action: actionType.wait, frames: 3 },
+    { action: actionType.forwardUp, frames: 1 },
+    { action: actionType.forward, frames: 14 },
+    { action: actionType.wait, frames: 12 },
+    { action: actionType.smash, frames: 1 },
+    { action: actionType.forwardUp, frames: 7 },
+    { action: actionType.upSmash, frames: 1 },
+  ],
+  [
+    // 13. double jump fake G
+    { action: actionType.forward, frames: 4 },
+    { action: actionType.wait, frames: 15 },
+    { action: actionType.backward, frames: 2 },
+    { action: actionType.wait, frames: 3 },
+    { action: actionType.forwardUp, frames: 1 },
+    { action: actionType.forward, frames: 14 },
+    { action: actionType.wait, frames: 12 },
     { action: actionType.forwardSmash, frames: 1 },
   ],
 ];
@@ -2231,8 +2291,9 @@ const player2Formula = [
   player1Formula[6].slice(), // 5. Net thunder(fake, flat)
   [
     // 6. Tail thunder
-    { action: actionType.forward, frames: 7 },
+    { action: actionType.forward, frames: 4 },
     { action: actionType.wait, frames: 14 },
+    { action: actionType.forward, frames: 3 },
     { action: actionType.forward, frames: 11 },
     { action: actionType.forwardUp, frames: 2 },
     { action: actionType.wait, frames: 13 },
@@ -2240,13 +2301,18 @@ const player2Formula = [
   ],
   [
     // 7. Tail thunder(fake, flat)
-    { action: actionType.forward, frames: 7 },
+    { action: actionType.forward, frames: 4 },
     { action: actionType.wait, frames: 14 },
+    { action: actionType.forward, frames: 3 },
     { action: actionType.forward, frames: 11 },
     { action: actionType.forwardUp, frames: 2 },
     { action: actionType.wait, frames: 13 },
     { action: actionType.forwardSmash, frames: 1 },
   ],
+  player1Formula[10].slice(), // 8
+  player1Formula[11].slice(), // 9
+  player1Formula[12].slice(), // 10
+  player1Formula[13].slice(), // 11
 ];
 const noserve = [
   { action: actionType.forwardUp, frames: 1 },
@@ -2256,9 +2322,9 @@ const noserve = [
 class ServeMachine {
   constructor(isPlayer2) {
     this.isPlayer2 = isPlayer2;
-
-    if (isPlayer2 === false) this.skillCount = 10;
-    else if (isPlayer2 === true) this.skillCount = 8;
+    this.skillCount = isPlayer2
+      ? SkillTypeForPlayer2Available.length
+      : SkillTypeForPlayer1Available.length;
     this.randServeIndex = this.skillCount - 1;
     this.skillList = [...Array(this.skillCount).keys()];
     this.usingFullSkill = -1;
@@ -2345,6 +2411,8 @@ class ServeMachine {
       userInput.powerHit = 1;
     } else if (this.action === actionType.backward) {
       userInput.xDirection = -1;
+    } else if (this.action === actionType.smash) {
+      userInput.powerHit = 1;
     }
     // console.log(this.action);
     if (this.isPlayer2 === true) {
