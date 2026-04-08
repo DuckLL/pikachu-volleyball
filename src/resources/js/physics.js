@@ -462,7 +462,7 @@ function processCollisionBetweenBallAndWorldAndSetBallPosition(ball) {
   const futureBallX = ball.x + ball.xVelocity;
   /*
     If the center of ball would get out of left world bound or right world bound, bounce back.
-    
+
     In this if statement, when considering left-right symmetry,
     "futureBallX > GROUND_WIDTH" should be changed to "futureBallX > (GROUND_WIDTH - BALL_RADIUS)",
     or "futureBallX < BALL_RADIUS" should be changed to "futureBallX < 0".
@@ -1087,10 +1087,7 @@ function canblock(player, predict) {
  */
 function canblockPredict(player, predict) {
   let first = true;
-  let playery = 244 - 32;
-  let speed = -16;
   for (let frame = 0; frame < predict.length; frame++) {
-    playery += speed;
     if (sameside(player, predict[frame].x)) {
       if (first) {
         if (predict[frame].y > NET_PILLAR_TOP_BOTTOM_Y_COORD) {
@@ -1099,14 +1096,16 @@ function canblockPredict(player, predict) {
         first = false;
         continue;
       }
-      if (Math.abs(predict[frame].x - GROUND_HALF_WIDTH) > 60) {
+      if (Math.abs(predict[frame].x - GROUND_HALF_WIDTH) > 80) {
         return false;
       }
-      if (predict[frame].y > playery) {
+      if (
+        Math.abs(predict[frame].y - otherPlayerYpredict(player, frame)) <=
+        PLAYER_HALF_LENGTH
+      ) {
         return true;
       }
     }
-    speed += 1;
   }
   return false;
 }
@@ -1405,7 +1404,8 @@ function letAIDecideUserInput(player, ball, theOtherPlayer, userInput) {
       }
       if (
         player.state > 0 &&
-        player.yVelocity < 16 &&
+        player.yVelocity < 17 &&
+        !(player.yVelocity === 16 && player.y === 244) &&
         !player.isCollisionWithBallHappened
       ) {
         // jumping defense
@@ -1498,7 +1498,8 @@ function letAIDecideUserInput(player, ball, theOtherPlayer, userInput) {
           player.goodtime !== 0 &&
           !player.fancy &&
           player.state > 0 &&
-          player.yVelocity < 16 &&
+          player.yVelocity < 17 &&
+          !(player.yVelocity === 16 && player.y === 244) &&
           Math.abs(playerYpredict(player, 0) - ball.y) <= PLAYER_HALF_LENGTH &&
           Math.abs(player.x - ball.x) <= PLAYER_HALF_LENGTH + 6 &&
           sameside(player, ball.x) &&
@@ -1554,7 +1555,8 @@ function letAIDecideUserInput(player, ball, theOtherPlayer, userInput) {
                 ) > PLAYER_HALF_LENGTH &&
                 Math.abs(predictball.x - player.x) <=
                   6 * predictframe + PLAYER_HALF_LENGTH + 6 &&
-                predictframe - 10000 <= shortPath
+                Math.abs(player.x - flatX) > PLAYER_HALF_LENGTH - 12 &&
+                predictframe - 10000 < shortPath
               ) {
                 console.log(
                   predict[predictframe - 1].y,
@@ -1593,7 +1595,7 @@ function letAIDecideUserInput(player, ball, theOtherPlayer, userInput) {
                 ) > PLAYER_HALF_LENGTH &&
                 Math.abs(predictball.x - player.x) <=
                   6 * predictframe + PLAYER_HALF_LENGTH + 6 &&
-                predictframe - 100 <= shortPath &&
+                predictframe - 100 < shortPath &&
                 !(
                   Math.abs(predictball.x - GROUND_HALF_WIDTH) > 20 ||
                   predictball.y > 176
@@ -1673,6 +1675,7 @@ function letAIDecideUserInput(player, ball, theOtherPlayer, userInput) {
                 ) <= PLAYER_HALF_LENGTH &&
                 Math.abs(predictball.x - player.x) <=
                   6 * predictframe + PLAYER_HALF_LENGTH + 6 &&
+                Math.abs(player.x - flatX) > PLAYER_HALF_LENGTH - 12 &&
                 predictframe - 1000 <= shortPath
               ) {
                 shortPath = predictframe - 1000;
@@ -1750,7 +1753,10 @@ function letAIDecideUserInput(player, ball, theOtherPlayer, userInput) {
           }
 
           // normal
-          if (shortPath > -1) {
+          if (
+            shortPath > -1 &&
+            !(player.state === 1 && player.yVelocity === 16)
+          ) {
             for (let direct = 0; direct < 6; direct++) {
               if (
                 Math.abs(player.x - ball.x) > PLAYER_HALF_LENGTH &&
@@ -1762,7 +1768,7 @@ function letAIDecideUserInput(player, ball, theOtherPlayer, userInput) {
               if (
                 (samesideloss(theOtherPlayer, predict[predict.length - 1].x) ||
                   (player.state === 2 && predict.length > 20)) &&
-                predict.length <= shortPath
+                predict.length < shortPath
               ) {
                 shortPath = predict.length;
                 player.goodtime = 0;
@@ -1950,7 +1956,7 @@ function letAIDecideUserInput(player, ball, theOtherPlayer, userInput) {
                         PLAYER_LENGTH &&
                       Math.abs(predictball.x - copyball.x) <=
                         6 * predictframe + PLAYER_LENGTH &&
-                      predictframe - 1000 <= shortPath
+                      predictframe - 1000 < shortPath
                     ) {
                       shortPath = predictframe - 1000;
                       player.goodtime = frame;
@@ -1995,10 +2001,14 @@ function letAIDecideUserInput(player, ball, theOtherPlayer, userInput) {
                 frame > 20 &&
                 Math.abs(copyball.x - GROUND_HALF_WIDTH) < 61 &&
                 playerYpredict(player, frame) !== 244 &&
-                (copyball.xVelocity === 0 ||
+                (Math.abs(copyball.xVelocity) < 2 ||
                   copyball.xVelocity > 0 === player.isPlayer2) &&
-                Math.abs(playerYpredict(player, frame) - copyball.y) <=
-                  PLAYER_HALF_LENGTH &&
+                Math.abs(
+                  playerYpredict(player, frame) +
+                    PLAYER_HALF_LENGTH / 4 -
+                    copyball.y
+                ) <=
+                  PLAYER_HALF_LENGTH / 2 &&
                 sameside(player, copyball.x) &&
                 Math.abs(player.x - copyball.x) <=
                   6 * frame + PLAYER_HALF_LENGTH
@@ -2088,7 +2098,7 @@ function letAIDecideUserInput(player, ball, theOtherPlayer, userInput) {
                       ) > PLAYER_HALF_LENGTH &&
                       Math.abs(predictball.x - copyball.x) <=
                         6 * predictframe + PLAYER_LENGTH + 6 &&
-                      predictframe - 10000 <= shortPath
+                      predictframe - 10000 < shortPath
                     ) {
                       shortPath = predictframe - 10000;
                       player.goodtime = frame;
@@ -2129,7 +2139,7 @@ function letAIDecideUserInput(player, ball, theOtherPlayer, userInput) {
                       ) > PLAYER_HALF_LENGTH &&
                       Math.abs(predictball.x - copyball.x) <=
                         6 * predictframe + PLAYER_LENGTH &&
-                      predictframe - 100 <= shortPath &&
+                      predictframe - 100 < shortPath &&
                       !(
                         Math.abs(predictball.x - GROUND_HALF_WIDTH) > 20 ||
                         predictball.y > 176
@@ -2547,7 +2557,10 @@ function letAIDecideUserInput(player, ball, theOtherPlayer, userInput) {
     // attack
     if (
       player.goodtime === 0 ||
-      (player.state > 0 && player.yVelocity < 16 && player.secondattack === 0)
+      (player.state > 0 &&
+        player.yVelocity < 17 &&
+        !(player.yVelocity === 16 && player.y === 244) &&
+        player.secondattack === 0)
     ) {
       userInput.powerHit = 1;
       if (!player.fancy) {
@@ -2596,7 +2609,7 @@ function letAIDecideUserInput(player, ball, theOtherPlayer, userInput) {
                 ) > PLAYER_HALF_LENGTH &&
                 Math.abs(predictball.x - player.x) <=
                   6 * predictframe + PLAYER_HALF_LENGTH + 6 &&
-                predictframe - 100 <= shortPath &&
+                predictframe - 100 < shortPath &&
                 !(
                   Math.abs(predictball.x - GROUND_HALF_WIDTH) > 20 ||
                   predictball.y > 176
