@@ -11,6 +11,9 @@ import seedrandom from 'seedrandom';
 import { true_rand, setCustomRng, rand } from './rand.js';
 import { Cloud, Wave } from './cloud_and_wave.js';
 
+/** @typedef {import('@pixi/display').Container} Container */
+/** @typedef {import('@pixi/loaders').LoaderResource} LoaderResource */
+
 /** @typedef GameState @type {function():void} */
 
 /**
@@ -19,15 +22,15 @@ import { Cloud, Wave } from './cloud_and_wave.js';
 export class PikachuVolleyball {
   /**
    * Create a Pikachu Volleyball game which includes physics, view, audio
-   * @param {PIXI.Container} stage container which is rendered by PIXI.Renderer or PIXI.CanvasRenderer
-   * @param {Object.<string,PIXI.LoaderResource>} resources resources property of the PIXI.Loader object which is used for loading the game resources
+   * @param {Container} stage container which is rendered by PIXI.Renderer or PIXI.CanvasRenderer
+   * @param {Object.<string,LoaderResource>} resources resources property of the PIXI.Loader object which is used for loading the game resources
    */
   constructor(stage, resources) {
     this.view = {
       intro: new IntroView(resources),
       menu: new MenuView(resources),
       game: new GameView(resources),
-      fadeInOut: new FadeInOut(),
+      fadeInOut: new FadeInOut(resources),
     };
     stage.addChild(this.view.intro.container);
     stage.addChild(this.view.menu.container);
@@ -287,7 +290,7 @@ export class PikachuVolleyball {
   }
 
   /**
-   * Delay before start of new game (This is for the dalay that exist in the original game)
+   * Delay before start of new game (This is for the delay that exist in the original game)
    * @type {GameState}
    */
   beforeStartOfNewGame() {

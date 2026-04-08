@@ -8,7 +8,7 @@
  * which is developed by "1997 (C) SACHI SOFT / SAWAYAKAN Programmers" & "1997 (C) Satoshi Takenouchi".
  *
  * "physics.js", "cloud_and_wave.js", and some codes in "view.js" are the results of this reverse engineering.
- * Refer the comments in each file for the machine code addresses of the original functions.
+ * Refer to the comments in each file for the machine code addresses of the original functions.
  ********************************************************************************************************************
  *
  * This web version game is mainly composed of three parts which follows MVC pattern.
@@ -18,7 +18,7 @@
  *                       Some codes in this part is gained by reverse engineering the original machine code.
  *  3) "pikavolley.js" (Controller): Make the game work by controlling the Model and the View according to the user input.
  *
- * And expainations for other source files are below.
+ * And explanations for other source files are below.
  *  - "cloud_and_wave.js": This is also a Model part which takes charge of the clouds and wave motion in the game. Of course, it is also rendered by "view.js".
  *                         It is also gained by reverse engineering the original machine code.
  *  - "keyboard.js": Support the Controller("pikavolley.js") to get a user input via keyboard.
@@ -28,8 +28,18 @@
  *  - "ui.js": For the user interface (menu bar, buttons etc.) of the html page.
  */
 'use strict';
-import * as PIXI from 'pixi.js-legacy';
-import 'pixi-sound';
+import { settings } from '@pixi/settings';
+import { SCALE_MODES } from '@pixi/constants';
+import { Renderer, BatchRenderer, autoDetectRenderer } from '@pixi/core';
+import { Prepare } from '@pixi/prepare';
+import { Container } from '@pixi/display';
+import { Loader } from '@pixi/loaders';
+import { SpritesheetLoader } from '@pixi/spritesheet';
+import { Ticker } from '@pixi/ticker';
+import { CanvasRenderer } from '@pixi/canvas-renderer';
+import { CanvasSpriteRenderer } from '@pixi/canvas-sprite';
+import { CanvasPrepare } from '@pixi/canvas-prepare';
+import '@pixi/canvas-display';
 import { PikachuVolleyball } from './pikavolley.js';
 import { ASSETS_PATH } from './assets_path.js';
 import { setUpUI } from './ui.js';
@@ -37,21 +47,40 @@ import { replaySaver } from './replay/replay_saver.js';
 import seedrandom from 'seedrandom';
 import { true_rand, setCustomRng } from './rand.js';
 
-const settings = PIXI.settings;
-settings.RESOLUTION = window.devicePixelRatio;
-settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
+// Reference for how to use Renderer.registerPlugin:
+// https://github.com/pixijs/pixijs/blob/af3c0c6bb15aeb1049178c972e4a14bb4cabfce4/bundles/pixi.js/src/index.ts#L27-L34
+Renderer.registerPlugin('prepare', Prepare);
+Renderer.registerPlugin('batch', BatchRenderer);
+// Reference for how to use CanvasRenderer.registerPlugin:
+// https://github.com/pixijs/pixijs/blob/af3c0c6bb15aeb1049178c972e4a14bb4cabfce4/bundles/pixi.js-legacy/src/index.ts#L13-L19
+CanvasRenderer.registerPlugin('prepare', CanvasPrepare);
+CanvasRenderer.registerPlugin('sprite', CanvasSpriteRenderer);
+Loader.registerPlugin(SpritesheetLoader);
+
+// Set settings.RESOLUTION to 2 instead of 1 to make the game screen do not look
+// much blurry in case of the image rendering mode of 'image-rendering: auto',
+// which is like bilinear interpolation, which is used in "soft" game graphic option.
+settings.RESOLUTION = 2;
+settings.SCALE_MODE = SCALE_MODES.NEAREST;
 settings.ROUND_PIXELS = true;
 
-const renderer = PIXI.autoDetectRenderer({
+const renderer = autoDetectRenderer({
   width: 432,
   height: 304,
   antialias: false,
   backgroundColor: 0x000000,
-  transparent: false,
+  backgroundAlpha: 1,
+  // Decided to use only Canvas for compatibility reason. One player had reported that
+  // on their browser, where pixi chooses to use WebGL renderer, the graphics are not fine.
+  // And the issue had been fixed by using Canvas renderer. And also for the sake of testing,
+  // it is more comfortable just to stick with Canvas renderer so that it is unnecessary to switch
+  // between WebGL renderer and Canvas renderer.
+  forceCanvas: true,
 });
-const stage = new PIXI.Container();
-const ticker = new PIXI.Ticker();
-const loader = new PIXI.Loader();
+
+const stage = new Container();
+const ticker = new Ticker();
+const loader = new Loader();
 
 renderer.view.setAttribute('id', 'game-canvas');
 document.getElementById('game-canvas-container').appendChild(renderer.view);
@@ -74,9 +103,7 @@ function setUpInitialUI() {
     progressBar.style.width = `${loader.progress}%`;
   });
   loader.onComplete.add(() => {
-    if (!loadingBox.classList.contains('hidden')) {
-      loadingBox.classList.add('hidden');
-    }
+    loadingBox.classList.add('hidden');
   });
 
   const aboutBox = document.getElementById('about-box');

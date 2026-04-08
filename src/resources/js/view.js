@@ -1,14 +1,19 @@
 /**
  * The View part in the MVC pattern
  *
- * Some codes in this module are gaind by reverse engineering the original machine code.
- * The codes gain by reverse engineering are commented by the refered funcion address in the machine code.
+ * Some codes in this module were gained by reverse engineering the original machine code.
+ * The codes gained by reverse engineering are commented by the address of the function referred to in the machine code.
  * ex) FUN_00405d50 means the function at the address 00405d50 in the machine code.
  */
 'use strict';
-import { Container, Sprite, AnimatedSprite, Graphics } from 'pixi.js-legacy';
+import { AnimatedSprite } from '@pixi/sprite-animated';
+import { Sprite } from '@pixi/sprite';
+import { Container } from '@pixi/display';
 import { Cloud, Wave, cloudAndWaveEngine } from './cloud_and_wave.js';
 import { ASSETS_PATH } from './assets_path.js';
+
+/** @typedef {import('@pixi/loaders').LoaderResource} LoaderResource */
+/** @typedef {import('@pixi/core').Texture} Texture */
 
 const TEXTURES = ASSETS_PATH.TEXTURES;
 
@@ -16,12 +21,12 @@ const TEXTURES = ASSETS_PATH.TEXTURES;
 const NUM_OF_CLOUDS = 10;
 
 /**
- * Class representing intro view where the man with a briefcase mark appers
+ * Class representing intro view where the man with a briefcase mark appears
  */
 export class IntroView {
   /**
    * Create an IntroView object
-   * @param {Object.<string,PIXI.LoaderResource>} resources loader.resources
+   * @param {Object.<string,LoaderResource>} resources loader.resources
    */
   constructor(resources) {
     const textures = resources[ASSETS_PATH.SPRITE_SHEET].textures;
@@ -68,7 +73,7 @@ export class IntroView {
 export class MenuView {
   /**
    * Create a MenuView object
-   * @param {Object.<string,PIXI.LoaderResource>} resources loader.resources
+   * @param {Object.<string,LoaderResource>} resources loader.resources
    */
   constructor(resources) {
     const textures = resources[ASSETS_PATH.SPRITE_SHEET].textures;
@@ -91,11 +96,11 @@ export class MenuView {
     this.sittingPikachuTilesContainer =
       makeSittingPikachuTilesContainer(textures);
 
-    // refered FUN_004059f0
+    // referred to FUN_004059f0
     this.messages.sachisoft.x = 216 - this.messages.sachisoft.texture.width / 2;
     this.messages.sachisoft.y = 264;
 
-    // refered FUN_00405b70
+    // referred to FUN_00405b70
     this.messages.pikachuVolleyball.x = 140;
     this.messages.pikachuVolleyball.y = 80;
     this.messages.pokemon.x = 170;
@@ -138,7 +143,7 @@ export class MenuView {
   }
 
   /**
-   * refered FUN_00405d50
+   * referred to FUN_00405d50
    * Draw "fight!" message which get bigger and smaller as frame goes
    * @param {number} frameCounter
    */
@@ -157,7 +162,7 @@ export class MenuView {
       const halfHeight = Math.floor(Math.floor((frameCounter * h) / 30) / 2);
       fightMessage.width = halfWidth * 2; // width
       fightMessage.height = halfHeight * 2; // height
-      fightMessage.x = 100 - halfWidth; // x coor
+      fightMessage.x = 100 - halfWidth; // x coord
       fightMessage.y = 70 - halfHeight; // y coord
     } else {
       const index = (frameCounter + 1) % 9;
@@ -167,7 +172,7 @@ export class MenuView {
         Math.floor((sizeArray[index] * h) / 30) / 2
       );
       fightMessage.width = halfWidth * 2; // width
-      fightMessage.height = halfHeight * 2; // heigth
+      fightMessage.height = halfHeight * 2; // height
       fightMessage.y = 70 - halfHeight; // y coord
       fightMessage.x = 100 - halfWidth; // x coord
     }
@@ -193,7 +198,7 @@ export class MenuView {
   }
 
   /**
-   * refered FUN_00405ca0
+   * referred to FUN_00405ca0
    * Draw sitting pikachu tiles as frame goes
    * @param {number} frameCounter
    */
@@ -225,7 +230,7 @@ export class MenuView {
   }
 
   /**
-   * refered FUN_00405b70
+   * referred to FUN_00405b70
    * Draw pikachu volleyball message as frame goes
    * @param {number} frameCounter
    */
@@ -256,7 +261,7 @@ export class MenuView {
   }
 
   /**
-   * refered FUN_00405b70
+   * referred to FUN_00405b70
    * Draw pokemon message as frame goes
    * @param {number} frameCounter
    */
@@ -272,7 +277,7 @@ export class MenuView {
   }
 
   /**
-   * refered FUN_00405ec0
+   * referred to FUN_00405ec0
    * Draw with who messages (with computer or with friend) as frame goes
    * @param {number} frameCounter
    */
@@ -324,7 +329,7 @@ export class MenuView {
 export class GameView {
   /**
    * Create a GameView object
-   * @param {Object.<string,PIXI.LoaderResource>} resources
+   * @param {Object.<string,LoaderResource>} resources
    */
   constructor(resources) {
     const textures = resources[ASSETS_PATH.SPRITE_SHEET].textures;
@@ -389,7 +394,7 @@ export class GameView {
     // this.exp.drawRect(0, 0, 40, 10);
     // this.exp.y = 255;
 
-    // container which include whold display objects
+    // container which include whole display objects
     // Should be careful on addChild order
     // The later added, the more front(z-index) on screen
     this.container = new Container();
@@ -432,7 +437,7 @@ export class GameView {
     this.messages.ready.y = 38;
     this.scoreBoards[0].x = 14; // score board is 14 pixel distant from boundary
     this.scoreBoards[0].y = 10;
-    this.scoreBoards[1].x = 432 - 32 - 32 - 14; // 32 pixel is for number (32x32px) width; one score board has tow numbers
+    this.scoreBoards[1].x = 432 - 32 - 32 - 14; // 32 pixel is for number (32x32px) width; one score board has two numbers
     this.scoreBoards[1].y = 10;
 
     this.shadows.forPlayer1.y = 273;
@@ -715,11 +720,11 @@ export class GameView {
  * Class representing fade in out effect
  */
 export class FadeInOut {
-  constructor() {
-    this.black = new Graphics();
-    this.black.beginFill(0x000000);
-    this.black.drawRect(0, 0, 432, 304);
-    this.black.endFill();
+  constructor(resources) {
+    const textures = resources[ASSETS_PATH.SPRITE_SHEET].textures;
+    this.black = makeSpriteWithAnchorXY(textures, TEXTURES.BLACK, 0, 0);
+    this.black.width = 432;
+    this.black.height = 304;
     this.black.x = 0;
     this.black.y = 0;
     this.black.alpha = 1;
@@ -768,8 +773,8 @@ export class FadeInOut {
 
 /**
  * Make sitting pikachu tiles
- * @param {Object.<string,PIXI.Texture>} textures
- * @return {PIXI.Container}
+ * @param {Object.<string,Texture>} textures
+ * @return {Container}
  */
 function makeSittingPikachuTilesContainer(textures) {
   const container = new Container();
@@ -790,8 +795,8 @@ function makeSittingPikachuTilesContainer(textures) {
 
 /**
  * Make background
- * @param {Object.<string,PIXI.Texture>} textures
- * @return {PIXI.Container}
+ * @param {Object.<string,Texture>} textures
+ * @return {Container}
  */
 function makeBGContainer(textures) {
   const bgContainer = new Container();
@@ -860,8 +865,8 @@ function makeBGContainer(textures) {
 
 /**
  * Make animated sprites for both players
- * @param {Object.<string,PIXI.Texture>} textures
- * @return {PIXI.AnimatedSprite[]} [0] for player 1, [1] for player2
+ * @param {Object.<string,Texture>} textures
+ * @return {AnimatedSprite[]} [0] for player 1, [1] for player2
  */
 function makePlayerAnimatedSprites(textures) {
   const getPlayerTexture = (i, j) => textures[TEXTURES.PIKACHU(i, j)];
@@ -891,8 +896,8 @@ function makePlayerAnimatedSprites(textures) {
 
 /**
  * Make animated sprite of ball
- * @param {Object.<string,PIXI.Texture>} textures
- * @return {PIXI.AnimatedSprite}
+ * @param {Object.<string,Texture>} textures
+ * @return {AnimatedSprite}
  */
 function makeBallAnimatedSprites(textures) {
   const getBallTexture = (s) => textures[TEXTURES.BALL(s)];
@@ -914,11 +919,11 @@ function makeBallAnimatedSprites(textures) {
 
 /**
  * Make sprite with the texture on the path and with the given anchor x, y
- * @param {Object.<string,PIXI.Texture>} textures
+ * @param {Object.<string,Texture>} textures
  * @param {string} path
  * @param {number} anchorX anchor.x, number in [0, 1]
  * @param {number} anchorY anchor.y, number in [0, 1]
- * @return {PIXI.Sprite}
+ * @return {Sprite}
  */
 function makeSpriteWithAnchorXY(textures, path, anchorX, anchorY) {
   const sprite = new Sprite(textures[path]);
@@ -929,8 +934,8 @@ function makeSpriteWithAnchorXY(textures, path, anchorX, anchorY) {
 
 /**
  * Make score boards
- * @param {Object.<string,PIXI.Texture>} textures
- * @return {PIXI.Container} child with index 0 for player 1 score board, child with index 1 for player2 score board
+ * @param {Object.<string,Texture>} textures
+ * @return {Container} child with index 0 for player 1 score board, child with index 1 for player2 score board
  */
 function makeScoreBoardSprite(textures) {
   const getNumberTexture = (n) => textures[TEXTURES.NUMBER(n)];
@@ -964,8 +969,8 @@ function makeScoreBoardSprite(textures) {
 
 /**
  * Make a container with cloud sprites
- * @param {Object.<string,PIXI.Texture>} textures
- * @return {PIXI.Container}
+ * @param {Object.<string,Texture>} textures
+ * @return {Container}
  */
 function makeCloudContainer(textures) {
   const cloudContainer = new Container();
@@ -982,8 +987,8 @@ function makeCloudContainer(textures) {
 
 /**
  * Make a container with wave sprites
- * @param {Object.<string,PIXI.Texture>} textures
- * @return {PIXI.Container}
+ * @param {Object.<string,Texture>} textures
+ * @return {Container}
  */
 function makeWaveContainer(textures) {
   const waveContainer = new Container();
@@ -998,8 +1003,8 @@ function makeWaveContainer(textures) {
 
 /**
  * Add child to parent and set local position
- * @param {PIXI.Container} parent
- * @param {PIXI.Sprite} child
+ * @param {Container} parent
+ * @param {Sprite} child
  * @param {number} x local x
  * @param {number} y local y
  */

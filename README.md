@@ -16,11 +16,40 @@ You can play this game on the website: https://pika.duckll.tw/
 
 _&check;_ _English_ | [_Korean(한국어)_](README.ko.md)
 
-Pikachu Volleyball (対戦ぴかちゅ～　ﾋﾞｰﾁﾊﾞﾚｰ編) is an old Windows game which was developed by "(C) SACHI SOFT / SAWAYAKAN Programmers" and "(C) Satoshi Takenouchi" in 1997. The source code on this repository is gained by reverse engineering the core part of the machine code &mdash; including the physics engine and the AI &mdash; of the original game and implementing it into JavaScript.
+Pikachu Volleyball (対戦ぴかちゅ～　ﾋﾞｰﾁﾊﾞﾚｰ編) is an old Windows game that was developed by "(C) SACHI SOFT / SAWAYAKAN Programmers" and "(C) Satoshi Takenouchi" in 1997. The source code on this repository was obtained by reverse engineering the core parts of the machine code &mdash; including the physics engine and the AI &mdash; of the original game and reimplementing them in JavaScript.
 
 You can play this game on the website: https://gorisanson.github.io/pikachu-volleyball/en/
 
 <img src="src/resources/assets/images/screenshot.png" alt="Pikachu Volleyball game screenshot" width="648">
+
+## How to run locally
+
+1. Clone this repository and get into the directory.
+
+```sh
+git clone https://github.com/gorisanson/pikachu-volleyball.git
+cd pikachu-volleyball
+```
+
+2. Install dependencies. (If errors occur, you can try with `node v16` and `npm v8`.)
+
+```sh
+npm install
+```
+
+3. Bundle the code.
+
+```sh
+npm run build
+```
+
+4. Run a local web server.
+
+```sh
+npx http-server dist
+```
+
+5. Connect to the local web server on a web browser. (In most cases, the URL for connecting to the server would be `http://localhost:8080`. For the exact URL, it is supposed to be found on the printed messages on your terminal.)
 
 ## Game structure
 
@@ -30,7 +59,7 @@ You can play this game on the website: https://gorisanson.github.io/pikachu-voll
 
 Refer comments on [`src/resources/js/main.js`](src/resources/js/main.js) for other details.
 
-## Reverse Engineering Method
+## Methods used for reverse engineering
 
 The main tools used for reverse engineering are following.
 
