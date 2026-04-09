@@ -77,3 +77,89 @@ test('physics AI helper semantics preserve player-side comparisons', () => {
     /function isTargetInFrontOfOriginForPlayer\(player, originX, targetX\) {\s+return \(targetX < originX\) === player\.isPlayer2;\s+}/
   );
 });
+
+test('other-player Y prediction is split by engine-order state', () => {
+  assert.match(
+    physicsSource,
+    /function otherPlayerYpredictBeforeMove\(otherPlayer, frame\) {/
+  );
+  assert.match(
+    physicsSource,
+    /function otherPlayerYpredictAfterMove\(otherPlayer, frame\) {/
+  );
+  assert.match(
+    physicsSource,
+    /function otherPlayerYpredictByEngineOrder\(otherPlayer, frame\) {\s+return otherPlayer\.isPlayer2\s+\?\s+otherPlayerYpredictBeforeMove\(otherPlayer, frame\)\s+:\s+otherPlayerYpredictAfterMove\(otherPlayer, frame\);\s+}/
+  );
+  assert.doesNotMatch(physicsSource, /function otherPlayerYpredict\(player, frame\) {/);
+});
+
+test('other-player already-moved Y prediction clamps to the ground', () => {
+  assert.match(
+    physicsSource,
+    /function otherPlayerYpredictAfterMove\(otherPlayer, frame\) \{[\s\S]*if \(realY > PLAYER_TOUCHING_GROUND_Y_COORD\) \{\s*realY = PLAYER_TOUCHING_GROUND_Y_COORD;\s*\}[\s\S]*return realY;[\s\S]*\}/
+  );
+});
+
+test('cantouch logic is split into self and other-player helpers', () => {
+  assert.match(physicsSource, /function cantouchSelf\(player, copyball, frame\) {/);
+  assert.match(
+    physicsSource,
+    /function cantouchOtherPlayer\(otherPlayer, copyball, frame\) {/
+  );
+  assert.doesNotMatch(physicsSource, /function cantouch\(player, copyball, frame\) {/);
+});
+
+test('AI touch prediction uses the split self and other-player helpers', () => {
+  assert.match(
+    physicsSource,
+    /!sameside\(theOtherPlayer, copyball\.x\)\s*&&\s*cantouchSelf\(player, copyball, frame\)/
+  );
+  assert.match(
+    physicsSource,
+    /if \(cantouchOtherPlayer\(theOtherPlayer, copyball, frame\)\) \{/
+  );
+});
+
+test('canblock logic keeps only the other-player helper', () => {
+  assert.match(
+    physicsSource,
+    /function canblockOtherPlayer\(otherPlayer, predict\) {/
+  );
+  assert.doesNotMatch(physicsSource, /function canblockSelf\(player, predict\) {/);
+  assert.doesNotMatch(physicsSource, /function canblock\(player, predict\) {/);
+});
+
+test('canblockPredict logic keeps only the other-player helper', () => {
+  assert.match(
+    physicsSource,
+    /function canblockPredictOtherPlayer\(otherPlayer, predict\) {/
+  );
+  assert.doesNotMatch(
+    physicsSource,
+    /function canblockPredictSelf\(player, predict\) {/
+  );
+  assert.doesNotMatch(
+    physicsSource,
+    /function canblockPredict\(player, predict\) {/
+  );
+});
+
+test('AI block prediction uses the split other-player block helpers', () => {
+  assert.match(
+    physicsSource,
+    /canblockPredictOtherPlayer\(\s*theOtherPlayer,\s*copyball\.predict\[player\.direction\]\s*\)/
+  );
+  assert.match(
+    physicsSource,
+    /direct > 3[\s\S]*!canblockPredictOtherPlayer\(theOtherPlayer, predict\)/
+  );
+  assert.match(
+    physicsSource,
+    /canblockOtherPlayer\(\s*theOtherPlayer,\s*copyball\.predict\[player\.direction\]\s*\)/
+  );
+  assert.match(
+    physicsSource,
+    /\|\|[\s\S]*!canblockOtherPlayer\(theOtherPlayer, predict\)/
+  );
+});
