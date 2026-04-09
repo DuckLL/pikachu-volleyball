@@ -3,7 +3,13 @@
     "module": "es6",
     "target": "es6",
     "moduleResolution": "node",
-    "checkJs": true
+    "checkJs": true,
+    "strict": false,
+    "strictNullChecks": false,
+    "strictPropertyInitialization": false,
+    "noUncheckedIndexedAccess": false,
+    "exactOptionalPropertyTypes": false,
+    "noImplicitAny": false
   },
   "include": ["src/**/*"]
 }
