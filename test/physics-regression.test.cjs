@@ -12,6 +12,14 @@ const physicsPath = path.join(
   'physics.js'
 );
 const physicsSource = fs.readFileSync(physicsPath, 'utf8');
+const zhIndexPath = path.join(__dirname, '..', 'src', 'zh', 'index.html');
+const enIndexPath = path.join(__dirname, '..', 'src', 'en', 'index.html');
+const koIndexPath = path.join(__dirname, '..', 'src', 'ko', 'index.html');
+const zhIndexSource = fs.readFileSync(zhIndexPath, 'utf8');
+const enIndexSource = fs.readFileSync(enIndexPath, 'utf8');
+const koIndexSource = fs.readFileSync(koIndexPath, 'utf8');
+const uiPath = path.join(__dirname, '..', 'src', 'resources', 'js', 'ui.js');
+const uiSource = fs.readFileSync(uiPath, 'utf8');
 
 test('physics engine no longer logs ball state every frame', () => {
   assert.doesNotMatch(
@@ -161,5 +169,49 @@ test('AI block prediction uses the split other-player block helpers', () => {
   assert.match(
     physicsSource,
     /\|\|[\s\S]*!canblockOtherPlayer\(theOtherPlayer, predict\)/
+  );
+});
+
+test('zh index includes restored graphic option controls', () => {
+  assert.match(zhIndexSource, /id="graphic-submenu-btn"/);
+  assert.match(zhIndexSource, /id="graphic-sharp-btn"/);
+  assert.match(zhIndexSource, /id="graphic-soft-btn"/);
+  assert.match(zhIndexSource, /id="reset-to-default-btn"/);
+});
+
+test('en index includes restored graphic option controls', () => {
+  assert.match(enIndexSource, /id="graphic-submenu-btn"/);
+  assert.match(enIndexSource, /id="graphic-sharp-btn"/);
+  assert.match(enIndexSource, /id="graphic-soft-btn"/);
+  assert.match(enIndexSource, /id="reset-to-default-btn"/);
+});
+
+test('ko index includes restored graphic option controls', () => {
+  assert.match(koIndexSource, /id="graphic-submenu-btn"/);
+  assert.match(koIndexSource, /id="graphic-sharp-btn"/);
+  assert.match(koIndexSource, /id="graphic-soft-btn"/);
+  assert.match(koIndexSource, /id="reset-to-default-btn"/);
+});
+
+test('ui.js wires restored graphic controls, persistence, and reset behavior', () => {
+  assert.match(
+    uiSource,
+    /document\.getElementById\('game-canvas'\)\.classList\.remove\('graphic-soft'\)/
+  );
+  assert.match(
+    uiSource,
+    /document\.getElementById\('game-canvas'\)\.classList\.add\('graphic-soft'\)/
+  );
+  assert.match(
+    uiSource,
+    /localStorage\.getItem\('pv-offline-graphic'\)/
+  );
+  assert.match(
+    uiSource,
+    /localStorage\.setItem\('pv-offline-graphic',\s*options\.graphic\)/
+  );
+  assert.match(
+    uiSource,
+    /document\s*\.\s*getElementById\('reset-to-default-btn'\)\s*\.\s*addEventListener\('click'/
   );
 });

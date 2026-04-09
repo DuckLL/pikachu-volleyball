@@ -7,6 +7,7 @@ import { replaySaver } from './replay/replay_saver.js';
 
 /** @typedef {import('./pikavolley.js').PikachuVolleyball} PikachuVolleyball */
 /** @typedef {import('pixi.js-legacy').Ticker} Ticker */
+/** @typedef {{graphic?: string, bgm?: string, sfx?: string, speed?: string, winningScore?: string}} SharedOptions */
 export var SkillTypeForPlayer1Available = [
   true,
   true,
@@ -68,6 +69,52 @@ const PauseResumePrecedence = {
   notPaused: 0,
 };
 
+const DEFAULT_SHARED_OPTIONS = {
+  graphic: 'sharp',
+  bgm: 'off',
+  sfx: 'stereo',
+  speed: 'fast',
+  winningScore: '15',
+};
+
+const SHARED_OPTION_BUTTON_GROUPS = {
+  graphic: ['graphic-sharp-btn', 'graphic-soft-btn'],
+  bgm: ['bgm-on-btn', 'bgm-off-btn'],
+  sfx: ['stereo-btn', 'mono-btn', 'sfx-off-btn'],
+  speed: ['slow-speed-btn', 'medium-speed-btn', 'fast-speed-btn'],
+  winningScore: [
+    'winning-score-5-btn',
+    'winning-score-10-btn',
+    'winning-score-15-btn',
+  ],
+};
+
+const SHARED_OPTION_BUTTON_IDS = {
+  graphic: {
+    sharp: 'graphic-sharp-btn',
+    soft: 'graphic-soft-btn',
+  },
+  bgm: {
+    on: 'bgm-on-btn',
+    off: 'bgm-off-btn',
+  },
+  sfx: {
+    stereo: 'stereo-btn',
+    mono: 'mono-btn',
+    off: 'sfx-off-btn',
+  },
+  speed: {
+    slow: 'slow-speed-btn',
+    medium: 'medium-speed-btn',
+    fast: 'fast-speed-btn',
+  },
+  winningScore: {
+    '5': 'winning-score-5-btn',
+    '10': 'winning-score-10-btn',
+    '15': 'winning-score-15-btn',
+  },
+};
+
 /**
  * Manages pausing and resuming of the game
  */
@@ -105,7 +152,139 @@ const pauseResumeManager = {
  * @param {Ticker} ticker
  */
 export function setUpUI(pikaVolley, ticker) {
-  setUpBtns(pikaVolley, ticker);
+  /**
+   * @param {SharedOptions} options
+   */
+  const setSelectedOptionsBtn = (options) => {
+    for (const [optionName, buttonIds] of Object.entries(
+      SHARED_OPTION_BUTTON_GROUPS
+    )) {
+      const optionValue = options[optionName];
+      if (!optionValue) {
+        continue;
+      }
+      for (const buttonId of buttonIds) {
+        document.getElementById(buttonId).classList.remove('selected');
+      }
+      const selectedButtonId = SHARED_OPTION_BUTTON_IDS[optionName][optionValue];
+      if (selectedButtonId) {
+        document.getElementById(selectedButtonId).classList.add('selected');
+      }
+    }
+  };
+
+  /**
+   * @param {SharedOptions} options
+   */
+  const applyOptions = (options) => {
+    setSelectedOptionsBtn(options);
+    switch (options.graphic) {
+      case 'sharp':
+        document.getElementById('game-canvas').classList.remove('graphic-soft');
+        break;
+      case 'soft':
+        document.getElementById('game-canvas').classList.add('graphic-soft');
+        break;
+    }
+    switch (options.bgm) {
+      case 'on':
+        pikaVolley.audio.turnBGMVolume(true);
+        break;
+      case 'off':
+        pikaVolley.audio.turnBGMVolume(false);
+        break;
+    }
+    switch (options.sfx) {
+      case 'stereo':
+        pikaVolley.audio.turnSFXVolume(true);
+        pikaVolley.isStereoSound = true;
+        break;
+      case 'mono':
+        pikaVolley.audio.turnSFXVolume(true);
+        pikaVolley.isStereoSound = false;
+        break;
+      case 'off':
+        pikaVolley.audio.turnSFXVolume(false);
+        break;
+    }
+    switch (options.speed) {
+      case 'slow':
+        pikaVolley.normalFPS = 20;
+        ticker.maxFPS = pikaVolley.normalFPS;
+        break;
+      case 'medium':
+        pikaVolley.normalFPS = 25;
+        ticker.maxFPS = pikaVolley.normalFPS;
+        break;
+      case 'fast':
+        pikaVolley.normalFPS = 30;
+        ticker.maxFPS = pikaVolley.normalFPS;
+        break;
+    }
+    switch (options.winningScore) {
+      case '5':
+        pikaVolley.winningScore = 5;
+        break;
+      case '10':
+        pikaVolley.winningScore = 10;
+        break;
+      case '15':
+        pikaVolley.winningScore = 15;
+        break;
+    }
+  };
+
+  /**
+   * @param {SharedOptions} options
+   */
+  const saveOptions = (options) => {
+    setSelectedOptionsBtn(options);
+    if (options.graphic) {
+      localStorage.setItem('pv-offline-graphic', options.graphic);
+    }
+    if (options.bgm) {
+      localStorage.setItem('pv-offline-bgm', options.bgm);
+    }
+    if (options.sfx) {
+      localStorage.setItem('pv-offline-sfx', options.sfx);
+    }
+    if (options.speed) {
+      localStorage.setItem('pv-offline-speed', options.speed);
+    }
+    if (options.winningScore) {
+      localStorage.setItem('pv-offline-winningScore', options.winningScore);
+    }
+  };
+
+  /**
+   * @returns {SharedOptions}
+   */
+  const loadOptions = () => ({
+    graphic:
+      localStorage.getItem('pv-offline-graphic') ||
+      DEFAULT_SHARED_OPTIONS.graphic,
+    bgm:
+      localStorage.getItem('pv-offline-bgm') || DEFAULT_SHARED_OPTIONS.bgm,
+    sfx:
+      localStorage.getItem('pv-offline-sfx') || DEFAULT_SHARED_OPTIONS.sfx,
+    speed:
+      localStorage.getItem('pv-offline-speed') || DEFAULT_SHARED_OPTIONS.speed,
+    winningScore:
+      localStorage.getItem('pv-offline-winningScore') ||
+      DEFAULT_SHARED_OPTIONS.winningScore,
+  });
+
+  /**
+   * @param {SharedOptions} options
+   */
+  const applyAndSaveOptions = (options) => {
+    applyOptions(options);
+    saveOptions(options);
+  };
+
+  applyOptions(loadOptions());
+
+  setUpBtns(pikaVolley, ticker, applyAndSaveOptions);
   setUpToShowDropdownsAndSubmenus(pikaVolley);
 
   // hide or show menubar if the user presses the "esc" key
@@ -131,8 +310,9 @@ export function setUpUI(pikaVolley, ticker) {
  * Attach event listeners to the buttons
  * @param {PikachuVolleyball} pikaVolley
  * @param {Ticker} ticker
+ * @param {(options: SharedOptions) => void} applyAndSaveOptions
  */
-function setUpBtns(pikaVolley, ticker) {
+function setUpBtns(pikaVolley, ticker, applyAndSaveOptions) {
   const gameDropdownBtn = document.getElementById('game-dropdown-btn');
   const optionsDropdownBtn = document.getElementById('options-dropdown-btn');
   const aboutBtn = document.getElementById('about-btn');
@@ -163,41 +343,35 @@ function setUpBtns(pikaVolley, ticker) {
     pikaVolley.restart();
   });
 
+  const graphicSharpBtn = document.getElementById('graphic-sharp-btn');
+  const graphicSoftBtn = document.getElementById('graphic-soft-btn');
+  graphicSharpBtn.addEventListener('click', () => {
+    applyAndSaveOptions({ graphic: 'sharp' });
+  });
+  graphicSoftBtn.addEventListener('click', () => {
+    applyAndSaveOptions({ graphic: 'soft' });
+  });
+
   const bgmOnBtn = document.getElementById('bgm-on-btn');
   const bgmOffBtn = document.getElementById('bgm-off-btn');
   bgmOnBtn.addEventListener('click', () => {
-    bgmOffBtn.classList.remove('selected');
-    bgmOnBtn.classList.add('selected');
-    pikaVolley.audio.turnBGMVolume(true);
+    applyAndSaveOptions({ bgm: 'on' });
   });
   bgmOffBtn.addEventListener('click', () => {
-    bgmOnBtn.classList.remove('selected');
-    bgmOffBtn.classList.add('selected');
-    pikaVolley.audio.turnBGMVolume(false);
+    applyAndSaveOptions({ bgm: 'off' });
   });
 
   const stereoBtn = document.getElementById('stereo-btn');
   const monoBtn = document.getElementById('mono-btn');
   const sfxOffBtn = document.getElementById('sfx-off-btn');
   stereoBtn.addEventListener('click', () => {
-    monoBtn.classList.remove('selected');
-    sfxOffBtn.classList.remove('selected');
-    stereoBtn.classList.add('selected');
-    pikaVolley.audio.turnSFXVolume(true);
-    pikaVolley.isStereoSound = true;
+    applyAndSaveOptions({ sfx: 'stereo' });
   });
   monoBtn.addEventListener('click', () => {
-    sfxOffBtn.classList.remove('selected');
-    stereoBtn.classList.remove('selected');
-    monoBtn.classList.add('selected');
-    pikaVolley.audio.turnSFXVolume(true);
-    pikaVolley.isStereoSound = false;
+    applyAndSaveOptions({ sfx: 'mono' });
   });
   sfxOffBtn.addEventListener('click', () => {
-    stereoBtn.classList.remove('selected');
-    monoBtn.classList.remove('selected');
-    sfxOffBtn.classList.add('selected');
-    pikaVolley.audio.turnSFXVolume(false);
+    applyAndSaveOptions({ sfx: 'off' });
   });
 
   // Game speed:
@@ -208,36 +382,21 @@ function setUpBtns(pikaVolley, ticker) {
   const mediumSpeedBtn = document.getElementById('medium-speed-btn');
   const fastSpeedBtn = document.getElementById('fast-speed-btn');
   slowSpeedBtn.addEventListener('click', () => {
-    mediumSpeedBtn.classList.remove('selected');
-    fastSpeedBtn.classList.remove('selected');
-    slowSpeedBtn.classList.add('selected');
-
-    pikaVolley.normalFPS = 20;
-    ticker.maxFPS = pikaVolley.normalFPS;
+    applyAndSaveOptions({ speed: 'slow' });
     replaySaver.recordOptions({
       speed: 'slow',
       winningScore: pikaVolley.winningScore,
     });
   });
   mediumSpeedBtn.addEventListener('click', () => {
-    fastSpeedBtn.classList.remove('selected');
-    slowSpeedBtn.classList.remove('selected');
-    mediumSpeedBtn.classList.add('selected');
-
-    pikaVolley.normalFPS = 25;
-    ticker.maxFPS = pikaVolley.normalFPS;
+    applyAndSaveOptions({ speed: 'medium' });
     replaySaver.recordOptions({
       speed: 'medium',
       winningScore: pikaVolley.winningScore,
     });
   });
   fastSpeedBtn.addEventListener('click', () => {
-    slowSpeedBtn.classList.remove('selected');
-    mediumSpeedBtn.classList.remove('selected');
-    fastSpeedBtn.classList.add('selected');
-
-    pikaVolley.normalFPS = 30;
-    ticker.maxFPS = pikaVolley.normalFPS;
+    applyAndSaveOptions({ speed: 'fast' });
     replaySaver.recordOptions({
       speed: 'fast',
       winningScore: pikaVolley.winningScore,
@@ -295,10 +454,7 @@ function setUpBtns(pikaVolley, ticker) {
       pauseResumeManager.pause(pikaVolley, PauseResumePrecedence.messageBox);
       return;
     }
-    winningScore10Btn.classList.remove('selected');
-    winningScore15Btn.classList.remove('selected');
-    winningScore5Btn.classList.add('selected');
-    pikaVolley.winningScore = 5;
+    applyAndSaveOptions({ winningScore: '5' });
     replaySaver.recordOptions({
       speed:
         pikaVolley.normalFPS === 30
@@ -336,10 +492,7 @@ function setUpBtns(pikaVolley, ticker) {
       pauseResumeManager.pause(pikaVolley, PauseResumePrecedence.messageBox);
       return;
     }
-    winningScore5Btn.classList.remove('selected');
-    winningScore15Btn.classList.remove('selected');
-    winningScore10Btn.classList.add('selected');
-    pikaVolley.winningScore = 10;
+    applyAndSaveOptions({ winningScore: '10' });
     replaySaver.recordOptions({
       speed:
         pikaVolley.normalFPS === 30
@@ -377,10 +530,7 @@ function setUpBtns(pikaVolley, ticker) {
       pauseResumeManager.pause(pikaVolley, PauseResumePrecedence.messageBox);
       return;
     }
-    winningScore5Btn.classList.remove('selected');
-    winningScore10Btn.classList.remove('selected');
-    winningScore15Btn.classList.add('selected');
-    pikaVolley.winningScore = 15;
+    applyAndSaveOptions({ winningScore: '15' });
     replaySaver.recordOptions({
       speed:
         pikaVolley.normalFPS === 30
@@ -430,6 +580,12 @@ function setUpBtns(pikaVolley, ticker) {
     practiceModeOffBtn.classList.add('selected');
     pikaVolley.isPracticeMode = false;
   });
+
+  document
+    .getElementById('reset-to-default-btn')
+    .addEventListener('click', () => {
+      applyAndSaveOptions(DEFAULT_SHARED_OPTIONS);
+    });
 
   const aboutBox = document.getElementById('about-box');
   const closeAboutBtn = document.getElementById('close-about-btn');
@@ -490,6 +646,11 @@ function setUpToShowDropdownsAndSubmenus(pikaVolley) {
     });
   // set up to show submenus on mouseover event
   document
+    .getElementById('graphic-submenu-btn')
+    .addEventListener('mouseover', () => {
+      showSubmenu('graphic-submenu-btn', 'graphic-submenu');
+    });
+  document
     .getElementById('bgm-submenu-btn')
     .addEventListener('mouseover', () => {
       showSubmenu('bgm-submenu-btn', 'bgm-submenu');
@@ -516,6 +677,11 @@ function setUpToShowDropdownsAndSubmenus(pikaVolley) {
     });
   // set up to show submenus on click event
   // (it is for touch device equipped with physical keyboard)
+  document
+    .getElementById('graphic-submenu-btn')
+    .addEventListener('click', () => {
+      showSubmenu('graphic-submenu-btn', 'graphic-submenu');
+    });
   document.getElementById('bgm-submenu-btn').addEventListener('click', () => {
     showSubmenu('bgm-submenu-btn', 'bgm-submenu');
   });
