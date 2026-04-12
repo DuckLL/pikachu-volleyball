@@ -1,545 +1,771 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-<head>
-	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Pikachu Volleyball - Super AI Edition</title>
+    <meta
+      name="description"
+      content="Play the game Pikachu Volleyball - Super AI Edition"
+    />
+    <meta name="author" content="DuckLL" />
 
-	<title>Pikachu Volleyball - Super AI Edition</title>
-	<meta name="description" content="Play the game Pikachu Volleyball - Super AI Edition" />
-	<meta name="author" content="DuckLL" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="theme-color" content="#FFFFFF" />
+    <meta name="apple-mobile-web-app-title" content="Pikachu Volleyball" />
+    <link
+      rel="apple-touch-icon"
+      sizes="192x192"
+      href="../resources/assets/images/IDI_PIKAICON-1_gap_filled_192.png"
+    />
+    <link rel="manifest" href="./manifest.json" />
 
-	<meta name="mobile-web-app-capable" content="yes" />
-	<meta name="apple-mobile-web-app-capable" content="yes" />
-	<meta name="apple-mobile-web-app-status-bar-style" content="default" />
-	<meta name="theme-color" content="#FFFFFF" />
-	<meta name="apple-mobile-web-app-title" content="Pikachu Volleyball" />
-	<link rel="apple-touch-icon" sizes="192x192" href="../resources/assets/images/IDI_PIKAICON-1_gap_filled_192.png" />
-	<link rel="manifest" href="./manifest.json" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="../resources/assets/images/IDI_PIKAICON-0.png"
+    />
+    <link rel="stylesheet" href="../resources/style.css" />
+    <script
+      defer
+      src="https://health.duckll.tw/health"
+      data-website-id="80b986e1-e6b2-4556-8c23-412ae4a03903"
+    ></script>
+  </head>
 
-	<link rel="icon" type="image/png" sizes="32x32" href="../resources/assets/images/IDI_PIKAICON-0.png" />
-	<link rel="stylesheet" href="../resources/style.css" />
-	<!-- Global site tag (gtag.js) - Google Analytics -->
-	<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZGJ7GB94R9"></script>
-	<script>
-		window.dataLayer = window.dataLayer || [];
-		function gtag() { dataLayer.push(arguments); }
-		gtag('js', new Date());
+  <body>
+    <div id="flex-container">
+      <div id="menu-bar">
+        <div class="btn-container left">
+          <div class="relative-container">
+            <button
+              type="button"
+              id="game-dropdown-btn"
+              class="btn dropdown-btn"
+            >
+              Game
+            </button>
+            <div id="game-dropdown" class="dropdown">
+              <button type="button" id="pause-btn" class="btn">
+                <span class="check">&check; </span>Pause
+              </button>
+              <button type="button" id="restart-btn" class="btn">
+                Restart
+              </button>
+            </div>
+          </div>
+          <div class="relative-container">
+            <button
+              type="button"
+              id="options-dropdown-btn"
+              class="btn dropdown-btn"
+            >
+              Options
+            </button>
+            <div id="options-dropdown" class="dropdown">
+              <div class="relative-container">
+                <button
+                  type="button"
+                  id="graphic-submenu-btn"
+                  class="btn submenu-btn"
+                >
+                  Graphic &#9654;&#xfe0e;
+                </button>
+                <div id="graphic-submenu" class="submenu">
+                  <button type="button" id="graphic-sharp-btn" class="btn">
+                    <span class="check">&check; </span>sharp
+                  </button>
+                  <button
+                    type="button"
+                    id="graphic-soft-btn"
+                    class="btn selected"
+                  >
+                    <span class="check">&check; </span>soft
+                  </button>
+                </div>
+              </div>
+              <div class="relative-container">
+                <button
+                  type="button"
+                  id="bgm-submenu-btn"
+                  class="btn submenu-btn"
+                >
+                  BGM &#9654;&#xfe0e;
+                </button>
+                <div id="bgm-submenu" class="submenu">
+                  <button type="button" id="bgm-on-btn" class="btn">
+                    <span class="check">&check; </span>on
+                  </button>
+                  <button type="button" id="bgm-off-btn" class="btn selected">
+                    <span class="check">&check; </span>off
+                  </button>
+                </div>
+              </div>
+              <div class="relative-container">
+                <button
+                  type="button"
+                  id="sfx-submenu-btn"
+                  class="btn submenu-btn"
+                >
+                  SFX &#9654;&#xfe0e;
+                </button>
+                <div id="sfx-submenu" class="submenu">
+                  <button type="button" id="stereo-btn" class="btn selected">
+                    <span class="check">&check; </span>stereo
+                  </button>
+                  <button type="button" id="mono-btn" class="btn">
+                    <span class="check">&check; </span>mono
+                  </button>
+                  <button type="button" id="sfx-off-btn" class="btn">
+                    <span class="check">&check; </span>off
+                  </button>
+                </div>
+              </div>
+              <div class="relative-container">
+                <button
+                  type="button"
+                  id="speed-submenu-btn"
+                  class="btn submenu-btn"
+                >
+                  Speed &#9654;&#xfe0e;
+                </button>
+                <div id="speed-submenu" class="submenu">
+                  <button type="button" id="slow-speed-btn" class="btn">
+                    <span class="check">&check; </span>slow
+                  </button>
+                  <button type="button" id="medium-speed-btn" class="btn">
+                    <span class="check">&check; </span>medium
+                  </button>
+                  <button
+                    type="button"
+                    id="fast-speed-btn"
+                    class="btn selected"
+                  >
+                    <span class="check">&check; </span>fast
+                  </button>
+                </div>
+              </div>
+              <div class="relative-container">
+                <button
+                  type="button"
+                  id="winning-score-submenu-btn"
+                  class="btn submenu-btn"
+                >
+                  Winning score &#9654;&#xfe0e;
+                </button>
+                <div id="winning-score-submenu" class="submenu">
+                  <button type="button" id="winning-score-5-btn" class="btn">
+                    <span class="check">&check; </span>5 pts
+                  </button>
+                  <button type="button" id="winning-score-10-btn" class="btn">
+                    <span class="check">&check; </span>10 pts
+                  </button>
+                  <button
+                    type="button"
+                    id="winning-score-15-btn"
+                    class="btn selected"
+                  >
+                    <span class="check">&check; </span>15 pts
+                  </button>
+                </div>
+              </div>
+              <div class="relative-container">
+                <button
+                  type="button"
+                  id="practice-mode-submenu-btn"
+                  class="btn submenu-btn"
+                >
+                  Practice mode &#9654;&#xfe0e;
+                </button>
+                <div id="practice-mode-submenu" class="submenu">
+                  <button type="button" id="practice-mode-on-btn" class="btn">
+                    <span class="check">&check; </span>on
+                  </button>
+                  <button
+                    type="button"
+                    id="practice-mode-off-btn"
+                    class="btn selected"
+                  >
+                    <span class="check">&check; </span>off
+                  </button>
+                </div>
+              </div>
+              <button type="button" id="reset-to-default-btn" class="btn">
+                Reset to default
+              </button>
+            </div>
+          </div>
+          <div class="relative-container">
+            <button type="button" id="save-replay-btn" class="btn">
+              Save replay
+            </button>
+          </div>
+          <div class="color-scheme-toggle-switch-container">
+            <input
+              type="checkbox"
+              id="dark-color-scheme-checkbox-1"
+              class="toggle-switch dark-color-scheme-checkbox"
+            />
+            <label for="dark-color-scheme-checkbox-1"></label>
+          </div>
+          <div class="relative-container">
+            <label>AI Level</label>
+            <select id="ai-level">
+              <option value="0">0</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+              <option value="7">7</option>
+              <option value="8">8</option>
+              <option value="9">9</option>
+              <option value="10" selected>10</option>
+            </select>
+          </div>
+        </div>
+        <div class="btn-container right">
+          <button type="button" id="about-btn" class="btn glow">
+            <span class="text-about hidden">Setting<br />/About</span
+            ><span class="text-play">Play</span>
+          </button>
+        </div>
+      </div>
+      <div class="if-embedded-in-other-website hidden">
+        <div class="limit-width">
+          It seems that you are playing this web version of
+          <span class="no-wrap">Pikachu Volleyball</span>
+          in some foreign website. If you visit the following link directly, you
+          can play the game in a pleasant environment without ads.
+          <div class="original-address">
+            The original address of this web version of Pikachu Volleyball:<br />
+            <a
+              href="https://gorisanson.github.io/pikachu-volleyball/en/"
+              target="_blank"
+              rel="noopener"
+              >https://gorisanson.github.io/pikachu-volleyball/en/</a
+            >
+          </div>
+          <button type="button" class="btn-in-box">
+            <span>close</span>
+          </button>
+        </div>
+      </div>
+      <div id="game-canvas-container">
+        <div class="fade-in-box about" id="about-box">
+          <div id="setting">
+            <h1>Capability</h1>
+            <div id="capability">
+              <div>
+                <input id="serve" type="checkbox" /><label>Serve</label>
+              </div>
+              <div>
+                <input id="fancy" type="checkbox" checked="checked" /><label
+                  >Trick</label
+                >
+              </div>
+              <div>
+                <input id="block" type="checkbox" checked="checked" /><label
+                  >Blocking</label
+                >
+              </div>
+              <div>
+                <input id="diving" type="checkbox" checked="checked" /><label
+                  >Diving</label
+                >
+              </div>
+              <div>
+                <input
+                  id="anti_block"
+                  type="checkbox"
+                  checked="checked"
+                /><label>Anti-Blocking</label>
+              </div>
+              <div>
+                <input id="early_ball" type="checkbox" /><label
+                  >Early Hits</label
+                >
+              </div>
+              <div>
+                <input id="jump" type="checkbox" /><label>Sync-Jumping</label>
+              </div>
+              <div>
+                <label>Defense</label>
+                <select id="defense">
+                  <option value="0">Centering</option>
+                  <option value="1">Mirrored Centering</option>
+                  <option value="2">Mirroring</option>
+                  <option value="3">Prediction</option>
+                  <option value="4" selected>Advanced Forward</option>
+                </select>
+              </div>
+              <div>
+                <label>Delay</label>
+                <input
+                  id="delay"
+                  type="number"
+                  inputmode="numeric"
+                  min="0"
+                  max="30"
+                  value="0"
+                />
+              </div>
+            </div>
 
-		gtag('config', 'G-ZGJ7GB94R9');
-	</script>
-</head>
+            <h1 style="margin-bottom: 0">serve</h1>
+            <div style="width: 100%">
+              <div class="player" style="float: left">
+                <h3>player1</h3>
+                <div>
+                  <div class="serve">
+                    <div>
+                      <b>1 step serve</b
+                      ><input
+                        id="player1-1-step-serve"
+                        type="checkbox"
+                        checked="checked"
+                      />
+                    </div>
+                    <div>
+                      <input
+                        id="player-1-skill-0-checkbox"
+                        type="checkbox"
+                        checked="checked"
+                      />
+                      <label>Break net</label>
+                    </div>
+                    <div>
+                      <input
+                        id="player-1-skill-1-checkbox"
+                        type="checkbox"
+                        checked="checked"
+                      />
+                      <label>Break net(fake, flat)</label>
+                    </div>
+                    <div>
+                      <input
+                        id="player-1-skill-2-checkbox"
+                        type="checkbox"
+                        checked="checked"
+                      />
+                      <label>Head thunder</label>
+                    </div>
+                    <div>
+                      <input
+                        id="player-1-skill-3-checkbox"
+                        type="checkbox"
+                        checked="checked"
+                      />
+                      <label>Head thunder(fake, flat)</label>
+                    </div>
+                    <div>
+                      <input
+                        id="player-1-skill-4-checkbox"
+                        type="checkbox"
+                        checked="checked"
+                      />
+                      <label>Net V smash</label>
+                    </div>
+                    <div>
+                      <input
+                        id="player-1-skill-5-checkbox"
+                        type="checkbox"
+                        checked="checked"
+                      />
+                      <label>Net R smash</label>
+                    </div>
+                    <div>
+                      <input
+                        id="player-1-skill-6-checkbox"
+                        type="checkbox"
+                        checked="checked"
+                      />
+                      <label>Net G smash</label>
+                    </div>
+                    <div>
+                      <input
+                        id="player-1-skill-7-checkbox"
+                        type="checkbox"
+                        checked="checked"
+                      />
+                      <label>Net dodge</label>
+                    </div>
+                    <hr style="width: 100%" />
+                    <div>
+                      <b>tail serve</b
+                      ><input
+                        id="player1-tail-serve"
+                        type="checkbox"
+                        checked="checked"
+                      />
+                    </div>
+                    <div>
+                      <input
+                        id="player-1-skill-8-checkbox"
+                        type="checkbox"
+                        checked="checked"
+                      />
+                      <label>Tail thunder</label>
+                    </div>
+                    <div>
+                      <input
+                        id="player-1-skill-9-checkbox"
+                        type="checkbox"
+                        checked="checked"
+                      />
+                      <label>Tail thunder(fake, flat)</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="player" style="float: right">
+                <h3>player2</h3>
+                <div>
+                  <div class="surve">
+                    <div>
+                      <b>1 step serve</b
+                      ><input
+                        id="player2-1-step-serve"
+                        type="checkbox"
+                        checked="checked"
+                      />
+                    </div>
+                    <div>
+                      <input
+                        id="player-2-skill-0-checkbox"
+                        type="checkbox"
+                        checked="checked"
+                      />
+                      <label>Break net</label>
+                    </div>
+                    <div>
+                      <input
+                        id="player-2-skill-1-checkbox"
+                        type="checkbox"
+                        checked="checked"
+                      />
+                      <label>Break net(fake, flat)</label>
+                    </div>
+                    <div>
+                      <input
+                        id="player-2-skill-2-checkbox"
+                        type="checkbox"
+                        checked="checked"
+                      />
+                      <label>Head thunder</label>
+                    </div>
+                    <div>
+                      <input
+                        id="player-2-skill-3-checkbox"
+                        type="checkbox"
+                        checked="checked"
+                      />
+                      <label>Head thunder(fake, flat)</label>
+                    </div>
+                    <div>
+                      <input
+                        id="player-2-skill-4-checkbox"
+                        type="checkbox"
+                        checked="checked"
+                      />
+                      <label>Net thunder</label>
+                    </div>
+                    <div>
+                      <input
+                        id="player-2-skill-5-checkbox"
+                        type="checkbox"
+                        checked="checked"
+                      />
+                      <label>Net thunder(fake, flat)</label>
+                    </div>
+                    <hr style="width: 100%" />
+                    <div>
+                      <b>tail serve</b
+                      ><input
+                        id="player2-tail-serve"
+                        type="checkbox"
+                        checked="checked"
+                      />
+                    </div>
+                    <div>
+                      <input
+                        id="player-2-skill-6-checkbox"
+                        type="checkbox"
+                        checked="checked"
+                      />
+                      <label>Tail thunder</label>
+                    </div>
+                    <div>
+                      <input
+                        id="player-2-skill-7-checkbox"
+                        type="checkbox"
+                        checked="checked"
+                      />
+                      <label>Tail thunder(fake, flat)</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <hr style="width: 100%" />
+          <div id="about-box-head">
+            <h1>Pikachu Volleyball - Super AI Edition</h1>
+            <p class="languages">
+              <a href="../zh/" target="_self">Chinese(中文)</a> | &check;
+              English |
+              <a href="../ko/" target="_self">Korean(한국어)</a>
+            </p>
+            <p class="original-by">
+              The original Pikachu Volleyball (対戦ぴかちゅ～　ﾋﾞｰﾁﾊﾞﾚｰ編) was
+              developed by<br />
+              1997 (C)
+              <span class="no-wrap">SACHI SOFT / SAWAYAKAN Programmers</span
+              ><br />
+              1997 (C) <span class="no-wrap">Satoshi Takenouchi</span>
+            </p>
+            <hr style="width: 100%" />
+            <p class="reverse-engineered-by">
+              Based on
+              <a
+                href="https://gorisanson.github.io/pikachu-volleyball/en/"
+                target="_blank"
+                >the web version</a
+              >
+              developed by
+              <a href="https://gorisanson.github.io/" target="_blank"
+                >Kyutae Lee</a
+              >
+            </p>
+            <hr style="width: 100%" />
+            <p class="reverse-engineered-by">
+              This Super AI Edition is developed by
+              <span class="no-wrap"
+                ><a href="https://blog.duckll.tw/" target="_blank"
+                  >DuckLL</a
+                ></span
+              >. <br />Strengthened AI with adjustable options <br />Save
+              replay, watch replay with
+              <a
+                href="https://gorisanson.github.io/pikachu-volleyball-p2p-online/en/replay/"
+                target="_blank"
+                >Replay Viewer</a
+              >
+              <br />1P full key available (same as the online battle version)
+              <br />2P mode change to CPU vs. CPU, allowing you to enjoy intense
+              AI battles
+            </p>
+            <p class="source-code-on">
+              <a
+                href="https://github.com/duckll/pikachu-volleyball"
+                target="_blank"
+                rel="noopener"
+                >GitHub</a
+              >
+              <br />
+              <a href="./update-history/" target="_self">Update history</a>
+              <br />
+              <a href="/version.html" target="_self">History versions</a>
+            </p>
+            <hr style="width: 100%" />
+            <h2>Design Concept</h2>
+            <p>
+              I won't claim that my AI is the strongest, but it is undoubtedly
+              the most dazzling! With lightning-fast decision-making, an
+              aggressive offensive style, and versatile randomness, it makes
+              every match more exciting. Although it's an AI, it doesn't use
+              machine learning; all strategies are designed based on my
+              understanding of the game. There is still room for improvement, so
+              I will continue to develop it. If you have any suggestions, feel
+              free to share them on GitHub!
+            </p>
 
-<body>
-	<div id="flex-container">
-		<div id="menu-bar">
-			<div class="btn-container left">
-				<div class="relative-container">
-					<button type="button" id="game-dropdown-btn" class="btn dropdown-btn">
-						Game
-					</button>
-					<div id="game-dropdown" class="dropdown">
-						<button type="button" id="pause-btn" class="btn">
-							<span class="check">&check; </span>Pause
-						</button>
-						<button type="button" id="restart-btn" class="btn">
-							Restart
-						</button>
-					</div>
-				</div>
-				<div class="relative-container">
-					<button type="button" id="options-dropdown-btn" class="btn dropdown-btn">
-						Options
-					</button>
-					<div id="options-dropdown" class="dropdown">
-						<div class="relative-container">
-							<button type="button" id="graphic-submenu-btn" class="btn submenu-btn">
-								Graphic &#9654;&#xfe0e;
-							</button>
-							<div id="graphic-submenu" class="submenu">
-								<button type="button" id="graphic-sharp-btn" class="btn selected">
-									<span class="check">&check; </span>sharp
-								</button>
-								<button type="button" id="graphic-soft-btn" class="btn">
-									<span class="check">&check; </span>soft
-								</button>
-							</div>
-						</div>
-						<div class="relative-container">
-							<button type="button" id="bgm-submenu-btn" class="btn submenu-btn">
-								BGM &#9654;&#xfe0e;
-							</button>
-							<div id="bgm-submenu" class="submenu">
-								<button type="button" id="bgm-on-btn" class="btn">
-									<span class="check">&check; </span>on
-								</button>
-								<button type="button" id="bgm-off-btn" class="btn selected">
-									<span class="check">&check; </span>off
-								</button>
-							</div>
-						</div>
-						<div class="relative-container">
-							<button type="button" id="sfx-submenu-btn" class="btn submenu-btn">
-								SFX &#9654;&#xfe0e;
-							</button>
-							<div id="sfx-submenu" class="submenu">
-								<button type="button" id="stereo-btn" class="btn selected">
-									<span class="check">&check; </span>stereo
-								</button>
-								<button type="button" id="mono-btn" class="btn">
-									<span class="check">&check; </span>mono
-								</button>
-								<button type="button" id="sfx-off-btn" class="btn">
-									<span class="check">&check; </span>off
-								</button>
-							</div>
-						</div>
-						<div class="relative-container">
-							<button type="button" id="speed-submenu-btn" class="btn submenu-btn">
-								Speed &#9654;&#xfe0e;
-							</button>
-							<div id="speed-submenu" class="submenu">
-								<button type="button" id="slow-speed-btn" class="btn">
-									<span class="check">&check; </span>slow
-								</button>
-								<button type="button" id="medium-speed-btn" class="btn">
-									<span class="check">&check; </span>medium
-								</button>
-								<button type="button" id="fast-speed-btn" class="btn selected">
-									<span class="check">&check; </span>fast
-								</button>
-							</div>
-						</div>
-						<div class="relative-container">
-							<button type="button" id="winning-score-submenu-btn" class="btn submenu-btn">
-								Winning score &#9654;&#xfe0e;
-							</button>
-							<div id="winning-score-submenu" class="submenu">
-								<button type="button" id="winning-score-5-btn" class="btn">
-									<span class="check">&check; </span>5 pts
-								</button>
-								<button type="button" id="winning-score-10-btn" class="btn">
-									<span class="check">&check; </span>10 pts
-								</button>
-								<button type="button" id="winning-score-15-btn" class="btn selected">
-									<span class="check">&check; </span>15 pts
-								</button>
-							</div>
-						</div>
-						<div class="relative-container">
-							<button type="button" id="practice-mode-submenu-btn" class="btn submenu-btn">
-								Practice mode &#9654;&#xfe0e;
-							</button>
-							<div id="practice-mode-submenu" class="submenu">
-								<button type="button" id="practice-mode-on-btn" class="btn">
-									<span class="check">&check; </span>on
-								</button>
-								<button type="button" id="practice-mode-off-btn" class="btn selected">
-									<span class="check">&check; </span>off
-								</button>
-							</div>
-						</div>
-						<button type="button" id="reset-to-default-btn" class="btn">
-							Reset to default
-						</button>
-					</div>
-				</div>
-				<div class="relative-container">
-					<button type="button" id="save-replay-btn" class="btn">
-						Save replay
-					</button>
-				</div>
-				<div class="color-scheme-toggle-switch-container">
-					<input type="checkbox" id="dark-color-scheme-checkbox-1"
-						class="toggle-switch dark-color-scheme-checkbox" />
-					<label for="dark-color-scheme-checkbox-1"></label>
-				</div>
-				<div class="relative-container">
-					<label>AI Level</label>
-					<select id="ai-level">
-						<option value="0">0</option>
-						<option value="1">1</option>
-						<option value="2">2</option>
-						<option value="3">3</option>
-						<option value="4">4</option>
-						<option value="5">5</option>
-						<option value="6">6</option>
-						<option value="7">7</option>
-						<option value="8">8</option>
-						<option value="9">9</option>
-						<option value="10" selected>10</option>
-					</select>
-				</div>
+            <h2>Ability Overview</h2>
+            <div style="text-align: left">
+              <p>
+                <b>Serving: </b>Effective against human players but not against
+                AIs. To avoid being directly countered by AI opponents, this
+                option is disabled by default. The serves from both sides are
+                slightly different and can be fine-tuned through the serving
+                options below.
+              </p>
+              <p>
+                <b>Trick: </b>Refers to combo hitting techniques, such as the
+                lightning smash, which uses the net to rebound the ball before
+                smashing it again. Other examples include upward and downward
+                smash, small ball combos, and double bounces.
+              </p>
+              <p>
+                <b>Blocking: </b>A practice option to determine whether to
+                intercept opponent attacks in the net-front area.
+              </p>
+              <p><b>Diving: </b>Enabling this expands the defensive range.</p>
+              <p>
+                <b>Anti-Blocking: </b>When enabled, the AI adjusts its attack
+                trajectory to avoid being blocked by opponents near the net.
+              </p>
+              <p>
+                <b>Early Hits: </b>Attacking during the jump’s ascending phase.
+                It’s recommended to disable the anti-blocking option
+                simultaneously. Useful for practicing reaction time for surprise
+                attacks, but in AI matches, early hits may reduce defensive
+                capabilities and lead to points lost.
+              </p>
+              <p>
+                <b>Synchronized Jumping: </b>A practice option designed to train
+                the AI's response when opponents block early, enabling it to
+                vary its attack trajectory.
+              </p>
+              <p>
+                <b>Delay: </b>Simulates human reaction delays, affecting the
+                timing of defensive movements and attack organization. A delay
+                of 4 closely mimics an expert’s reaction time. However, humans
+                usually don’t “freeze.” If the defensive mode is predictive,
+                increasing the delay to 7 can provide an intriguing predictive
+                defense experience.
+              </p>
+            </div>
+            <h3>Defense Modes</h3>
+            <p>
+              Defense mode defines the AI's positioning before an opponent’s
+              attack. Once the opponent strikes, the AI will move toward the
+              ball's predicted landing point. Difficulty levels are based on
+              scenarios where trick shots are enabled. Without trick shots,
+              predictive mode is more effective than mirror mode.
+            </p>
+            <div style="text-align: left">
+              <p>
+                <b>Centering: </b>Difficulty 1, positions itself at the center
+                of the defensive range.
+              </p>
+              <p>
+                <b>Mirrored Centering: </b>Difficulty 2, mirrors the opponent’s
+                movements but stays within the center area.
+              </p>
+              <p>
+                <b>Mirroring: </b>Difficulty 4, fully mirrors the opponent’s
+                movements.
+              </p>
+              <p>
+                <b>Prediction: </b>Difficulty 3, predicts the shortest path to
+                the opponent's attack landing point.
+              </p>
+              <p>
+                <b>Advanced Forward: </b>Difficulty 5, moves closer to the net
+                for better blocking opportunities while ensuring interception is
+                possible.
+              </p>
+            </div>
+          </div>
+          <div class="margin-top">
+            <button type="button" id="close-about-btn" class="btn-in-box glow">
+              <span class="text-close hidden">close</span
+              ><span class="text-play">Play</span>
+            </button>
+          </div>
+        </div>
+        <div class="fade-in-box notice hidden" id="notice-box-1">
+          <p>
+            The winning score can not be set to the
+            <span id="winning-score-in-notice-box-1"></span> pts, since the
+            score is already reached.
+          </p>
+          <button type="button" id="notice-ok-btn-1" class="btn-in-box">
+            OK
+          </button>
+        </div>
+        <div class="fade-in-box notice hidden" id="notice-box-2">
+          <p>
+            There's no point adjusting the winning score in practice mode.<br />
+            You can turn off practice mode at
+            <span class="no_wrap"
+              >"Options &rarr; Practice mode &rarr; off"</span
+            >.
+          </p>
+          <button type="button" id="notice-ok-btn-2" class="btn-in-box">
+            OK
+          </button>
+        </div>
+        <div class="fade-in-box loading hidden" id="loading-box">
+          <div>
+            <p>Loading the game assets...</p>
+            <div id="progress-bar-border">
+              <div id="progress-bar" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+        <div
+          class="fade-in-box update hidden"
+          id="update-notification-message-box"
+        >
+          A new version is available. Update now?
+          <div>
+            <button type="button" class="update" id="update-now">
+              Update Now (current game state will be lost)
+            </button>
+            <button type="button" class="update" id="later">
+              Later (automatically at relaunching the browser)
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script type="module">
+      /*
+       * Register service worker with some configuration for service worker update notice.
+       * Major parts of the code below are copied from: https://developers.google.com/web/tools/workbox/guides/advanced-recipes
+       */
+      import { Workbox } from 'https://storage.googleapis.com/workbox-cdn/releases/5.0.0/workbox-window.prod.mjs';
 
-			</div>
-			<div class="btn-container right">
-				<button type="button" id="about-btn" class="btn glow">
-					<span class="text-about hidden">Setting<br>/About</span><span class="text-play">Play</span>
-				</button>
-			</div>
-		</div>
-		<div class="if-embedded-in-other-website hidden">
-			<div class="limit-width">
-				It seems that you are playing this web version of
-				<span class="no-wrap">Pikachu Volleyball</span>
-				in some foreign website. If you visit the following link directly, you
-				can play the game in a pleasant environment without ads.
-				<div class="original-address">
-					The original address of this web version of Pikachu Volleyball:<br />
-					<a href="https://gorisanson.github.io/pikachu-volleyball/en/" target="_blank"
-						rel="noopener">https://gorisanson.github.io/pikachu-volleyball/en/</a>
-				</div>
-				<button type="button" class="btn-in-box">
-					<span>close</span>
-				</button>
-			</div>
-		</div>
-		<div id="game-canvas-container">
-			<div class="fade-in-box about" id="about-box">
-				<div id="setting">
-					<h1>Capability</h1>
-					<div id="capability">
-						<div><input id="serve" type="checkbox"><label>Serve</label></div>
-						<div><input id="fancy" type="checkbox" checked="checked"><label>Trick</label></div>
-						<div><input id="block" type="checkbox" checked="checked"><label>Blocking</label></div>
-						<div><input id="diving" type="checkbox" checked="checked"><label>Diving</label></div>
-						<div><input id="anti_block" type="checkbox" checked="checked"><label>Anti-Blocking</label></div>
-						<div><input id="early_ball" type="checkbox"><label>Early Hits</label></div>
-						<div><input id="jump" type="checkbox"><label>Sync-Jumping</label></div>
-						<div>
-							<label>Defense</label>
-							<select id="defense">
-								<option value="0">Centering</option>
-								<option value="1">Mirrored Centering</option>
-								<option value="2">Mirroring</option>
-								<option value="3">Prediction</option>
-								<option value="4" selected>Advanced Forward</option>
-							</select>
-						</div>
-						<div>
-							<label>Delay</label>
-							<input id="delay" type="number" inputmode="numeric" min="0" max="30" value="0">
-						</div>
-					</div>
+      function createUpdateUIPrompt(callback) {
+        const notificationBox = document.getElementById(
+          'update-notification-message-box'
+        );
+        const elementList = document.getElementsByClassName('fade-in-box');
+        const updateNowButton = document.getElementById('update-now');
+        const laterButton = document.getElementById('later');
 
-					<h1 style="margin-bottom: 0;">serve</h1>
-					<div style="width: 100%;">
-						<div class="player" style="float: left;">
-							<h3>player1</h3>
-							<div>
-								<div class="serve">
-									<div><b>1 step serve</b><input id="player1-1-step-serve" type="checkbox"
-											checked="checked">
-									</div>
-									<div><input id="player-1-skill-0-checkbox" type="checkbox" checked="checked">
-										<label>Break
-											net</label>
-									</div>
-									<div><input id="player-1-skill-1-checkbox" type="checkbox" checked="checked">
-										<label>Break
-											net(fake,
-											flat)</label>
-									</div>
-									<div><input id="player-1-skill-2-checkbox" type="checkbox" checked="checked">
-										<label>Head
-											thunder</label>
-									</div>
-									<div><input id="player-1-skill-3-checkbox" type="checkbox" checked="checked">
-										<label>Head
-											thunder(fake,
-											flat)</label>
-									</div>
-									<div><input id="player-1-skill-4-checkbox" type="checkbox" checked="checked">
-										<label>Net V
-											smash</label>
-									</div>
-									<div><input id="player-1-skill-5-checkbox" type="checkbox" checked="checked">
-										<label>Net R
-											smash</label>
-									</div>
-									<div><input id="player-1-skill-6-checkbox" type="checkbox" checked="checked">
-										<label>Net G
-											smash</label>
-									</div>
-									<div><input id="player-1-skill-7-checkbox" type="checkbox" checked="checked">
-										<label>Net
-											dodge</label>
-									</div>
-									<hr style="width: 100%;">
-									<div><b>tail serve</b><input id="player1-tail-serve" type="checkbox"
-											checked="checked">
-									</div>
-									<div><input id="player-1-skill-8-checkbox" type="checkbox" checked="checked">
-										<label>Tail
-											thunder</label>
-									</div>
-									<div><input id="player-1-skill-9-checkbox" type="checkbox" checked="checked">
-										<label>Tail
-											thunder(fake,
-											flat)</label>
-									</div>
-								</div>
-							</div>
+        updateNowButton.addEventListener('click', function () {
+          notificationBox.classList.add('hidden');
+          callback.onAccept();
+        });
+        laterButton.addEventListener('click', function () {
+          notificationBox.classList.add('hidden');
+        });
 
+        for (const element of elementList) {
+          element.classList.add('hidden');
+        }
+        notificationBox.classList.remove('hidden');
+      }
 
-						</div>
-						<div class="player" style="float: right;">
-							<h3>player2</h3>
-							<div>
-								<div class="surve">
-									<div><b>1 step serve</b><input id="player2-1-step-serve" type="checkbox"
-											checked="checked">
-									</div>
-									<div><input id="player-2-skill-0-checkbox" type="checkbox" checked="checked">
-										<label>Break
-											net</label>
-									</div>
-									<div><input id="player-2-skill-1-checkbox" type="checkbox" checked="checked">
-										<label>Break
-											net(fake,
-											flat)</label>
-									</div>
-									<div><input id="player-2-skill-2-checkbox" type="checkbox" checked="checked">
-										<label>Head
-											thunder</label>
-									</div>
-									<div><input id="player-2-skill-3-checkbox" type="checkbox" checked="checked">
-										<label>Head
-											thunder(fake,
-											flat)</label>
-									</div>
-									<div><input id="player-2-skill-4-checkbox" type="checkbox" checked="checked">
-										<label>Net
-											thunder</label>
-									</div>
-									<div><input id="player-2-skill-5-checkbox" type="checkbox" checked="checked">
-										<label>Net
-											thunder(fake,
-											flat)</label>
-									</div>
-									<hr style="width: 100%;">
-									<div><b>tail serve</b><input id="player2-tail-serve" type="checkbox"
-											checked="checked"></div>
-									<div><input id="player-2-skill-6-checkbox" type="checkbox" checked="checked">
-										<label>Tail
-											thunder</label>
-									</div>
-									<div><input id="player-2-skill-7-checkbox" type="checkbox" checked="checked">
-										<label>Tail
-											thunder(fake,
-											flat)</label>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-				<hr style="width: 100%;">
-				<div id="about-box-head">
-					<h1>Pikachu Volleyball - Super AI Edition</h1>
-					<p class="languages">
-						<a href="../zh/" target="_self">Chinese(中文)</a> | &check;
-						English |
-						<a href="../ko/" target="_self">Korean(한국어)</a>
-					</p>
-					<p class="original-by">
-						The original Pikachu Volleyball (対戦ぴかちゅ～　ﾋﾞｰﾁﾊﾞﾚｰ編) was
-						developed by<br />
-						1997 (C)
-						<span class="no-wrap">SACHI SOFT / SAWAYAKAN Programmers</span><br />
-						1997 (C) <span class="no-wrap">Satoshi Takenouchi</span>
-					</p>
-					<hr style="width: 100%;">
-					<p class="reverse-engineered-by">
-						Based on <a href="https://gorisanson.github.io/pikachu-volleyball/en/" target="_blank">the web
-							version</a>
-						developed by <a href="https://gorisanson.github.io/" target="_blank">Kyutae Lee</a>
-					</p>
-					<hr style="width: 100%;">
-					<p class="reverse-engineered-by">
-						This Super AI Edition is developed by <span class="no-wrap"><a href="https://blog.duckll.tw/"
-								target="_blank">DuckLL</a></span>.
-						<br>Strengthened AI with adjustable options
-						<br>Save replay, watch replay with <a
-							href="https://gorisanson.github.io/pikachu-volleyball-p2p-online/en/replay/"
-							target="_blank">Replay Viewer</a>
-						<br>1P full key available (same as the online battle version)
-						<br>2P mode change to CPU vs. CPU, allowing you to enjoy intense AI battles
-					</p>
-					<p class="source-code-on">
-						<a href="https://github.com/duckll/pikachu-volleyball" target="_blank" rel="noopener">GitHub</a>
-						<br>
-						<a href="./update-history/" target="_self">Update history</a>
-						<br>
-						<a href="/version.html" target="_self">History versions</a>
-					</p>
-					<hr style="width: 100%;">
-					<h2>Design Concept</h2>
-					<p>
-						I won't claim that my AI is the strongest, but it is undoubtedly the most dazzling! With
-						lightning-fast
-						decision-making, an aggressive offensive style, and versatile randomness, it makes every match
-						more exciting.
-						Although it's an AI, it doesn't use machine learning; all strategies are designed based on my
-						understanding of the
-						game. There is still room for improvement, so I will continue to develop it. If you have any
-						suggestions, feel free
-						to share them on GitHub!
-					</p>
+      if ('serviceWorker' in navigator) {
+        const wb = new Workbox('../sw.js');
+        // Add an event listener to detect when the registered
+        // service worker has installed but is waiting to activate.
+        wb.addEventListener('waiting', (event) => {
+          const prompt = createUpdateUIPrompt({
+            onAccept: async () => {
+              // Assuming the user accepted the update, set up a listener
+              // that will reload the page as soon as the previously waiting
+              // service worker has taken control.
+              wb.addEventListener('controlling', (event) => {
+                window.location.reload();
+              });
+              // Send a message telling the service worker to skip waiting.
+              // This will trigger the `controlling` event handler above.
+              wb.messageSW({ type: 'SKIP_WAITING' });
+            },
+          });
+        });
 
-					<h2>Ability Overview</h2>
-					<div style="text-align: left;">
-						<p><b>Serving: </b>Effective against human players but not against AIs. To avoid being directly
-							countered by AI
-							opponents, this option is disabled by default. The serves from both sides are slightly
-							different and can be
-							fine-tuned through the serving options below.</p>
-						<p><b>Trick: </b>Refers to combo hitting techniques, such as the lightning smash,
-							which uses the net to
-							rebound the ball before smashing it again. Other examples include upward and downward
-							smash, small ball combos,
-							and double bounces.</p>
-						<p><b>Blocking: </b>A practice option to determine whether to intercept opponent attacks in the
-							net-front area.</p>
-						<p><b>Diving: </b>Enabling this expands the defensive range.</p>
-						<p><b>Anti-Blocking: </b>When enabled, the AI adjusts its attack trajectory to avoid being
-							blocked by opponents near
-							the net.</p>
-						<p><b>Early Hits: </b>Attacking during the jump’s ascending phase. It’s recommended to disable
-							the anti-blocking
-							option simultaneously. Useful for practicing reaction time for surprise attacks, but in AI
-							matches, early hits
-							may reduce defensive capabilities and lead to points lost.</p>
-						<p><b>Synchronized Jumping: </b>A practice option designed to train the AI's response when
-							opponents block early,
-							enabling it to vary its attack trajectory.</p>
-						<p><b>Delay: </b>Simulates human reaction delays, affecting the timing of defensive movements
-							and attack
-							organization. A delay of 4 closely mimics an expert’s reaction time. However, humans usually
-							don’t “freeze.” If
-							the defensive mode is predictive, increasing the delay to 7 can provide an intriguing
-							predictive defense
-							experience.</p>
-					</div>
-					<h3>Defense Modes</h3>
-					<p>
-						Defense mode defines the AI's positioning before an opponent’s attack. Once the opponent
-						strikes, the AI will move
-						toward the ball's predicted landing point. Difficulty levels are based on scenarios where trick
-						shots are enabled.
-						Without trick shots, predictive mode is more effective than mirror mode.
-					</p>
-					<div style="text-align: left;">
-						<p><b>Centering: </b>Difficulty 1, positions itself at the center of the defensive range.</p>
-						<p><b>Mirrored Centering: </b>Difficulty 2, mirrors the opponent’s movements but stays within
-							the center area.</p>
-						<p><b>Mirroring: </b>Difficulty 4, fully mirrors the opponent’s movements.</p>
-						<p><b>Prediction: </b>Difficulty 3, predicts the shortest path to the opponent's attack landing
-							point.</p>
-						<p><b>Advanced Forward: </b>Difficulty 5, moves closer to the net for better blocking
-							opportunities while ensuring
-							interception is possible.</p>
-					</div>
-				</div>
-				<div class="margin-top">
-					<button type="button" id="close-about-btn" class="btn-in-box glow">
-						<span class="text-close hidden">close</span><span class="text-play">Play</span>
-					</button>
-				</div>
-			</div>
-			<div class="fade-in-box notice hidden" id="notice-box-1">
-				<p>
-					The winning score can not be set to the
-					<span id="winning-score-in-notice-box-1"></span> pts, since the
-					score is already reached.
-				</p>
-				<button type="button" id="notice-ok-btn-1" class="btn-in-box">
-					OK
-				</button>
-			</div>
-			<div class="fade-in-box notice hidden" id="notice-box-2">
-				<p>
-					There's no point adjusting the winning score in practice mode.<br />
-					You can turn off practice mode at
-					<span class="no_wrap">"Options &rarr; Practice mode &rarr; off"</span>.
-				</p>
-				<button type="button" id="notice-ok-btn-2" class="btn-in-box">
-					OK
-				</button>
-			</div>
-			<div class="fade-in-box loading hidden" id="loading-box">
-				<div>
-					<p>Loading the game assets...</p>
-					<div id="progress-bar-border">
-						<div id="progress-bar" style="width: 0%"></div>
-					</div>
-				</div>
-			</div>
-			<div class="fade-in-box update hidden" id="update-notification-message-box">
-				A new version is available. Update now?
-				<div>
-					<button type="button" class="update" id="update-now">
-						Update Now (current game state will be lost)
-					</button>
-					<button type="button" class="update" id="later">
-						Later (automatically at relaunching the browser)
-					</button>
-				</div>
-			</div>
-		</div>
-	</div>
-	<script type="module">
-		/*
-		 * Register service worker with some configuration for service worker update notice.
-		 * Major parts of the code below are copied from: https://developers.google.com/web/tools/workbox/guides/advanced-recipes
-		 */
-		import { Workbox } from 'https://storage.googleapis.com/workbox-cdn/releases/5.0.0/workbox-window.prod.mjs';
-
-		function createUpdateUIPrompt(callback) {
-			const notificationBox = document.getElementById(
-				'update-notification-message-box'
-			);
-			const elementList = document.getElementsByClassName('fade-in-box');
-			const updateNowButton = document.getElementById('update-now');
-			const laterButton = document.getElementById('later');
-
-			updateNowButton.addEventListener('click', function () {
-				notificationBox.classList.add('hidden');
-				callback.onAccept();
-			});
-			laterButton.addEventListener('click', function () {
-				notificationBox.classList.add('hidden');
-			});
-
-			for (const element of elementList) {
-				element.classList.add('hidden');
-			}
-			notificationBox.classList.remove('hidden');
-		}
-
-		if ('serviceWorker' in navigator) {
-			const wb = new Workbox('../sw.js');
-			// Add an event listener to detect when the registered
-			// service worker has installed but is waiting to activate.
-			wb.addEventListener('waiting', (event) => {
-				const prompt = createUpdateUIPrompt({
-					onAccept: async () => {
-						// Assuming the user accepted the update, set up a listener
-						// that will reload the page as soon as the previously waiting
-						// service worker has taken control.
-						wb.addEventListener('controlling', (event) => {
-							window.location.reload();
-						});
-						// Send a message telling the service worker to skip waiting.
-						// This will trigger the `controlling` event handler above.
-						wb.messageSW({ type: 'SKIP_WAITING' });
-					},
-				});
-			});
-
-			wb.register();
-		}
-	</script>
-</body>
-
+        wb.register();
+      }
+    </script>
+  </body>
 </html>

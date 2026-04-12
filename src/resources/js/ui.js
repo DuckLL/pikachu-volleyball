@@ -70,7 +70,7 @@ const PauseResumePrecedence = {
 };
 
 const DEFAULT_SHARED_OPTIONS = {
-  graphic: 'sharp',
+  graphic: 'soft',
   bgm: 'off',
   sfx: 'stereo',
   speed: 'fast',

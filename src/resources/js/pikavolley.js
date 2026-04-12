@@ -554,7 +554,7 @@ export class PikachuVolleyball {
     this.view.game.visible = false;
     this.state = this.intro;
     replaySaver.cleanRecord();
-    const roomId = 'DuckLL_AI_GOD_' + true_rand();
+    const roomId = 'DuckLL_AI_8.0_' + true_rand();
     replaySaver.recordRoomID(roomId);
     const customRng = seedrandom.alea(roomId.slice(10));
     setCustomRng(customRng);

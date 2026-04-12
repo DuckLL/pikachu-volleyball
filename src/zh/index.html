@@ -1,480 +1,729 @@
 <!DOCTYPE html>
 <html lang="zh">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-<head>
-	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>皮卡丘打排球 - 超級 AI 版</title>
+    <meta name="description" content="線上玩皮卡丘打排球  - 超級 AI 版" />
+    <meta name="author" content="DuckLL" />
 
-	<title>皮卡丘打排球 - 超級 AI 版</title>
-	<meta name="description" content="線上玩皮卡丘打排球  - 超級 AI 版" />
-	<meta name="author" content="DuckLL" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="theme-color" content="#FFFFFF" />
+    <meta name="apple-mobile-web-app-title" content="皮卡丘打排球" />
+    <link
+      rel="apple-touch-icon"
+      sizes="192x192"
+      href="../resources/assets/images/IDI_PIKAICON-1_gap_filled_192.png"
+    />
+    <link rel="manifest" href="./manifest.json" />
 
-	<meta name="mobile-web-app-capable" content="yes" />
-	<meta name="apple-mobile-web-app-capable" content="yes" />
-	<meta name="apple-mobile-web-app-status-bar-style" content="default" />
-	<meta name="theme-color" content="#FFFFFF" />
-	<meta name="apple-mobile-web-app-title" content="皮卡丘打排球" />
-	<link rel="apple-touch-icon" sizes="192x192" href="../resources/assets/images/IDI_PIKAICON-1_gap_filled_192.png" />
-	<link rel="manifest" href="./manifest.json" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="../resources/assets/images/IDI_PIKAICON-0.png"
+    />
+    <link rel="stylesheet" href="../resources/style.css" />
+    <script
+      defer
+      src="https://health.duckll.tw/health"
+      data-website-id="80b986e1-e6b2-4556-8c23-412ae4a03903"
+    ></script>
+  </head>
 
-	<link rel="icon" type="image/png" sizes="32x32" href="../resources/assets/images/IDI_PIKAICON-0.png" />
-	<link rel="stylesheet" href="../resources/style.css" />
-	<!-- Global site tag (gtag.js) - Google Analytics -->
-	<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZGJ7GB94R9"></script>
-	<script>
-		window.dataLayer = window.dataLayer || [];
-		function gtag() { dataLayer.push(arguments); }
-		gtag('js', new Date());
+  <body>
+    <div id="flex-container">
+      <div id="menu-bar">
+        <div class="btn-container left">
+          <div class="relative-container">
+            <button
+              type="button"
+              id="game-dropdown-btn"
+              class="btn dropdown-btn"
+            >
+              遊戲
+            </button>
+            <div id="game-dropdown" class="dropdown">
+              <button type="button" id="pause-btn" class="btn">
+                <span class="check">&check; </span>暫停
+              </button>
+              <button type="button" id="restart-btn" class="btn">重來</button>
+            </div>
+          </div>
+          <div class="relative-container">
+            <button
+              type="button"
+              id="options-dropdown-btn"
+              class="btn dropdown-btn"
+            >
+              選項
+            </button>
+            <div id="options-dropdown" class="dropdown">
+              <div class="relative-container">
+                <button
+                  type="button"
+                  id="graphic-submenu-btn"
+                  class="btn submenu-btn"
+                >
+                  圖形 &#9654;&#xfe0e;
+                </button>
+                <div id="graphic-submenu" class="submenu">
+                  <button type="button" id="graphic-sharp-btn" class="btn">
+                    <span class="check">&check; </span>銳利
+                  </button>
+                  <button
+                    type="button"
+                    id="graphic-soft-btn"
+                    class="btn selected"
+                  >
+                    <span class="check">&check; </span>柔和
+                  </button>
+                </div>
+              </div>
+              <div class="relative-container">
+                <button
+                  type="button"
+                  id="bgm-submenu-btn"
+                  class="btn submenu-btn"
+                >
+                  背景音樂 &#9654;&#xfe0e;
+                </button>
+                <div id="bgm-submenu" class="submenu">
+                  <button type="button" id="bgm-on-btn" class="btn">
+                    <span class="check">&check; </span>開
+                  </button>
+                  <button type="button" id="bgm-off-btn" class="btn selected">
+                    <span class="check">&check; </span>關
+                  </button>
+                </div>
+              </div>
+              <div class="relative-container">
+                <button
+                  type="button"
+                  id="sfx-submenu-btn"
+                  class="btn submenu-btn"
+                >
+                  SFX &#9654;&#xfe0e;
+                </button>
+                <div id="sfx-submenu" class="submenu">
+                  <button type="button" id="stereo-btn" class="btn selected">
+                    <span class="check">&check; </span>stereo
+                  </button>
+                  <button type="button" id="mono-btn" class="btn">
+                    <span class="check">&check; </span>mono
+                  </button>
+                  <button type="button" id="sfx-off-btn" class="btn">
+                    <span class="check">&check; </span>關
+                  </button>
+                </div>
+              </div>
+              <div class="relative-container">
+                <button
+                  type="button"
+                  id="speed-submenu-btn"
+                  class="btn submenu-btn"
+                >
+                  速度 &#9654;&#xfe0e;
+                </button>
+                <div id="speed-submenu" class="submenu">
+                  <button type="button" id="slow-speed-btn" class="btn">
+                    <span class="check">&check; </span>慢速
+                  </button>
+                  <button type="button" id="medium-speed-btn" class="btn">
+                    <span class="check">&check; </span>普通
+                  </button>
+                  <button
+                    type="button"
+                    id="fast-speed-btn"
+                    class="btn selected"
+                  >
+                    <span class="check">&check; </span>快速
+                  </button>
+                </div>
+              </div>
+              <div class="relative-container">
+                <button
+                  type="button"
+                  id="winning-score-submenu-btn"
+                  class="btn submenu-btn"
+                >
+                  遊戲分數 &#9654;&#xfe0e;
+                </button>
+                <div id="winning-score-submenu" class="submenu">
+                  <button type="button" id="winning-score-5-btn" class="btn">
+                    <span class="check">&check; </span>5分
+                  </button>
+                  <button type="button" id="winning-score-10-btn" class="btn">
+                    <span class="check">&check; </span>10分
+                  </button>
+                  <button
+                    type="button"
+                    id="winning-score-15-btn"
+                    class="btn selected"
+                  >
+                    <span class="check">&check; </span>15分
+                  </button>
+                </div>
+              </div>
+              <div class="relative-container">
+                <button
+                  type="button"
+                  id="practice-mode-submenu-btn"
+                  class="btn submenu-btn"
+                >
+                  練習模式 &#9654;&#xfe0e;
+                </button>
+                <div id="practice-mode-submenu" class="submenu">
+                  <button type="button" id="practice-mode-on-btn" class="btn">
+                    <span class="check">&check; </span>開
+                  </button>
+                  <button
+                    type="button"
+                    id="practice-mode-off-btn"
+                    class="btn selected"
+                  >
+                    <span class="check">&check; </span>關
+                  </button>
+                </div>
+              </div>
+              <button type="button" id="reset-to-default-btn" class="btn">
+                重設為預設值
+              </button>
+            </div>
+          </div>
+          <div class="relative-container">
+            <button type="button" id="save-replay-btn" class="btn">存檔</button>
+          </div>
+          <div class="color-scheme-toggle-switch-container">
+            <input
+              type="checkbox"
+              id="dark-color-scheme-checkbox-1"
+              class="toggle-switch dark-color-scheme-checkbox"
+            />
+            <label for="dark-color-scheme-checkbox-1"></label>
+          </div>
+          <div class="relative-container">
+            <label>AI 強度</label>
+            <select id="ai-level">
+              <option value="0">0</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+              <option value="7">7</option>
+              <option value="8">8</option>
+              <option value="9">9</option>
+              <option value="10" selected>10</option>
+            </select>
+          </div>
+        </div>
+        <div class="btn-container right">
+          <button type="button" id="about-btn" class="btn glow">
+            <span class="text-about hidden">設定/關於</span
+            ><span class="text-play">開始</span>
+          </button>
+        </div>
+      </div>
+      <div class="if-embedded-in-other-website hidden">
+        <div class="limit-width">
+          It seems that you are playing this web version of
+          <span class="no-wrap">Pikachu Volleyball</span>
+          in some foreign website. If you visit the following link directly, you
+          can play the game in a pleasant environment without ads.
+          <div class="original-address">
+            The original address of this web version of Pikachu Volleyball:<br />
+            <a
+              href="https://gorisanson.github.io/pikachu-volleyball/zh/"
+              target="_blank"
+              rel="noopener"
+              >https://gorisanson.github.io/pikachu-volleyball/zh/</a
+            >
+          </div>
+          <button type="button" class="btn-in-box">
+            <span>關閉</span>
+          </button>
+        </div>
+      </div>
+      <div id="game-canvas-container">
+        <div class="fade-in-box about" id="about-box">
+          <div id="setting">
+            <h1>能力</h1>
+            <div id="capability">
+              <div><input id="serve" type="checkbox" /><label>發球</label></div>
+              <div>
+                <input id="fancy" type="checkbox" checked="checked" /><label
+                  >花式</label
+                >
+              </div>
+              <div>
+                <input id="block" type="checkbox" checked="checked" /><label
+                  >攔網</label
+                >
+              </div>
+              <div>
+                <input id="diving" type="checkbox" checked="checked" /><label
+                  >飛撲</label
+                >
+              </div>
+              <div>
+                <input
+                  id="anti_block"
+                  type="checkbox"
+                  checked="checked"
+                /><label>抗攔網</label>
+              </div>
+              <div>
+                <input id="early_ball" type="checkbox" /><label>提早球</label>
+              </div>
+              <div>
+                <input id="jump" type="checkbox" /><label>同步跳</label>
+              </div>
+              <div>
+                <label>防守</label>
+                <select id="defense">
+                  <option value="0">置中</option>
+                  <option value="1">置中鏡像</option>
+                  <option value="2">鏡像</option>
+                  <option value="3">預測</option>
+                  <option value="4" selected>預測趨前</option>
+                </select>
+              </div>
+              <div>
+                <label>延遲</label>
+                <input
+                  id="delay"
+                  type="number"
+                  inputmode="numeric"
+                  min="0"
+                  max="30"
+                  value="0"
+                />
+              </div>
+            </div>
+            <h1 style="margin-bottom: 0">發球</h1>
+            <div style="width: 100%">
+              <div class="player" style="float: left">
+                <h3>玩家一</h3>
+                <div>
+                  <div class="serve">
+                    <div>
+                      <b>一步托發球</b
+                      ><input
+                        id="player1-1-step-serve"
+                        type="checkbox"
+                        checked="checked"
+                      />
+                    </div>
+                    <div>
+                      <input
+                        id="player-1-skill-0-checkbox"
+                        type="checkbox"
+                        checked="checked"
+                      />
+                      <label>穿網</label>
+                    </div>
+                    <div>
+                      <input
+                        id="player-1-skill-1-checkbox"
+                        type="checkbox"
+                        checked="checked"
+                      />
+                      <label>平殺</label>
+                    </div>
+                    <div>
+                      <input
+                        id="player-1-skill-2-checkbox"
+                        type="checkbox"
+                        checked="checked"
+                      />
+                      <label>頭閃</label>
+                    </div>
+                    <div>
+                      <input
+                        id="player-1-skill-3-checkbox"
+                        type="checkbox"
+                        checked="checked"
+                      />
+                      <label>頭閃平殺</label>
+                    </div>
+                    <div>
+                      <input
+                        id="player-1-skill-4-checkbox"
+                        type="checkbox"
+                        checked="checked"
+                      />
+                      <label>彈網下殺</label>
+                    </div>
+                    <div>
+                      <input
+                        id="player-1-skill-5-checkbox"
+                        type="checkbox"
+                        checked="checked"
+                      />
+                      <label>彈網上殺</label>
+                    </div>
+                    <div>
+                      <input
+                        id="player-1-skill-6-checkbox"
+                        type="checkbox"
+                        checked="checked"
+                      />
+                      <label>彈網平殺</label>
+                    </div>
+                    <div>
+                      <input
+                        id="player-1-skill-7-checkbox"
+                        type="checkbox"
+                        checked="checked"
+                      />
+                      <label>彈網不打</label>
+                    </div>
+                    <hr style="width: 100%" />
+                    <div>
+                      <b>尾托發球</b
+                      ><input
+                        id="player1-tail-serve"
+                        type="checkbox"
+                        checked="checked"
+                      />
+                    </div>
+                    <div>
+                      <input
+                        id="player-1-skill-8-checkbox"
+                        type="checkbox"
+                        checked="checked"
+                      />
+                      <label>尾閃</label>
+                    </div>
+                    <div>
+                      <input
+                        id="player-1-skill-9-checkbox"
+                        type="checkbox"
+                        checked="checked"
+                      />
+                      <label>尾閃平殺</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="player" style="float: right">
+                <h3>玩家二</h3>
+                <div>
+                  <div class="surve">
+                    <div>
+                      <b>一步托發球</b
+                      ><input
+                        id="player2-1-step-serve"
+                        type="checkbox"
+                        checked="checked"
+                      />
+                    </div>
+                    <div>
+                      <input
+                        id="player-2-skill-0-checkbox"
+                        type="checkbox"
+                        checked="checked"
+                      />
+                      <label>穿網</label>
+                    </div>
+                    <div>
+                      <input
+                        id="player-2-skill-1-checkbox"
+                        type="checkbox"
+                        checked="checked"
+                      />
+                      <label>平殺</label>
+                    </div>
+                    <div>
+                      <input
+                        id="player-2-skill-2-checkbox"
+                        type="checkbox"
+                        checked="checked"
+                      />
+                      <label>頭閃</label>
+                    </div>
+                    <div>
+                      <input
+                        id="player-2-skill-3-checkbox"
+                        type="checkbox"
+                        checked="checked"
+                      />
+                      <label>頭閃平殺</label>
+                    </div>
+                    <div>
+                      <input
+                        id="player-2-skill-4-checkbox"
+                        type="checkbox"
+                        checked="checked"
+                      />
+                      <label>彈網閃</label>
+                    </div>
+                    <div>
+                      <input
+                        id="player-2-skill-5-checkbox"
+                        type="checkbox"
+                        checked="checked"
+                      />
+                      <label>彈網閃平殺</label>
+                    </div>
+                    <hr style="width: 100%" />
+                    <div>
+                      <b>尾托發球</b
+                      ><input
+                        id="player2-tail-serve"
+                        type="checkbox"
+                        checked="checked"
+                      />
+                    </div>
+                    <div>
+                      <input
+                        id="player-2-skill-6-checkbox"
+                        type="checkbox"
+                        checked="checked"
+                      />
+                      <label>尾閃</label>
+                    </div>
+                    <div>
+                      <input
+                        id="player-2-skill-7-checkbox"
+                        type="checkbox"
+                        checked="checked"
+                      />
+                      <label>尾閃平殺</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <hr style="width: 100%" />
+          <div id="about-box-head">
+            <h1>皮卡丘打排球 - 超級 AI 版</h1>
+            <p class="languages">
+              &check; Chinese(中文) |
+              <a href="../en/" target="_self">English</a> |
+              <a href="../ko/" target="_self">Korean(한국어)</a>
+            </p>
+            <p class="original-by">
+              原始版的的皮卡丘打排球 (対戦ぴかちゅ～　ﾋﾞｰﾁﾊﾞﾚｰ編) 是由
+              <br />
+              1997 (C)
+              <span class="no-wrap">SACHI SOFT / SAWAYAKAN Programmers</span
+              ><br />
+              1997 (C) <span class="no-wrap">Satoshi Takenouchi</span>
+              <br />
+              所開發的
+            </p>
+            <hr style="width: 100%" />
+            <p class="reverse-engineered-by">
+              以<a href="https://gorisanson.github.io/" target="_blank"
+                >Kyutae Lee</a
+              >開發的<a
+                href="https://gorisanson.github.io/pikachu-volleyball/zh/"
+                target="_blank"
+                >網頁版本</a
+              >作為基礎
+            </p>
+            <hr style="width: 100%" />
+            <p class="reverse-engineered-by">
+              <a href="https://blog.duckll.tw/" target="_blank">DuckLL</a
+              >進行改造開發<br />
+              強化 AI，可調整選項練習訓練<br />
+              紀錄存檔，搭配<a
+                href="https://gorisanson.github.io/pikachu-volleyball-p2p-online/en/replay/"
+                target="_blank"
+                >重播器</a
+              >進行重播<br />
+              1P 全按鍵可用 (同線上對戰版本)<br />
+              2P 改成電腦互打，可以欣賞神仙打架<br />
+              歡迎加入
+              <a
+                href="https://www.facebook.com/groups/246402780231618"
+                target="_self"
+                >台灣玩家交流社團</a
+              >
+              一起交流
+            </p>
+            <p class="source-code-on">
+              <a
+                href="https://github.com/duckll/pikachu-volleyball"
+                target="_blank"
+                rel="noopener"
+                >GitHub</a
+              >
+              <br />
+              <a href="./update-history/" target="_self">更新紀錄</a>
+              <br />
+              <a href="/version.html" target="_self">歷史版本</a>
+            </p>
+            <hr style="width: 100%" />
+            <h2>設計理念</h2>
+            <p>
+              我不會說我的 AI 是最強的 AI，我會說他是觀賞性最驚艷的
+              AI！超快的判斷能力、激進的進攻模式、多變的隨機性，讓比賽更加精彩。雖然他是
+              AI
+              但卻沒有使用機器學習，全部的策略都是基於我對於遊戲的理解來制訂的，這個
+              AI 還有進步的空間，因此我會持續開發。如果有任何建議，歡迎在 Github
+              提出！
+            </p>
+            <h2>能力介紹</h2>
+            <div style="text-align: left">
+              <p>
+                <b>發球: </b>對人類玩家很有用，但對 AI 效果不大。為避免被 AI
+                對手直接得分，預設關閉此選項。兩側的發球略有不同，可透過下方選項進行調整。
+              </p>
+              <p>
+                <b>花式: </b
+                >指連續擊球的技巧，如閃電殺球，其實是透過網子反彈後再進行擊球產生的。此外，上殺下殺、小球連擊、二跳連擊等都屬於花式擊球。
+              </p>
+              <p>
+                <b>攔網: </b
+                >一個練習用選項，指是否在網前區域主動攔截對手的攻擊球。
+              </p>
+              <p><b>飛撲: </b>開啟後可增加防守範圍。</p>
+              <p>
+                <b>抗攔網: </b>開啟時，AI 的攻擊球路將避免對手在網前直接攔網。
+              </p>
+              <p>
+                <b>提早球: </b
+                >指在起跳上升階段進行攻擊。建議同時關閉抗攔網選項，用於訓練突襲反應力。但在
+                AI 對決中，提早球可能因空中防守能力降低而導致失分。
+              </p>
+              <p>
+                <b>同步跳: </b
+                >一個練習用選項，用於訓練對手提前攔網時需要變化球路。
+              </p>
+              <p>
+                <b>延遲: </b
+                >模擬人類判斷的延遲，影響防守移動及組織攻擊的速度。個人認為 4
+                最接近高手的延遲，但人類的延遲通常不會是「發呆」。如果防守模式為預測，可將延遲設為
+                7，體驗預測防守的奧妙。
+              </p>
+            </div>
+            <h3>防禦模式</h3>
+            <p>
+              防守模式是指 AI 在對手攻擊前的預判站位。當對手攻擊時，AI
+              將根據球的落點進行移動。難度參考是基於花式選項開啟的情況，若未啟用花式選項，預測模式的強度將高於鏡像模式。
+            </p>
+            <div style="text-align: left">
+              <p><b>置中: </b>難度 1，站於防守範圍的中央。</p>
+              <p><b>置中鏡像: </b>難度 2，與對手同進退，但不會離開中間區域。</p>
+              <p><b>鏡像: </b>難度 4，完全與對手同進退。</p>
+              <p><b>預測: </b>難度 3，預測對手攻擊的最短路徑落點。</p>
+              <p>
+                <b>趨前: </b>難度
+                5，在確保能攔截球的情況下，盡可能靠近網前進行防守，以便攔網。
+              </p>
+            </div>
+          </div>
+          <div class="margin-top">
+            <button type="button" id="close-about-btn" class="btn-in-box glow">
+              <span class="text-close hidden">關閉</span
+              ><span class="text-play">開始</span>
+            </button>
+          </div>
+        </div>
+        <div class="fade-in-box notice hidden" id="notice-box-1">
+          <p>
+            遊戲分數無法設定成
+            <span id="winning-score-in-notice-box-1"></span> 分，因為
+            此分數已於先前達到
+          </p>
+          <button type="button" id="notice-ok-btn-1" class="btn-in-box">
+            OK
+          </button>
+        </div>
+        <div class="fade-in-box notice hidden" id="notice-box-2">
+          <p>
+            在練習模式中並沒有分數設定。 <br />
+            你可以在
+            <span class="no_wrap">"選項 &rarr; 練習模式 &rarr; 關"</span>.
+            關閉練習模式
+          </p>
+          <button type="button" id="notice-ok-btn-2" class="btn-in-box">
+            OK
+          </button>
+        </div>
+        <div class="fade-in-box loading hidden" id="loading-box">
+          <div>
+            <p>載入遊戲資源中...</p>
+            <div id="progress-bar-border">
+              <div id="progress-bar" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+        <div
+          class="fade-in-box update hidden"
+          id="update-notification-message-box"
+        >
+          有新版本釋出。是否更新？
+          <div>
+            <button type="button" class="update" id="update-now">
+              現在更新 (將會失去當前的遊戲狀態)
+            </button>
+            <button type="button" class="update" id="later">
+              待會再說 (於瀏覽器重開後自動更新)
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script type="module">
+      /*
+       * Register service worker with some configuration for service worker update notice.
+       * Major parts of the code below are copied from: https://developers.google.com/web/tools/workbox/guides/advanced-recipes
+       */
+      import { Workbox } from 'https://storage.googleapis.com/workbox-cdn/releases/5.0.0/workbox-window.prod.mjs';
 
-		gtag('config', 'G-ZGJ7GB94R9');
-	</script>
-</head>
+      function createUpdateUIPrompt(callback) {
+        const notificationBox = document.getElementById(
+          'update-notification-message-box'
+        );
+        const elementList = document.getElementsByClassName('fade-in-box');
+        const updateNowButton = document.getElementById('update-now');
+        const laterButton = document.getElementById('later');
 
-<body>
-	<div id="flex-container">
-		<div id="menu-bar">
-			<div class="btn-container left">
-				<div class="relative-container">
-					<button type="button" id="game-dropdown-btn" class="btn dropdown-btn">
-						遊戲
-					</button>
-					<div id="game-dropdown" class="dropdown">
-						<button type="button" id="pause-btn" class="btn">
-							<span class="check">&check; </span>暫停
-						</button>
-						<button type="button" id="restart-btn" class="btn">重來</button>
-					</div>
-				</div>
-				<div class="relative-container">
-					<button type="button" id="options-dropdown-btn" class="btn dropdown-btn">
-						選項
-					</button>
-					<div id="options-dropdown" class="dropdown">
-						<div class="relative-container">
-							<button type="button" id="graphic-submenu-btn" class="btn submenu-btn">
-								圖形 &#9654;&#xfe0e;
-							</button>
-							<div id="graphic-submenu" class="submenu">
-								<button type="button" id="graphic-sharp-btn" class="btn selected">
-									<span class="check">&check; </span>銳利
-								</button>
-								<button type="button" id="graphic-soft-btn" class="btn">
-									<span class="check">&check; </span>柔和
-								</button>
-							</div>
-						</div>
-						<div class="relative-container">
-							<button type="button" id="bgm-submenu-btn" class="btn submenu-btn">
-								背景音樂 &#9654;&#xfe0e;
-							</button>
-							<div id="bgm-submenu" class="submenu">
-								<button type="button" id="bgm-on-btn" class="btn">
-									<span class="check">&check; </span>開
-								</button>
-								<button type="button" id="bgm-off-btn" class="btn selected">
-									<span class="check">&check; </span>關
-								</button>
-							</div>
-						</div>
-						<div class="relative-container">
-							<button type="button" id="sfx-submenu-btn" class="btn submenu-btn">
-								SFX &#9654;&#xfe0e;
-							</button>
-							<div id="sfx-submenu" class="submenu">
-								<button type="button" id="stereo-btn" class="btn selected">
-									<span class="check">&check; </span>stereo
-								</button>
-								<button type="button" id="mono-btn" class="btn">
-									<span class="check">&check; </span>mono
-								</button>
-								<button type="button" id="sfx-off-btn" class="btn">
-									<span class="check">&check; </span>關
-								</button>
-							</div>
-						</div>
-						<div class="relative-container">
-							<button type="button" id="speed-submenu-btn" class="btn submenu-btn">
-								速度 &#9654;&#xfe0e;
-							</button>
-							<div id="speed-submenu" class="submenu">
-								<button type="button" id="slow-speed-btn" class="btn">
-									<span class="check">&check; </span>慢速
-								</button>
-								<button type="button" id="medium-speed-btn" class="btn">
-									<span class="check">&check; </span>普通
-								</button>
-								<button type="button" id="fast-speed-btn" class="btn selected">
-									<span class="check">&check; </span>快速
-								</button>
-							</div>
-						</div>
-						<div class="relative-container">
-							<button type="button" id="winning-score-submenu-btn" class="btn submenu-btn">
-								遊戲分數 &#9654;&#xfe0e;
-							</button>
-							<div id="winning-score-submenu" class="submenu">
-								<button type="button" id="winning-score-5-btn" class="btn">
-									<span class="check">&check; </span>5分
-								</button>
-								<button type="button" id="winning-score-10-btn" class="btn">
-									<span class="check">&check; </span>10分
-								</button>
-								<button type="button" id="winning-score-15-btn" class="btn selected">
-									<span class="check">&check; </span>15分
-								</button>
-							</div>
-						</div>
-						<div class="relative-container">
-							<button type="button" id="practice-mode-submenu-btn" class="btn submenu-btn">
-								練習模式 &#9654;&#xfe0e;
-							</button>
-							<div id="practice-mode-submenu" class="submenu">
-								<button type="button" id="practice-mode-on-btn" class="btn">
-									<span class="check">&check; </span>開
-								</button>
-								<button type="button" id="practice-mode-off-btn" class="btn selected">
-									<span class="check">&check; </span>關
-								</button>
-							</div>
-						</div>
-						<button type="button" id="reset-to-default-btn" class="btn">
-							重設為預設值
-						</button>
-					</div>
-				</div>
-				<div class="relative-container">
-					<button type="button" id="save-replay-btn" class="btn">
-						存檔
-					</button>
-				</div>
-				<div class="color-scheme-toggle-switch-container">
-					<input type="checkbox" id="dark-color-scheme-checkbox-1"
-						class="toggle-switch dark-color-scheme-checkbox" />
-					<label for="dark-color-scheme-checkbox-1"></label>
-				</div>
-				<div class="relative-container">
-					<label>AI 強度</label>
-					<select id="ai-level">
-						<option value="0">0</option>
-						<option value="1">1</option>
-						<option value="2">2</option>
-						<option value="3">3</option>
-						<option value="4">4</option>
-						<option value="5">5</option>
-						<option value="6">6</option>
-						<option value="7">7</option>
-						<option value="8">8</option>
-						<option value="9">9</option>
-						<option value="10" selected>10</option>
-					</select>
-				</div>
-			</div>
-			<div class="btn-container right">
-				<button type="button" id="about-btn" class="btn glow">
-					<span class="text-about hidden">設定/關於</span><span class="text-play">開始</span>
-				</button>
-			</div>
-		</div>
-		<div class="if-embedded-in-other-website hidden">
-			<div class="limit-width">
-				It seems that you are playing this web version of
-				<span class="no-wrap">Pikachu Volleyball</span>
-				in some foreign website. If you visit the following link directly, you
-				can play the game in a pleasant environment without ads.
-				<div class="original-address">
-					The original address of this web version of Pikachu Volleyball:<br />
-					<a href="https://gorisanson.github.io/pikachu-volleyball/zh/" target="_blank"
-						rel="noopener">https://gorisanson.github.io/pikachu-volleyball/zh/</a>
-				</div>
-				<button type="button" class="btn-in-box">
-					<span>關閉</span>
-				</button>
-			</div>
-		</div>
-		<div id="game-canvas-container">
-			<div class="fade-in-box about" id="about-box">
-				<div id="setting">
-					<h1>能力</h1>
-					<div id="capability">
-						<div><input id="serve" type="checkbox"><label>發球</label></div>
-						<div><input id="fancy" type="checkbox" checked="checked"><label>花式</label></div>
-						<div><input id="block" type="checkbox" checked="checked"><label>攔網</label></div>
-						<div><input id="diving" type="checkbox" checked="checked"><label>飛撲</label></div>
-						<div><input id="anti_block" type="checkbox" checked="checked"><label>抗攔網</label></div>
-						<div><input id="early_ball" type="checkbox"><label>提早球</label></div>
-						<div><input id="jump" type="checkbox"><label>同步跳</label></div>
-						<div>
-							<label>防守</label>
-							<select id="defense">
-								<option value="0">置中</option>
-								<option value="1">置中鏡像</option>
-								<option value="2">鏡像</option>
-								<option value="3">預測</option>
-								<option value="4" selected>預測趨前</option>
-							</select>
-						</div>
-						<div>
-							<label>延遲</label>
-							<input id="delay" type="number" inputmode="numeric" min="0" max="30" value="0">
-						</div>
-					</div>
-					<h1 style="margin-bottom: 0;">發球</h1>
-					<div style="width: 100%;">
-						<div class="player" style="float: left;">
-							<h3>玩家一</h3>
-							<div>
-								<div class="serve">
-									<div><b>一步托發球</b><input id="player1-1-step-serve" type="checkbox" checked="checked">
-									</div>
-									<div><input id="player-1-skill-0-checkbox" type="checkbox" checked="checked">
-										<label>穿網</label>
-									</div>
-									<div><input id="player-1-skill-1-checkbox" type="checkbox" checked="checked">
-										<label>平殺</label>
-									</div>
-									<div><input id="player-1-skill-2-checkbox" type="checkbox" checked="checked">
-										<label>頭閃</label>
-									</div>
-									<div><input id="player-1-skill-3-checkbox" type="checkbox" checked="checked">
-										<label>頭閃平殺</label>
-									</div>
-									<div><input id="player-1-skill-4-checkbox" type="checkbox" checked="checked">
-										<label>彈網下殺</label>
-									</div>
-									<div><input id="player-1-skill-5-checkbox" type="checkbox" checked="checked">
-										<label>彈網上殺</label>
-									</div>
-									<div><input id="player-1-skill-6-checkbox" type="checkbox" checked="checked">
-										<label>彈網平殺</label>
-									</div>
-									<div><input id="player-1-skill-7-checkbox" type="checkbox" checked="checked">
-										<label>彈網不打</label>
-									</div>
-									<hr style="width: 100%;">
-									<div><b>尾托發球</b><input id="player1-tail-serve" type="checkbox" checked="checked">
-									</div>
-									<div><input id="player-1-skill-8-checkbox" type="checkbox" checked="checked">
-										<label>尾閃</label>
-									</div>
-									<div><input id="player-1-skill-9-checkbox" type="checkbox" checked="checked">
-										<label>尾閃平殺</label>
-									</div>
-								</div>
-							</div>
+        updateNowButton.addEventListener('click', function () {
+          notificationBox.classList.add('hidden');
+          callback.onAccept();
+        });
+        laterButton.addEventListener('click', function () {
+          notificationBox.classList.add('hidden');
+        });
 
+        for (const element of elementList) {
+          element.classList.add('hidden');
+        }
+        notificationBox.classList.remove('hidden');
+      }
 
-						</div>
-						<div class="player" style="float: right;">
-							<h3>玩家二</h3>
-							<div>
-								<div class="surve">
-									<div><b>一步托發球</b><input id="player2-1-step-serve" type="checkbox" checked="checked">
-									</div>
-									<div><input id="player-2-skill-0-checkbox" type="checkbox" checked="checked">
-										<label>穿網</label>
-									</div>
-									<div><input id="player-2-skill-1-checkbox" type="checkbox" checked="checked">
-										<label>平殺</label>
-									</div>
-									<div><input id="player-2-skill-2-checkbox" type="checkbox" checked="checked">
-										<label>頭閃</label>
-									</div>
-									<div><input id="player-2-skill-3-checkbox" type="checkbox" checked="checked">
-										<label>頭閃平殺</label>
-									</div>
-									<div><input id="player-2-skill-4-checkbox" type="checkbox" checked="checked">
-										<label>彈網閃</label>
-									</div>
-									<div><input id="player-2-skill-5-checkbox" type="checkbox" checked="checked">
-										<label>彈網閃平殺</label>
-									</div>
-									<hr style="width: 100%;">
-									<div><b>尾托發球</b><input id="player2-tail-serve" type="checkbox" checked="checked">
-									</div>
-									<div><input id="player-2-skill-6-checkbox" type="checkbox" checked="checked">
-										<label>尾閃</label>
-									</div>
-									<div><input id="player-2-skill-7-checkbox" type="checkbox" checked="checked">
-										<label>尾閃平殺</label>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-				<hr style="width: 100%;">
-				<div id="about-box-head">
-					<h1>皮卡丘打排球 - 超級 AI 版</h1>
-					<p class="languages">
-						&check; Chinese(中文) |
-						<a href="../en/" target="_self">English</a> |
-						<a href="../ko/" target="_self">Korean(한국어)</a>
-					</p>
-					<p class="original-by">
-						原始版的的皮卡丘打排球 (対戦ぴかちゅ～　ﾋﾞｰﾁﾊﾞﾚｰ編) 是由
-						<br />
-						1997 (C)
-						<span class="no-wrap">SACHI SOFT / SAWAYAKAN Programmers</span><br />
-						1997 (C) <span class="no-wrap">Satoshi Takenouchi</span>
-						<br />
-						所開發的
-					</p>
-					<hr style="width: 100%;">
-					<p class="reverse-engineered-by">
-						以<a href="https://gorisanson.github.io/" target="_blank">Kyutae Lee</a>開發的<a
-							href="https://gorisanson.github.io/pikachu-volleyball/zh/" target="_blank">網頁版本</a>作為基礎
-					</p>
-					<hr style="width: 100%;">
-					<p class="reverse-engineered-by">
-						<a href="https://blog.duckll.tw/" target="_blank">DuckLL</a>進行改造開發<br>
-						強化 AI，可調整選項練習訓練<br>
-						紀錄存檔，搭配<a href="https://gorisanson.github.io/pikachu-volleyball-p2p-online/en/replay/"
-							target="_blank">重播器</a>進行重播<br>
-						1P 全按鍵可用 (同線上對戰版本)<br>
-						2P 改成電腦互打，可以欣賞神仙打架<br>
-						歡迎加入 <a href="https://www.facebook.com/groups/246402780231618" target="_self">台灣玩家交流社團</a> 一起交流
-					</p>
-					<p class="source-code-on">
-						<a href="https://github.com/duckll/pikachu-volleyball" target="_blank" rel="noopener">GitHub</a>
-						<br>
-						<a href="./update-history/" target="_self">更新紀錄</a>
-						<br>
-						<a href="/version.html" target="_self">歷史版本</a>
-					</p>
-					<hr style="width: 100%;">
-					<h2>設計理念</h2>
-					<p>
-						我不會說我的 AI
-						是最強的 AI，我會說他是觀賞性最驚艷的 AI！超快的判斷能力、激進的進攻模式、多變的隨機性，讓比賽更加精彩。雖然他是 AI
-						但卻沒有使用機器學習，全部的策略都是基於我對於遊戲的理解來制訂的，這個 AI
-						還有進步的空間，因此我會持續開發。如果有任何建議，歡迎在
-						Github 提出！
-					</p>
-					<h2>能力介紹</h2>
-					<div style="text-align: left;">
-						<p><b>發球: </b>對人類玩家很有用，但對 AI 效果不大。為避免被 AI 對手直接得分，預設關閉此選項。兩側的發球略有不同，可透過下方選項進行調整。</p>
-						<p><b>花式: </b>指連續擊球的技巧，如閃電殺球，其實是透過網子反彈後再進行擊球產生的。此外，上殺下殺、小球連擊、二跳連擊等都屬於花式擊球。</p>
-						<p><b>攔網: </b>一個練習用選項，指是否在網前區域主動攔截對手的攻擊球。</p>
-						<p><b>飛撲: </b>開啟後可增加防守範圍。</p>
-						<p><b>抗攔網: </b>開啟時，AI 的攻擊球路將避免對手在網前直接攔網。</p>
-						<p><b>提早球: </b>指在起跳上升階段進行攻擊。建議同時關閉抗攔網選項，用於訓練突襲反應力。但在 AI 對決中，提早球可能因空中防守能力降低而導致失分。</p>
-						<p><b>同步跳: </b>一個練習用選項，用於訓練對手提前攔網時需要變化球路。</p>
-						<p><b>延遲: </b>模擬人類判斷的延遲，影響防守移動及組織攻擊的速度。個人認為 4 最接近高手的延遲，但人類的延遲通常不會是「發呆」。如果防守模式為預測，可將延遲設為
-							7，體驗預測防守的奧妙。</p>
-					</div>
-					<h3>防禦模式</h3>
-					<p>
-						防守模式是指 AI 在對手攻擊前的預判站位。當對手攻擊時，AI 將根據球的落點進行移動。難度參考是基於花式選項開啟的情況，若未啟用花式選項，預測模式的強度將高於鏡像模式。
-					</p>
-					<div style="text-align: left;">
-						<p><b>置中: </b>難度 1，站於防守範圍的中央。</p>
-						<p><b>置中鏡像: </b>難度 2，與對手同進退，但不會離開中間區域。</p>
-						<p><b>鏡像: </b>難度 4，完全與對手同進退。</p>
-						<p><b>預測: </b>難度 3，預測對手攻擊的最短路徑落點。</p>
-						<p><b>趨前: </b>難度 5，在確保能攔截球的情況下，盡可能靠近網前進行防守，以便攔網。</p>
-					</div>
+      if ('serviceWorker' in navigator) {
+        const wb = new Workbox('../sw.js');
+        // Add an event listener to detect when the registered
+        // service worker has installed but is waiting to activate.
+        wb.addEventListener('waiting', (event) => {
+          const prompt = createUpdateUIPrompt({
+            onAccept: async () => {
+              // Assuming the user accepted the update, set up a listener
+              // that will reload the page as soon as the previously waiting
+              // service worker has taken control.
+              wb.addEventListener('controlling', (event) => {
+                window.location.reload();
+              });
+              // Send a message telling the service worker to skip waiting.
+              // This will trigger the `controlling` event handler above.
+              wb.messageSW({ type: 'SKIP_WAITING' });
+            },
+          });
+        });
 
-				</div>
-				<div class="margin-top">
-					<button type="button" id="close-about-btn" class="btn-in-box glow">
-						<span class="text-close hidden">關閉</span><span class="text-play">開始</span>
-					</button>
-				</div>
-			</div>
-			<div class="fade-in-box notice hidden" id="notice-box-1">
-				<p>
-					遊戲分數無法設定成
-					<span id="winning-score-in-notice-box-1"></span> 分，因為
-					此分數已於先前達到
-				</p>
-				<button type="button" id="notice-ok-btn-1" class="btn-in-box">
-					OK
-				</button>
-			</div>
-			<div class="fade-in-box notice hidden" id="notice-box-2">
-				<p>
-					在練習模式中並沒有分數設定。 <br />
-					你可以在
-					<span class="no_wrap">"選項 &rarr; 練習模式 &rarr; 關"</span>.
-					關閉練習模式
-				</p>
-				<button type="button" id="notice-ok-btn-2" class="btn-in-box">
-					OK
-				</button>
-			</div>
-			<div class="fade-in-box loading hidden" id="loading-box">
-				<div>
-					<p>載入遊戲資源中...</p>
-					<div id="progress-bar-border">
-						<div id="progress-bar" style="width: 0%"></div>
-					</div>
-				</div>
-			</div>
-			<div class="fade-in-box update hidden" id="update-notification-message-box">
-				有新版本釋出。是否更新？
-				<div>
-					<button type="button" class="update" id="update-now">
-						現在更新 (將會失去當前的遊戲狀態)
-					</button>
-					<button type="button" class="update" id="later">
-						待會再說 (於瀏覽器重開後自動更新)
-					</button>
-				</div>
-			</div>
-		</div>
-	</div>
-	<script type="module">
-		/*
-		 * Register service worker with some configuration for service worker update notice.
-		 * Major parts of the code below are copied from: https://developers.google.com/web/tools/workbox/guides/advanced-recipes
-		 */
-		import { Workbox } from 'https://storage.googleapis.com/workbox-cdn/releases/5.0.0/workbox-window.prod.mjs';
-
-		function createUpdateUIPrompt(callback) {
-			const notificationBox = document.getElementById(
-				'update-notification-message-box'
-			);
-			const elementList = document.getElementsByClassName('fade-in-box');
-			const updateNowButton = document.getElementById('update-now');
-			const laterButton = document.getElementById('later');
-
-			updateNowButton.addEventListener('click', function () {
-				notificationBox.classList.add('hidden');
-				callback.onAccept();
-			});
-			laterButton.addEventListener('click', function () {
-				notificationBox.classList.add('hidden');
-			});
-
-			for (const element of elementList) {
-				element.classList.add('hidden');
-			}
-			notificationBox.classList.remove('hidden');
-		}
-
-		if ('serviceWorker' in navigator) {
-			const wb = new Workbox('../sw.js');
-			// Add an event listener to detect when the registered
-			// service worker has installed but is waiting to activate.
-			wb.addEventListener('waiting', (event) => {
-				const prompt = createUpdateUIPrompt({
-					onAccept: async () => {
-						// Assuming the user accepted the update, set up a listener
-						// that will reload the page as soon as the previously waiting
-						// service worker has taken control.
-						wb.addEventListener('controlling', (event) => {
-							window.location.reload();
-						});
-						// Send a message telling the service worker to skip waiting.
-						// This will trigger the `controlling` event handler above.
-						wb.messageSW({ type: 'SKIP_WAITING' });
-					},
-				});
-			});
-
-			wb.register();
-		}
-	</script>
-</body>
-
+        wb.register();
+      }
+    </script>
+  </body>
 </html>

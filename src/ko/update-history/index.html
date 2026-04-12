@@ -1,69 +1,112 @@
 <!DOCTYPE html>
 <html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-<head>
-	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>피카츄 배구 업데이트 기록</title>
+    <meta
+      name="description"
+      content="Update history for Pikachu Volleyball P2P Online"
+    />
+    <meta name="author" content="Lee, Kyutae" />
 
-	<title>피카츄 배구 업데이트 기록</title>
-	<meta name="description" content="Update history for Pikachu Volleyball P2P Online" />
-	<meta name="author" content="Lee, Kyutae" />
+    <meta name="theme-color" content="#FFFFFF" />
 
-	<meta name="theme-color" content="#FFFFFF" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="../../resources/assets/images/IDI_PIKAICON-0.png"
+    />
+    <link rel="stylesheet" href="../../resources/style.css" />
+    <script
+      defer
+      src="https://health.duckll.tw/health"
+      data-website-id="80b986e1-e6b2-4556-8c23-412ae4a03903"
+    ></script>
+  </head>
 
-	<link rel="icon" type="image/png" sizes="32x32" href="../../resources/assets/images/IDI_PIKAICON-0.png" />
-	<link rel="stylesheet" href="../../resources/style.css" />
-</head>
-
-<body>
-	<div id="update-history-container">
-		<div id="about-box-head">
-			<h1>피카츄 배구 <span class="no-wrap">업데이트 기록</span></h1>
-			<div class="color-scheme-toggle-switch-container">
-				<input type="checkbox" id="dark-color-scheme-checkbox-1"
-					class="toggle-switch dark-color-scheme-checkbox" />
-				<label for="dark-color-scheme-checkbox-1"></label>
-			</div>
-			<p class="languages">
-				<a href="../../zh/update-history/" target="_self">Chinese(中文)</a> |
-				<a href="../../en/update-history/" target="_self">English</a>
-				| &check; Korean(한국어)
-			</p>
-			<p class="small"><a href="../">오프라인 웹 버전</a>으로 돌아가기</p>
-			<p class="small">주요 업데이트만 기록합니다.</p>
-		</div>
-		<div class="margin-top limit-width">
-			<div class="indent-minus">
-				<p><span class="bold">2020-03-26</span> 공개</p>
-				<p>
-					<span class="bold">2020-04-19</span> 오프라인 웹 버전 변경 반영:
-					피카츄 다이빙 방향 오류 수정 (<a href="https://github.com/gorisanson/pikachu-volleyball/pull/1" target="_blank"
-						rel="noopener"><span class="no-wrap">@djsjukr</span>님이 수정함</a>)
-				</p>
-				<p>
-					<span class="bold">2020-05-03</span> 왼편 키보드 매핑을 원조 피카츄
-					배구 게임과 동일하도록 수정 (<a href="https://github.com/gorisanson/pikachu-volleyball/issues/3" target="_blank"
-						rel="noopener"><span class="no-wrap">@repeat_c</span>님의 제보</a>)
-				</p>
-				<p>
-					<span class="bold">2020-06-27</span> 이 업데이트 기록 페이지를 만듦
-					(<a href="https://github.com/gorisanson/pikachu-volleyball-p2p-online/issues/7" target="_blank"
-						rel="noopener"><span class="no-wrap">@e6p77Bi8CW7zRBg</span>님의 제안</a>)
-				</p>
-				<p>
-					<span class="bold">2020-06-28</span> 중국어 번역 추가 (<a
-						href="https://github.com/gorisanson/pikachu-volleyball/pull/4" target="_blank"
-						rel="noopener"><span class="no-wrap">@oToToT</span>님이 번역함,
-						<span class="no-wrap">@david942j</span>님이 검토함</a>)
-				</p>
-				<p><span class="bold">2022-01-17</span> 다크 모드 도입</p>
-			</div>
-			<div id="AI"></div>
-		</div>
-		<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-		<script>
-			document.getElementById('AI').innerHTML =
-				marked.parse('# AI 업데이트 기록\n\
+  <body>
+    <div id="update-history-container">
+      <div id="about-box-head">
+        <h1>피카츄 배구 <span class="no-wrap">업데이트 기록</span></h1>
+        <div class="color-scheme-toggle-switch-container">
+          <input
+            type="checkbox"
+            id="dark-color-scheme-checkbox-1"
+            class="toggle-switch dark-color-scheme-checkbox"
+          />
+          <label for="dark-color-scheme-checkbox-1"></label>
+        </div>
+        <p class="languages">
+          <a href="../../zh/update-history/" target="_self">Chinese(中文)</a> |
+          <a href="../../en/update-history/" target="_self">English</a>
+          | &check; Korean(한국어)
+        </p>
+        <p class="small"><a href="../">오프라인 웹 버전</a>으로 돌아가기</p>
+        <p class="small">주요 업데이트만 기록합니다.</p>
+      </div>
+      <div class="margin-top limit-width">
+        <div class="indent-minus">
+          <p><span class="bold">2020-03-26</span> 공개</p>
+          <p>
+            <span class="bold">2020-04-19</span> 오프라인 웹 버전 변경 반영:
+            피카츄 다이빙 방향 오류 수정 (<a
+              href="https://github.com/gorisanson/pikachu-volleyball/pull/1"
+              target="_blank"
+              rel="noopener"
+              ><span class="no-wrap">@djsjukr</span>님이 수정함</a
+            >)
+          </p>
+          <p>
+            <span class="bold">2020-05-03</span> 왼편 키보드 매핑을 원조 피카츄
+            배구 게임과 동일하도록 수정 (<a
+              href="https://github.com/gorisanson/pikachu-volleyball/issues/3"
+              target="_blank"
+              rel="noopener"
+              ><span class="no-wrap">@repeat_c</span>님의 제보</a
+            >)
+          </p>
+          <p>
+            <span class="bold">2020-06-27</span> 이 업데이트 기록 페이지를 만듦
+            (<a
+              href="https://github.com/gorisanson/pikachu-volleyball-p2p-online/issues/7"
+              target="_blank"
+              rel="noopener"
+              ><span class="no-wrap">@e6p77Bi8CW7zRBg</span>님의 제안</a
+            >)
+          </p>
+          <p>
+            <span class="bold">2020-06-28</span> 중국어 번역 추가 (<a
+              href="https://github.com/gorisanson/pikachu-volleyball/pull/4"
+              target="_blank"
+              rel="noopener"
+              ><span class="no-wrap">@oToToT</span>님이 번역함,
+              <span class="no-wrap">@david942j</span>님이 검토함</a
+            >)
+          </p>
+          <p><span class="bold">2022-01-17</span> 다크 모드 도입</p>
+          <p>
+            <span class="bold">2022-05-06</span> 게임 설정(배경음악, 효과음,
+            속도, 승리점수)이 저장되도록 함
+          </p>
+          <p>
+            <span class="bold">2023-10-02</span> 그래픽 옵션 ("예리하게",
+            "부드럽게") 추가 (<a
+              href="https://twitter.com/DuckLL_tw"
+              target="_blank"
+              rel="noopener"
+              ><span class="no-wrap">@DuckLL_tw</span>님의 제안</a
+            >)
+          </p>
+        </div>
+        <div id="AI"></div>
+      </div>
+      <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+      <script>
+        document.getElementById('AI').innerHTML = marked.parse(
+          '# AI 업데이트 기록\n\
 ## v1.0\n\
 - 새로운 기술\n\
 	- 제공\n\
@@ -128,10 +171,17 @@
 - 새로운 기능\n\
 	- 간단한 AI 난이도 수준\n\
 	- 전체 키보드 사용 가능(온라인 배틀 버전과 동일) \n\
-');
-		</script>
-	</div>
-	<div class="for-margin"></div>
-</body>
-
+## V8.0\n\
+- 원작 게임 기능 보완 완료\n\
+- 버그 수정\n\
+	- 점프 마지막 프레임에서도 스파이크 가능\n\
+	- 차단 방지 판정\n\
+- 새로운 트릭샷\n\
+	- 붙은 공 해제 후 네트 앞 타격\n\
+'
+        );
+      </script>
+    </div>
+    <div class="for-margin"></div>
+  </body>
 </html>

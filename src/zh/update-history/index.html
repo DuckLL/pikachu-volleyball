@@ -1,73 +1,111 @@
 <!DOCTYPE html>
 <html lang="zh">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-<head>
-	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>皮卡丘打排球更新紀錄</title>
+    <meta name="description" content="線上玩皮卡丘打排球之更新紀錄" />
+    <meta name="author" content="Lee, Kyutae" />
 
-	<title>皮卡丘打排球更新紀錄</title>
-	<meta name="description" content="線上玩皮卡丘打排球之更新紀錄" />
-	<meta name="author" content="Lee, Kyutae" />
+    <meta name="theme-color" content="#FFFFFF" />
 
-	<meta name="theme-color" content="#FFFFFF" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="../../resources/assets/images/IDI_PIKAICON-0.png"
+    />
+    <link rel="stylesheet" href="../../resources/style.css" />
+    <script
+      defer
+      src="https://health.duckll.tw/health"
+      data-website-id="80b986e1-e6b2-4556-8c23-412ae4a03903"
+    ></script>
+  </head>
 
-	<link rel="icon" type="image/png" sizes="32x32" href="../../resources/assets/images/IDI_PIKAICON-0.png" />
-	<link rel="stylesheet" href="../../resources/style.css" />
-</head>
+  <body>
+    <div id="update-history-container">
+      <div id="about-box-head">
+        <h1>皮卡丘打排球<span class="no-wrap">更新紀錄</span></h1>
+        <div class="color-scheme-toggle-switch-container">
+          <input
+            type="checkbox"
+            id="dark-color-scheme-checkbox-1"
+            class="toggle-switch dark-color-scheme-checkbox"
+          />
+          <label for="dark-color-scheme-checkbox-1"></label>
+        </div>
+        <p class="languages">
+          &check; Chinese(中文) |
+          <a href="../../en/update-history/" target="_self">English</a> |
+          <a href="../../ko/update-history/" target="_self">Korean(한국어)</a>
+        </p>
+        <p class="small">
+          回到
+          <a href="../">可離線之網頁版本</a>
+        </p>
+        <p class="small">僅在此列出重大更新.</p>
+      </div>
+      <div class="margin-top limit-width">
+        <div class="indent-minus">
+          <p><span class="bold">2020-03-26</span> 釋出</p>
+          <p>
+            <span class="bold">2020-04-19</span> 修正皮卡丘的撲球方向。 (<a
+              href="https://github.com/gorisanson/pikachu-volleyball/pull/1"
+              target="_blank"
+              rel="noopener"
+              >由 <span class="no-wrap">@djsjukr</span> 修正</a
+            >)
+          </p>
+          <p>
+            <span class="bold">2020-05-03</span> 修正左側鍵盤配置以與原皮卡丘
+            打排球相同。 (<a
+              href="https://github.com/gorisanson/pikachu-volleyball/issues/3"
+              target="_blank"
+              rel="noopener"
+              >感謝 <span class="no-wrap">@repeat_c</span></a
+            >)
+          </p>
+          <p>
+            <span class="bold">2020-06-27</span> 新增此更新紀錄頁面. (<a
+              href="https://github.com/gorisanson/pikachu-volleyball-p2p-online/issues/7"
+              target="_blank"
+              rel="noopener"
+              >由 <span class="no-wrap">@e6p77Bi8CW7zRBg</span> 建議</a
+            >)
+          </p>
+          <p>
+            <span class="bold">2020-06-28</span> 新增中文翻譯 (<a
+              href="https://github.com/gorisanson/pikachu-volleyball/pull/4"
+              target="_blank"
+              rel="noopener"
+              >由 <span class="no-wrap">@oToToT</span> 翻譯, 並由
+              <span class="no-wrap">@david942j</span> 查核</a
+            >)
+          </p>
+          <p><span class="bold">2022-01-17</span> 新增暗色模式</p>
+          <p>
+            <span class="bold">2022-05-06</span> 遊戲選項 (BGM, SFX, 速度
+            和勝利分數) 現在會被保存。
+          </p>
+          <p>
+            <span class="bold">2023-10-02</span> 新增圖像選項「銳利」與
+            「柔和」。(<a
+              href="https://twitter.com/DuckLL_tw"
+              target="_blank"
+              rel="noopener"
+              >由 <span class="no-wrap">@DuckLL_tw</span> 建議</a
+            >)
+          </p>
+        </div>
+        <div id="AI"></div>
+      </div>
 
-<body>
-	<div id="update-history-container">
-		<div id="about-box-head">
-			<h1>皮卡丘打排球<span class="no-wrap">更新紀錄</span></h1>
-			<div class="color-scheme-toggle-switch-container">
-				<input type="checkbox" id="dark-color-scheme-checkbox-1"
-					class="toggle-switch dark-color-scheme-checkbox" />
-				<label for="dark-color-scheme-checkbox-1"></label>
-			</div>
-			<p class="languages">
-				&check; Chinese(中文) |
-				<a href="../../en/update-history/" target="_self">English</a> |
-				<a href="../../ko/update-history/" target="_self">Korean(한국어)</a>
-			</p>
-			<p class="small">
-				回到
-				<a href="../">可離線之網頁版本</a>
-			</p>
-			<p class="small">僅在此列出重大更新.</p>
-		</div>
-		<div class="margin-top limit-width">
-			<div class="indent-minus">
-				<p><span class="bold">2020-03-26</span> 釋出</p>
-				<p>
-					<span class="bold">2020-04-19</span> 修正皮卡丘的撲球方向。 (<a
-						href="https://github.com/gorisanson/pikachu-volleyball/pull/1" target="_blank" rel="noopener">由
-						<span class="no-wrap">@djsjukr</span> 修正</a>)
-				</p>
-				<p>
-					<span class="bold">2020-05-03</span> 修正左側鍵盤配置以與原皮卡丘
-					打排球相同。 (<a href="https://github.com/gorisanson/pikachu-volleyball/issues/3" target="_blank"
-						rel="noopener">感謝 <span class="no-wrap">@repeat_c</span></a>)
-				</p>
-				<p>
-					<span class="bold">2020-06-27</span> 新增此更新紀錄頁面. (<a
-						href="https://github.com/gorisanson/pikachu-volleyball-p2p-online/issues/7" target="_blank"
-						rel="noopener">由 <span class="no-wrap">@e6p77Bi8CW7zRBg</span> 建議</a>)
-				</p>
-				<p>
-					<span class="bold">2020-06-28</span> 新增中文翻譯 (<a
-						href="https://github.com/gorisanson/pikachu-volleyball/pull/4" target="_blank" rel="noopener">由
-						<span class="no-wrap">@oToToT</span> 翻譯, 並由
-						<span class="no-wrap">@david942j</span> 查核</a>)
-				</p>
-				<p><span class="bold">2022-01-17</span> Introduce dark mode.</p>
-			</div>
-			<div id="AI"></div>
-		</div>
-
-		<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-		<script>
-			document.getElementById('AI').innerHTML =
-				marked.parse('# AI更新紀錄\n\
+      <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+      <script>
+        document.getElementById('AI').innerHTML = marked.parse(
+          '# AI更新紀錄\n\
 ## v1.0\n\
 - 新增能力\n\
 	- 發球\n\
@@ -132,10 +170,17 @@
 - 新增功能\n\
 	- 簡易 AI 難度\n\
 	- 全鍵盤配置 (同線上對戰版本)\n\
-');
-		</script>
-	</div>
-	<div class="for-margin"></div>
-</body>
-
+## V8.0\n\
+- 原始遊戲功能補齊\n\
+- 修正 bug\n\
+	- 跳躍最後一幀可以殺球\n\
+	- 抗攔網判斷\n\
+- 新增花式\n\
+	- 解黏網前擊球\n\
+'
+        );
+      </script>
+    </div>
+    <div class="for-margin"></div>
+  </body>
 </html>
