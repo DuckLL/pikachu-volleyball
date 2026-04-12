@@ -402,6 +402,7 @@ function physicsEngine(player1, player2, ball, userInputArray) {
   // FUN_00403040
   // FUN_00406020
   // These two functions ommited above maybe participate in graphic drawing for a player
+  console.log(ball.x, ball.y, ball.xVelocity, ball.yVelocity);
   return isBallTouchingGround;
 }
 
@@ -767,8 +768,6 @@ function processCollisionBetweenBallAndPlayer(
   } else {
     ball.isPowerHit = false;
   }
-
-  calculateExpectedLandingPointXFor(ball);
 }
 
 /**
