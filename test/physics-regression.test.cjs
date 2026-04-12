@@ -74,15 +74,15 @@ test('physics AI avoids ambiguous chained comparison expressions', () => {
 test('physics AI helper semantics preserve player-side comparisons', () => {
   assert.match(
     physicsSource,
-    /function matchesNegativeVelocityForPlayerSide\(player, xVelocity\) {\s+return \(xVelocity < 0\) === player\.isPlayer2;\s+}/
+    /function matchesNegativeVelocityForPlayerSide\(player, xVelocity\) {\s+const isNegativeVelocity = xVelocity < 0;\s+return isNegativeVelocity === player\.isPlayer2;\s+}/
   );
   assert.match(
     physicsSource,
-    /function matchesPositiveVelocityForPlayerSide\(player, xVelocity\) {\s+return \(xVelocity > 0\) === player\.isPlayer2;\s+}/
+    /function matchesPositiveVelocityForPlayerSide\(player, xVelocity\) {\s+const isPositiveVelocity = xVelocity > 0;\s+return isPositiveVelocity === player\.isPlayer2;\s+}/
   );
   assert.match(
     physicsSource,
-    /function isTargetInFrontOfOriginForPlayer\(player, originX, targetX\) {\s+return \(targetX < originX\) === player\.isPlayer2;\s+}/
+    /function isTargetInFrontOfOriginForPlayer\(player, originX, targetX\) {\s+const isTargetInFront = targetX < originX;\s+return isTargetInFront === player\.isPlayer2;\s+}/
   );
 });
 
@@ -129,46 +129,47 @@ test('AI touch prediction uses the split self and other-player helpers', () => {
   );
 });
 
-test('canblock logic keeps only the other-player helper', () => {
+test('canblock logic uses one other-player helper', () => {
   assert.match(
     physicsSource,
     /function canblockOtherPlayer\(otherPlayer, predict\) {/
   );
+  assert.doesNotMatch(physicsSource, /function canblockPredictOtherPlayer\(otherPlayer, predict\) {/);
   assert.doesNotMatch(physicsSource, /function canblockSelf\(player, predict\) {/);
   assert.doesNotMatch(physicsSource, /function canblock\(player, predict\) {/);
 });
 
-test('canblockPredict logic keeps only the other-player helper', () => {
+test('canblock helper checks the entry frame and uses a single net range', () => {
   assert.match(
     physicsSource,
-    /function canblockPredictOtherPlayer\(otherPlayer, predict\) {/
+    /function canblockOtherPlayer\(otherPlayer, predict\) \{[\s\S]*if \(sameside\(otherPlayer, predict\[frame\]\.x\)\) \{[\s\S]*if \(first\) \{[\s\S]*first = false;[\s\S]*\}[\s\S]*if \(Math\.abs\(predict\[frame\]\.x - GROUND_HALF_WIDTH\) > 80\) \{/
+  );
+  assert.match(
+    physicsSource,
+    /function canblockOtherPlayer\(otherPlayer, predict\) \{[\s\S]*if \(first\) \{[\s\S]*first = false;\s*\}[\s\S]*if \(Math\.abs\(predict\[frame\]\.x - GROUND_HALF_WIDTH\) > 80\) \{[\s\S]*return false;\s*\}[\s\S]*return false;\s*\}/
   );
   assert.doesNotMatch(
     physicsSource,
-    /function canblockPredictSelf\(player, predict\) {/
-  );
-  assert.doesNotMatch(
-    physicsSource,
-    /function canblockPredict\(player, predict\) {/
+    /Math\.abs\(predict\[frame\]\.x - GROUND_HALF_WIDTH\) > 60/
   );
 });
 
-test('AI block prediction uses the split other-player block helpers', () => {
-  assert.match(
-    physicsSource,
-    /canblockPredictOtherPlayer\(\s*theOtherPlayer,\s*copyball\.predict\[player\.direction\]\s*\)/
-  );
-  assert.match(
-    physicsSource,
-    /direct > 3[\s\S]*!canblockPredictOtherPlayer\(theOtherPlayer, predict\)/
-  );
+test('AI block prediction uses the consolidated other-player block helper', () => {
   assert.match(
     physicsSource,
     /canblockOtherPlayer\(\s*theOtherPlayer,\s*copyball\.predict\[player\.direction\]\s*\)/
   );
   assert.match(
     physicsSource,
-    /\|\|[\s\S]*!canblockOtherPlayer\(theOtherPlayer, predict\)/
+    /direct > 3[\s\S]*!canblockOtherPlayer\(theOtherPlayer, predict\)/
+  );
+  assert.doesNotMatch(
+    physicsSource,
+    /canblockPredictOtherPlayer\(\s*theOtherPlayer,\s*copyball\.predict\[player\.direction\]\s*\)/
+  );
+  assert.doesNotMatch(
+    physicsSource,
+    /theOtherPlayer\.state === 0 \|\| theOtherPlayer\.yVelocity > 12/
   );
 });
 
