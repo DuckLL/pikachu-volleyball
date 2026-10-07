@@ -1,21 +1,18 @@
 /**
- * Controls of the replay viewer page (src/replay/index.html).
- * Ported from the P2P online version's replay viewer
- * (gorisanson/pikachu-volleyball-p2p-online), minus chat, nicknames and IPs,
- * plus the physics engine select and the analysis overlay switches.
+ * Controls of the replay viewer pages. From the P2P online version's replay
+ * viewer (gorisanson/pikachu-volleyball-p2p-online), plus switches for the
+ * analysis overlay: ball path, predict and hitboxes.
  */
-'use strict';
 import { replayPlayer } from './replay_player.js';
-import { AI_ENGINES } from '../engines/index.js';
+import { hideChat } from './chat_display.js';
+import { channel } from './channel.js';
 
 /** @typedef {import('../physics.js').PikaUserInput} PikaUserInput */
 
-const scrubberRangeInput = /** @type {HTMLInputElement} */ (
-  document.getElementById('scrubber-range-input')
-);
-const playPauseBtn = /** @type {HTMLButtonElement} */ (
-  document.getElementById('play-pause-btn')
-);
+let pausedByBtn = false;
+
+const scrubberRangeInput = document.getElementById('scrubber-range-input');
+const playPauseBtn = document.getElementById('play-pause-btn');
 const seekBackward1Btn = document.getElementById('seek-backward-1');
 const seekForward1Btn = document.getElementById('seek-forward-1');
 const seekBackward3Btn = document.getElementById('seek-backward-3');
@@ -24,203 +21,286 @@ const speedBtn5FPS = document.getElementById('speed-btn-5-fps');
 const speedBtnHalfTimes = document.getElementById('speed-btn-half-times');
 const speedBtn1Times = document.getElementById('speed-btn-1-times');
 const speedBtn2Times = document.getElementById('speed-btn-2-times');
-const engineSelect = /** @type {HTMLSelectElement} */ (
-  document.getElementById('engine-select')
-);
-const PLAYBACK_CONTROLS = [
-  scrubberRangeInput,
-  playPauseBtn,
-  seekBackward1Btn,
-  seekForward1Btn,
-  seekBackward3Btn,
-  seekForward3Btn,
-  speedBtn5FPS,
-  speedBtnHalfTimes,
-  speedBtn1Times,
-  speedBtn2Times,
-  engineSelect,
-];
 
-let pausedByBtn = false;
+// Analysis overlay switches, read by replay_overlay.js
+export var showPath = true;
+export var predict = true;
+export var showHitboxes = true;
 
 export function setUpUI() {
-  setPlaybackControlsDisabled(true);
+  disableReplayScrubberAndBtns();
 
-  for (const engine of AI_ENGINES) {
-    const option = document.createElement('option');
-    option.value = engine.id;
-    option.textContent = engine.date
-      ? `${engine.id} (${engine.date})`
-      : engine.id;
-    engineSelect.appendChild(option);
-  }
-  engineSelect.addEventListener('change', () => {
-    engineSelect.blur();
-    replayPlayer.changeEngine(engineSelect.value);
-  });
-
-  const dropbox = document.getElementById('dropbox');
-  const openFile = (files) => {
-    if (!files || files.length === 0) {
-      return;
-    }
+  // File input code is from: https://developer.mozilla.org/en-US/docs/Web/API/File/Using_files_from_web_applications
+  const fileInputElement = document.getElementById('file-input');
+  fileInputElement.addEventListener('change', (e) => {
     document.getElementById('loading-box').classList.remove('hidden');
     dropbox.classList.add('hidden');
-    replayPlayer.readFile(files[0]);
-  };
-  document.getElementById('file-input').addEventListener('change', (e) => {
     // @ts-ignore
-    openFile(e.target.files);
-  });
-  const stop = (e) => {
-    e.stopPropagation();
-    e.preventDefault();
-  };
-  dropbox.addEventListener('dragenter', stop, false);
-  dropbox.addEventListener('dragover', stop, false);
-  dropbox.addEventListener('drop', (e) => {
-    stop(e);
-    openFile(e.dataTransfer.files);
+    handleFiles(e.target.files);
   });
 
-  // Hold the playback while the scrubber is being dragged.
-  const holdPlayback = () => {
+  // Dropbox code is from: https://developer.mozilla.org/en-US/docs/Web/API/File/Using_files_from_web_applications
+  const dropbox = document.getElementById('dropbox');
+  dropbox.addEventListener('dragenter', dragenter, false);
+  dropbox.addEventListener('dragover', dragover, false);
+  dropbox.addEventListener('drop', drop, false);
+  function dragenter(e) {
+    e.stopPropagation();
+    e.preventDefault();
+  }
+  function dragover(e) {
+    e.stopPropagation();
+    e.preventDefault();
+  }
+  function drop(e) {
+    e.stopPropagation();
+    e.preventDefault();
+
+    const dt = e.dataTransfer;
+    const files = dt.files;
+
+    document.getElementById('loading-box').classList.remove('hidden');
+    dropbox.classList.add('hidden');
+
+    handleFiles(files);
+  }
+  function handleFiles(files) {
+    replayPlayer.readFile(files[0]);
+  }
+
+  scrubberRangeInput.addEventListener('touchstart', () => {
     if (replayPlayer.ticker.started) {
       replayPlayer.ticker.stop();
       replayPlayer.stopBGM();
     }
-  };
-  const resumePlayback = () => {
+  });
+  scrubberRangeInput.addEventListener('mousedown', () => {
+    if (replayPlayer.ticker.started) {
+      replayPlayer.ticker.stop();
+      replayPlayer.stopBGM();
+    }
+  });
+  scrubberRangeInput.addEventListener('touchend', () => {
     if (!pausedByBtn && !replayPlayer.ticker.started) {
       replayPlayer.ticker.start();
       replayPlayer.playBGMProperly();
     }
-  };
-  scrubberRangeInput.addEventListener('touchstart', holdPlayback);
-  scrubberRangeInput.addEventListener('mousedown', holdPlayback);
-  scrubberRangeInput.addEventListener('touchend', resumePlayback);
-  scrubberRangeInput.addEventListener('mouseup', resumePlayback);
-  scrubberRangeInput.addEventListener('input', () => {
-    replayPlayer.seekFrame(Number(scrubberRangeInput.value));
+  });
+  scrubberRangeInput.addEventListener('mouseup', () => {
+    if (!pausedByBtn && !replayPlayer.ticker.started) {
+      replayPlayer.ticker.start();
+      replayPlayer.playBGMProperly();
+    }
+  });
+  scrubberRangeInput.addEventListener('input', (e) => {
+    // @ts-ignore
+    replayPlayer.seekFrame(Number(e.currentTarget.value));
   });
 
+  // @ts-ignore
+  playPauseBtn.disabled = true;
   playPauseBtn.addEventListener('click', () => {
     if (replayPlayer.ticker.started) {
       replayPlayer.ticker.stop();
       replayPlayer.stopBGM();
       pausedByBtn = true;
+      adjustPlayPauseBtnIcon();
     } else {
       replayPlayer.ticker.start();
       replayPlayer.playBGMProperly();
       pausedByBtn = false;
+      adjustPlayPauseBtnIcon();
     }
-    adjustPlayPauseBtnIcon();
   });
 
-  for (const [btn, seconds] of [
-    [seekBackward1Btn, -1],
-    [seekForward1Btn, 1],
-    [seekBackward3Btn, -3],
-    [seekForward3Btn, 3],
-  ]) {
-    // @ts-ignore
-    btn.addEventListener('click', () => {
-      // @ts-ignore
-      replayPlayer.seekRelativeTime(seconds);
-      resumePlayback();
-    });
-  }
+  seekBackward1Btn.addEventListener('click', () => {
+    replayPlayer.seekRelativeTime(-1);
+    if (!pausedByBtn && !replayPlayer.ticker.started) {
+      replayPlayer.ticker.start();
+      replayPlayer.playBGMProperly();
+    }
+  });
+  seekForward1Btn.addEventListener('click', () => {
+    replayPlayer.seekRelativeTime(1);
+    if (!pausedByBtn && !replayPlayer.ticker.started) {
+      replayPlayer.ticker.start();
+      replayPlayer.playBGMProperly();
+    }
+  });
+  seekBackward3Btn.addEventListener('click', () => {
+    replayPlayer.seekRelativeTime(-3);
+    if (!pausedByBtn && !replayPlayer.ticker.started) {
+      replayPlayer.ticker.start();
+      replayPlayer.playBGMProperly();
+    }
+  });
+  seekForward3Btn.addEventListener('click', () => {
+    replayPlayer.seekRelativeTime(3);
+    if (!pausedByBtn && !replayPlayer.ticker.started) {
+      replayPlayer.ticker.start();
+      replayPlayer.playBGMProperly();
+    }
+  });
 
-  const speedBtns = [
-    speedBtn5FPS,
-    speedBtnHalfTimes,
-    speedBtn1Times,
-    speedBtn2Times,
-  ];
-  const unselectSpeedBtns = () => {
-    for (const btn of speedBtns) {
+  speedBtn5FPS.addEventListener('click', (e) => {
+    processSelected(e);
+    replayPlayer.adjustPlaybackSpeedFPS(5);
+  });
+  speedBtnHalfTimes.addEventListener('click', (e) => {
+    processSelected(e);
+    replayPlayer.adjustPlaybackSpeedTimes(0.5);
+  });
+  speedBtn1Times.addEventListener('click', (e) => {
+    processSelected(e);
+    replayPlayer.adjustPlaybackSpeedTimes(1);
+  });
+  speedBtn2Times.addEventListener('click', (e) => {
+    processSelected(e);
+    replayPlayer.adjustPlaybackSpeedTimes(2);
+  });
+  function processSelected(e) {
+    unselectSpeedBtns();
+    // @ts-ignore
+    e.currentTarget.classList.add('selected');
+  }
+  function unselectSpeedBtns() {
+    for (const btn of [
+      speedBtn5FPS,
+      speedBtnHalfTimes,
+      speedBtn1Times,
+      speedBtn2Times,
+    ]) {
       btn.classList.remove('selected');
     }
-  };
-  const onSpeedBtn = (btn, apply) => {
-    btn.addEventListener('click', () => {
-      unselectSpeedBtns();
-      btn.classList.add('selected');
-      apply();
-    });
-  };
-  onSpeedBtn(speedBtn5FPS, () => replayPlayer.adjustPlaybackSpeedFPS(5));
-  onSpeedBtn(speedBtnHalfTimes, () =>
-    replayPlayer.adjustPlaybackSpeedTimes(0.5)
-  );
-  onSpeedBtn(speedBtn1Times, () => replayPlayer.adjustPlaybackSpeedTimes(1));
-  onSpeedBtn(speedBtn2Times, () => replayPlayer.adjustPlaybackSpeedTimes(2));
+  }
 
-  const fpsInput = /** @type {HTMLInputElement} */ (
-    document.getElementById('fps-input')
-  );
-  fpsInput.addEventListener('change', () => {
-    const value = Math.min(60, Math.max(1, Number(fpsInput.value) || 1));
+  const fpsInput = document.getElementById('fps-input');
+  fpsInput.addEventListener('change', (e) => {
+    // @ts-ignore
+    let value = e.target.value;
+    if (value < 0) {
+      value = 0;
+    } else if (value > 60) {
+      value = 60;
+    }
     replayPlayer.adjustPlaybackSpeedFPS(value);
     unselectSpeedBtns();
   });
 
-  for (const id of [
-    'notice-end-of-replay-ok-btn',
-    'notice-file-open-error-ok-btn',
-  ]) {
-    document
-      .getElementById(id)
-      .addEventListener('click', () => location.reload());
-  }
+  const noticeBoxEndOfReplayOKBtn = document.getElementById(
+    'notice-end-of-replay-ok-btn'
+  );
+  noticeBoxEndOfReplayOKBtn.addEventListener('click', () => {
+    location.reload();
+  });
 
-  const onCheckbox = (id, apply) => {
-    const checkbox = /** @type {HTMLInputElement} */ (
-      document.getElementById(id)
-    );
-    checkbox.addEventListener('change', () => apply(checkbox.checked));
-  };
-  onCheckbox('show-keyboard-checkbox', (on) => {
-    document
-      .getElementById('keyboard-container')
-      .classList.toggle('hidden', !on);
+  const noticeBoxFileErrorOKBtn = document.getElementById(
+    'notice-file-open-error-ok-btn'
+  );
+  noticeBoxFileErrorOKBtn.addEventListener('click', () => {
+    location.reload();
   });
-  onCheckbox('turn-on-bgm-checkbox', (on) => {
-    if (replayPlayer.pikaVolley) {
-      replayPlayer.pikaVolley.audio.turnBGMVolume(on);
+
+  const keyboardContainer = document.getElementById('keyboard-container');
+  const showKeyboardCheckbox = document.getElementById(
+    'show-keyboard-checkbox'
+  );
+  showKeyboardCheckbox.addEventListener('change', () => {
+    // @ts-ignore
+    if (showKeyboardCheckbox.checked) {
+      keyboardContainer.classList.remove('hidden');
+    } else {
+      keyboardContainer.classList.add('hidden');
     }
   });
-  onCheckbox('turn-on-sfx-checkbox', (on) => {
-    if (replayPlayer.pikaVolley) {
-      replayPlayer.pikaVolley.audio.turnSFXVolume(on);
+
+  const showChatCheckbox = document.getElementById('show-chat-checkbox');
+  showChatCheckbox.addEventListener('change', () => {
+    // @ts-ignore
+    // Only the flag displayChatMessageAt reads: enableChat would also update
+    // the online page's "chat disabled" marks, which this page does not have.
+    channel.myChatEnabled = showChatCheckbox.checked;
+    if (!showChatCheckbox.checked) {
+      hideChat();
     }
   });
-  onCheckbox('graphic-sharp-checkbox', (on) => {
-    replayPlayer.renderer.view.classList.toggle('graphic-soft', !on);
-  });
-  onCheckbox('show-path-checkbox', (on) => {
-    if (replayPlayer.pikaVolley) {
-      replayPlayer.pikaVolley.overlay.showPath = on;
-      replayPlayer.redraw();
+
+  const showNicknamesCheckbox = document.getElementById(
+    'show-nicknames-checkbox'
+  );
+  const player1NicknameElem = document.getElementById('player1-nickname');
+  const player2NicknameElem = document.getElementById('player2-nickname');
+  showNicknamesCheckbox.addEventListener('change', () => {
+    // @ts-ignore
+    if (showNicknamesCheckbox.checked) {
+      player1NicknameElem.classList.remove('hidden');
+      player2NicknameElem.classList.remove('hidden');
+    } else {
+      player1NicknameElem.classList.add('hidden');
+      player2NicknameElem.classList.add('hidden');
     }
   });
-  onCheckbox('show-predict-checkbox', (on) => {
-    if (replayPlayer.pikaVolley) {
-      replayPlayer.pikaVolley.overlay.showPredict = on;
-      replayPlayer.redraw();
+
+  const showIPsCheckbox = document.getElementById('show-ip-addresses-checkbox');
+  const player1IPElem = document.getElementById('player1-partial-ip');
+  const player2IPElem = document.getElementById('player2-partial-ip');
+  showIPsCheckbox.addEventListener('change', () => {
+    // @ts-ignore
+    if (showIPsCheckbox.checked) {
+      player1IPElem.classList.remove('hidden');
+      player2IPElem.classList.remove('hidden');
+    } else {
+      player1IPElem.classList.add('hidden');
+      player2IPElem.classList.add('hidden');
     }
   });
-  onCheckbox('show-hitboxes-checkbox', (on) => {
-    if (replayPlayer.pikaVolley) {
-      replayPlayer.pikaVolley.overlay.showHitboxes = on;
-      replayPlayer.redraw();
+
+  const turnOnBGMCheckbox = document.getElementById('turn-on-bgm-checkbox');
+  turnOnBGMCheckbox.addEventListener('change', () => {
+    if (replayPlayer.pikaVolley === null) {
+      return;
+    }
+    // @ts-ignore
+    if (turnOnBGMCheckbox.checked) {
+      replayPlayer.pikaVolley.audio.turnBGMVolume(true);
+    } else {
+      replayPlayer.pikaVolley.audio.turnBGMVolume(false);
+    }
+  });
+
+  const turnOnSFXCheckbox = document.getElementById('turn-on-sfx-checkbox');
+  turnOnSFXCheckbox.addEventListener('change', () => {
+    if (replayPlayer.pikaVolley === null) {
+      return;
+    }
+    // @ts-ignore
+    if (turnOnSFXCheckbox.checked) {
+      replayPlayer.pikaVolley.audio.turnSFXVolume(true);
+    } else {
+      replayPlayer.pikaVolley.audio.turnSFXVolume(false);
+    }
+  });
+
+  const graphicSharpCheckbox = document.getElementById(
+    'graphic-sharp-checkbox'
+  );
+  graphicSharpCheckbox.addEventListener('change', () => {
+    if (replayPlayer.pikaVolley === null) {
+      return;
+    }
+    // @ts-ignore
+    if (graphicSharpCheckbox.checked) {
+      document
+        .querySelector('#game-canvas-container>canvas')
+        .classList.remove('graphic-soft');
+    } else {
+      document
+        .querySelector('#game-canvas-container>canvas')
+        .classList.add('graphic-soft');
     }
   });
 
   window.addEventListener('keydown', (event) => {
-    if (playPauseBtn.disabled) {
-      return;
-    }
     if (event.code === 'Space') {
       event.preventDefault();
       playPauseBtn.click();
@@ -232,133 +312,246 @@ export function setUpUI() {
       seekForward3Btn.click();
     }
   });
-}
 
-/**
- * Show which engine replays the file and whether the file said so.
- * @param {string} id
- * @param {boolean} detected
- * @param {string} roomId
- */
-export function showEngine(id, detected, roomId) {
-  engineSelect.value = id;
-  const note = document.getElementById('engine-note');
-  note.textContent = detected
-    ? `recorded with AI ${id} (room id ${roomId
-        .split('_')
-        .slice(0, 3)
-        .join('_')}_…)`
-    : 'this replay does not say which version recorded it; if the players start to act strangely, try another';
-}
-
-/**
- * Apply the overlay switches to a newly created game
- */
-export function applyOverlaySwitches() {
-  if (!replayPlayer.pikaVolley) {
-    return;
-  }
-  const checked = (id) =>
-    /** @type {HTMLInputElement} */ (document.getElementById(id)).checked;
-  replayPlayer.pikaVolley.overlay.showPath = checked('show-path-checkbox');
-  replayPlayer.pikaVolley.overlay.showPredict = checked(
-    'show-predict-checkbox'
-  );
-  replayPlayer.pikaVolley.overlay.showHitboxes = checked(
-    'show-hitboxes-checkbox'
-  );
+  const overlaySwitch = (id, apply) => {
+    const checkbox = document.getElementById(id);
+    checkbox.addEventListener('change', () => {
+      // @ts-ignore
+      apply(checkbox.checked);
+      replayPlayer.redrawOverlay();
+    });
+  };
+  overlaySwitch('turn-on-path-checkbox', (on) => (showPath = on));
+  overlaySwitch('turn-on-predict-checkbox', (on) => (predict = on));
+  overlaySwitch('turn-on-hitboxes-checkbox', (on) => (showHitboxes = on));
 }
 
 export function adjustFPSInputValue() {
-  const fpsInput = /** @type {HTMLInputElement} */ (
-    document.getElementById('fps-input')
-  );
-  fpsInput.value = String(replayPlayer.ticker.maxFPS);
+  const fpsInput = document.getElementById('fps-input');
+  // @ts-ignore
+  fpsInput.value = replayPlayer.ticker.maxFPS;
 }
 
 export function adjustPlayPauseBtnIcon() {
-  playPauseBtn.textContent = document.getElementById(
-    replayPlayer.ticker.started ? 'pause-mark' : 'play-mark'
-  ).textContent;
+  const playPauseBtn = document.getElementById('play-pause-btn');
+  if (replayPlayer.ticker.started) {
+    playPauseBtn.textContent =
+      document.getElementById('pause-mark').textContent;
+  } else {
+    playPauseBtn.textContent = document.getElementById('play-mark').textContent;
+  }
 }
 
 export function noticeEndOfReplay() {
-  document.getElementById('notice-end-of-replay').classList.remove('hidden');
+  const noticeBoxEndOfReplay = document.getElementById('notice-end-of-replay');
+  noticeBoxEndOfReplay.classList.remove('hidden');
 }
 
 export function hideNoticeEndOfReplay() {
-  document.getElementById('notice-end-of-replay').classList.add('hidden');
+  const noticeBoxEndOfReplay = document.getElementById('notice-end-of-replay');
+  noticeBoxEndOfReplay.classList.add('hidden');
 }
 
 export function noticeFileOpenError() {
-  document.getElementById('loading-box').classList.add('hidden');
-  document.getElementById('notice-file-open-error').classList.remove('hidden');
+  const noticeBoxFileOpenError = document.getElementById(
+    'notice-file-open-error'
+  );
+  noticeBoxFileOpenError.classList.remove('hidden');
 }
 
-/** @param {number} max */
+export function getCommentText() {
+  return document.getElementById('replay-viewer-at').textContent;
+}
+
 export function setMaxForScrubberRange(max) {
-  scrubberRangeInput.max = String(max);
+  // @ts-ignore
+  scrubberRangeInput.max = max;
 }
 
-/** @param {number} value */
 export function moveScrubberTo(value) {
-  scrubberRangeInput.value = String(value);
+  // @ts-ignore
+  scrubberRangeInput.value = value;
 }
 
-/** @param {number} timeCurrent unit: second */
+/**
+ *
+ * @param {number} timeCurrent unit: second
+ */
 export function showTimeCurrent(timeCurrent) {
   document.getElementById('time-current').textContent =
     getTimeText(timeCurrent);
 }
 
-/** @param {number} timeDuration unit: second */
+/**
+ *
+ * @param {number} timeDuration unit: second
+ */
 export function showTotalTimeDuration(timeDuration) {
   document.getElementById('time-duration').textContent =
     getTimeText(timeDuration);
 }
 
 /**
- * Light up the keys each player is pressing
+ * Show Keyboard inputs
  * @param {PikaUserInput} player1Input
  * @param {PikaUserInput} player2Input
  */
 export function showKeyboardInputs(player1Input, player2Input) {
-  const press = (id, pressed) =>
-    document.getElementById(id).classList.toggle('pressed', pressed);
-  press('d-key', player1Input.xDirection === -1);
-  press('g-key', player1Input.xDirection === 1);
-  press('r-key', player1Input.yDirection === -1);
-  press('v-key', player1Input.yDirection === 1);
-  press('z-key', player1Input.powerHit === 1);
-  press('left-key', player2Input.xDirection === -1);
-  press('right-key', player2Input.xDirection === 1);
-  press('up-key', player2Input.yDirection === -1);
-  press('down-key', player2Input.yDirection === 1);
-  press('enter-key', player2Input.powerHit === 1);
-}
+  const zKey = document.getElementById('z-key');
+  const rKey = document.getElementById('r-key');
+  const vKey = document.getElementById('v-key');
+  const dKey = document.getElementById('d-key');
+  const gKey = document.getElementById('g-key');
 
-export function enableReplayScrubberAndBtns() {
-  setPlaybackControlsDisabled(false);
-}
+  const enterKey = document.getElementById('enter-key');
+  const upKey = document.getElementById('up-key');
+  const downKey = document.getElementById('down-key');
+  const leftKey = document.getElementById('left-key');
+  const rightKey = document.getElementById('right-key');
 
-/** @param {boolean} disabled */
-function setPlaybackControlsDisabled(disabled) {
-  for (const control of PLAYBACK_CONTROLS) {
-    // @ts-ignore
-    control.disabled = disabled;
+  function pressKeyElm(keyElm) {
+    keyElm.classList.add('pressed');
+  }
+
+  function unpressKeyElm(keyElm) {
+    keyElm.classList.remove('pressed');
+  }
+
+  switch (player1Input.xDirection) {
+    case 0:
+      unpressKeyElm(dKey);
+      unpressKeyElm(gKey);
+      break;
+    case -1:
+      pressKeyElm(dKey);
+      unpressKeyElm(gKey);
+      break;
+    case 1:
+      unpressKeyElm(dKey);
+      pressKeyElm(gKey);
+      break;
+  }
+  switch (player1Input.yDirection) {
+    case 0:
+      unpressKeyElm(rKey);
+      unpressKeyElm(vKey);
+      break;
+    case -1:
+      pressKeyElm(rKey);
+      unpressKeyElm(vKey);
+      break;
+    case 1:
+      unpressKeyElm(rKey);
+      pressKeyElm(vKey);
+      break;
+  }
+  switch (player1Input.powerHit) {
+    case 0:
+      unpressKeyElm(zKey);
+      break;
+    case 1:
+      pressKeyElm(zKey);
+      break;
+  }
+
+  switch (player2Input.xDirection) {
+    case 0:
+      unpressKeyElm(leftKey);
+      unpressKeyElm(rightKey);
+      break;
+    case -1:
+      pressKeyElm(leftKey);
+      unpressKeyElm(rightKey);
+      break;
+    case 1:
+      unpressKeyElm(leftKey);
+      pressKeyElm(rightKey);
+      break;
+  }
+  switch (player2Input.yDirection) {
+    case 0:
+      unpressKeyElm(upKey);
+      unpressKeyElm(downKey);
+      break;
+    case -1:
+      pressKeyElm(upKey);
+      unpressKeyElm(downKey);
+      break;
+    case 1:
+      unpressKeyElm(upKey);
+      pressKeyElm(downKey);
+      break;
+  }
+  switch (player2Input.powerHit) {
+    case 0:
+      unpressKeyElm(enterKey);
+      break;
+    case 1:
+      pressKeyElm(enterKey);
+      break;
   }
 }
 
+export function enableReplayScrubberAndBtns() {
+  // @ts-ignore
+  scrubberRangeInput.disabled = false;
+  // @ts-ignore
+  playPauseBtn.disabled = false;
+  // @ts-ignore
+  seekBackward1Btn.disabled = false;
+  // @ts-ignore
+  seekForward1Btn.disabled = false;
+  // @ts-ignore
+  seekBackward3Btn.disabled = false;
+  // @ts-ignore
+  seekForward3Btn.disabled = false;
+  // @ts-ignore
+  speedBtn5FPS.disabled = false;
+  // @ts-ignore
+  speedBtnHalfTimes.disabled = false;
+  // @ts-ignore
+  speedBtn1Times.disabled = false;
+  // @ts-ignore
+  speedBtn2Times.disabled = false;
+}
+
+function disableReplayScrubberAndBtns() {
+  // @ts-ignore
+  scrubberRangeInput.disabled = true;
+  // @ts-ignore
+  playPauseBtn.disabled = true;
+  // @ts-ignore
+  seekBackward1Btn.disabled = true;
+  // @ts-ignore
+  seekForward1Btn.disabled = true;
+  // @ts-ignore
+  seekBackward3Btn.disabled = true;
+  // @ts-ignore
+  seekForward3Btn.disabled = true;
+  // @ts-ignore
+  speedBtn5FPS.disabled = true;
+  // @ts-ignore
+  speedBtnHalfTimes.disabled = true;
+  // @ts-ignore
+  speedBtn1Times.disabled = true;
+  // @ts-ignore
+  speedBtn2Times.disabled = true;
+}
+
 /**
+ *
  * @param {number} time unit: second
- * @return {string}
  */
 function getTimeText(time) {
   const seconds = Math.floor(time % 60);
   const minutes = Math.floor(time / 60) % 60;
-  const hours = Math.floor(time / 3600);
-  const pad = (n) => ('0' + n).slice(-2);
-  return hours > 0
-    ? `${hours}:${pad(minutes)}:${pad(seconds)}`
-    : `${minutes}:${pad(seconds)}`;
+  const hours = Math.floor(Math.floor(time / 60) / 60);
+
+  if (hours > 0) {
+    return `${String(hours)}:${('0' + minutes).slice(-2)}:${(
+      '0' + seconds
+    ).slice(-2)}`;
+  } else {
+    return `${String(minutes)}:${('0' + seconds).slice(-2)}`;
+  }
 }

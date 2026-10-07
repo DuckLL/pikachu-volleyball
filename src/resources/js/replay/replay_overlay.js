@@ -4,11 +4,13 @@
  * players and the net pillar. The physics engines compute ball.path and the
  * predictions every frame; this only draws them.
  *
- * Ported from the replay viewer DuckLL added to the P2P online version
- * (DuckLL/pikachu-volleyball-p2p-online, branch "predict").
+ * From the replay viewer DuckLL added to the P2P online version
+ * (DuckLL/pikachu-volleyball-p2p-online, branch "predict"); the switches are
+ * in ui_replay.js.
  */
 'use strict';
 import { Graphics } from '@pixi/graphics';
+import { showPath, predict, showHitboxes } from './ui_replay.js';
 
 const BALL_PATH_STYLE = { width: 3, color: 0x000000, alpha: 0.2 };
 const PREDICT_PATH_COLORS = [
@@ -21,10 +23,6 @@ export class ReplayOverlay {
    * @param {import('@pixi/display').Container} container the game view's container
    */
   constructor(container) {
-    this.showPath = true;
-    this.showPredict = true;
-    this.showHitboxes = true;
-
     this.path = new Graphics();
     this.predict = Array.from({ length: 6 }, () => new Graphics());
     this.hitbox1 = makePlayerHitbox();
@@ -45,9 +43,9 @@ export class ReplayOverlay {
   update(physics) {
     const { player1, player2, ball } = physics;
 
-    this.hitbox1.visible = this.showHitboxes;
-    this.hitbox2.visible = this.showHitboxes;
-    this.netHitboxes.visible = this.showHitboxes;
+    this.hitbox1.visible = showHitboxes;
+    this.hitbox2.visible = showHitboxes;
+    this.netHitboxes.visible = showHitboxes;
     this.hitbox1.position.set(player1.x, player1.y);
     this.hitbox2.position.set(player2.x, player2.y);
 
@@ -59,10 +57,10 @@ export class ReplayOverlay {
     if (path.length === 0) {
       return;
     }
-    if (this.showPath) {
+    if (showPath) {
       drawPolyline(this.path, [ball, ...path], BALL_PATH_STYLE);
     }
-    if (!this.showPredict) {
+    if (!predict) {
       return;
     }
 

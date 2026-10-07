@@ -14,7 +14,7 @@ You can play this game on the website: https://pika.duckll.tw/
 
 Every released AI can be played with the current game: pick it under "AI Version" in the menu bar, or open `/en/?ai=<version>` (for example `/en/?ai=4.2`). The choice is remembered. Switching during a game asks first, since it restarts the game and clears the score and the replay record. Settings the selected AI does not read are greyed out (1.0–2.0 have none; 4.2 added anti-block and early ball; 6.0 added defense mode and delay).
 
-Each release is a git tag `vX.Y.YYYYMMDD`. The engine of a release is that tag's `src/resources/js/physics.js`, copied byte for byte into `src/resources/js/engines/vX.Y/` together with a small generated `ui.js` that maps today's settings onto the names that engine reads. `src/_redirects` is generated from the same tags: the old `/version/<code>/` builds and the `/version.html` list are gone, and their links now open today's game (with that AI).
+Each release is a git tag `vX.Y.YYYYMMDD`. The engine of a release is that tag's `src/resources/js/physics.js`, copied into `src/resources/js/engines/vX.Y/` (byte for byte, except that 1.0–3.0's AI is moved off the seeded RNG; see "Replay viewer") together with a small generated `ui.js` that maps today's settings onto the names that engine reads. `src/_redirects` is generated from the same tags: the old `/version/<code>/` builds and the `/version.html` list are gone, and their links now open today's game (with that AI).
 
 To release a new version:
 
@@ -29,6 +29,12 @@ git push && git push --tags
 `npm test` also fails when main's `physics.js` has changed since the newest tag; running the extract script fixes that by listing main's engine as `dev`.
 
 Until main's `physics.js` changes after a tag, the newest tag is served by `physics.js` itself; once it does, the tag is extracted like the others and main's engine shows up as `dev`.
+
+### Replay viewer
+
+`/en/replay/` (and `/ko/replay/`; `/replay/` redirects) plays replay files: this game's "Save replay" files and the P2P online version's alike. It is the P2P online version's replay viewer, on this game's modules: the same controls, chat, nicknames and IPs, plus the analysis overlay from DuckLL's `predict` branch of the P2P fork, each part switchable: "Path" (where the ball is going), "Predict" (the six paths it could take after a hit) and "Hitboxes" (players and net pillar). Space plays/pauses, ←/→ seek 3 seconds.
+
+A replay is the recorded inputs fed through `physics.js` with the game's RNG seed, nobody computer controlled. The ball and the players move the same in every version and in the P2P game, so one engine plays every file. For that to hold, the AI must never draw from the seeded RNG (it uses `true_rand()`): 1.0–3.0 did, so the extract script rewrites their AI's `rand()` calls (`scripts/engine_transform.mjs`), and a test records a game with every engine and checks the replay frame by frame.
 
 ### Console logging
 

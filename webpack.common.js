@@ -7,6 +7,7 @@ const WorkboxPlugin = require('workbox-webpack-plugin');
 module.exports = {
   entry: {
     main: './src/resources/js/main.js',
+    replay: './src/resources/js/replay/main_replay.js',
     ko: './src/ko/ko.js',
     dark_color_scheme: './src/resources/js/utils/dark_color_scheme.js',
     is_embedded_in_other_website:
@@ -34,6 +35,7 @@ module.exports = {
         { from: 'src/ko/manifest.json', to: 'ko/manifest.json' },
         { from: 'src/zh/manifest.json', to: 'zh/manifest.json' },
         { from: 'src/resources/style.css', to: 'resources/style.css' },
+        { from: 'src/resources/replay.css', to: 'resources/replay.css' },
         { from: 'src/index.html', to: 'index.html' },
         { from: 'src/_redirects', to: '_redirects', toType: 'file' }, // Cloudflare Pages
       ],
@@ -78,6 +80,26 @@ module.exports = {
         'dark_color_scheme',
         'is_embedded_in_other_website',
       ],
+      chunksSortMode: 'manual',
+      minify: {
+        collapseWhitespace: true,
+        removeComments: true,
+      },
+    }),
+    new HtmlWebpackPlugin({
+      template: 'src/en/replay/index.html',
+      filename: 'en/replay/index.html',
+      chunks: ['runtime', 'replay', 'dark_color_scheme'],
+      chunksSortMode: 'manual',
+      minify: {
+        collapseWhitespace: true,
+        removeComments: true,
+      },
+    }),
+    new HtmlWebpackPlugin({
+      template: 'src/ko/replay/index.html',
+      filename: 'ko/replay/index.html',
+      chunks: ['runtime', 'ko', 'replay', 'dark_color_scheme'],
       chunksSortMode: 'manual',
       minify: {
         collapseWhitespace: true,

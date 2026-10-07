@@ -1,14 +1,20 @@
 /**
- * The game, driven by a replay file's recorded inputs instead of keyboards
- * or the AI. Ported from the P2P online version's replay viewer
- * (gorisanson/pikachu-volleyball-p2p-online), minus chat, nicknames and IPs,
- * plus a choice of physics engine (engines/index.js) and the analysis overlay.
+ * The game, driven by a replay file's recorded inputs. From the P2P online
+ * version's replay viewer (gorisanson/pikachu-volleyball-p2p-online), on this
+ * game's modules: the same flow, chat, nicknames and IPs, plus the analysis
+ * overlay (ball path, predict, hitboxes) from DuckLL's "predict" branch.
+ *
+ * The physics is this game's physics.js. Players are never computer
+ * controlled during a replay, so the AI never runs; the ball and players
+ * move the same as in every earlier version and in the P2P game.
  */
-'use strict';
 import seedrandom from 'seedrandom';
 import { PikachuVolleyball } from '../pikavolley.js';
 import { setCustomRng } from '../rand.js';
+import { setChatRngs, displayChatMessageAt } from './chat_display.js';
+import { displayNicknameFor, displayPartialIPFor } from './nickname_display.js';
 import { Cloud, Wave } from '../cloud_and_wave.js';
+import { PikaPhysics } from '../physics.js';
 import { convert5bitNumberToUserInput } from '../utils/input_conversion.js';
 import { ReplayOverlay } from './replay_overlay.js';
 import {
@@ -18,43 +24,58 @@ import {
 } from './ui_replay.js';
 import { setTickerMaxFPSAccordingToNormalFPS } from './replay_player.js';
 
-/** @typedef {{PikaPhysics: any}} EngineModule an engine's physics.js */
+/** @typedef GameState @type {function():void} */
 
+/**
+ * Class representing Pikachu Volleyball Replay
+ */
 // @ts-ignore
 export class PikachuVolleyballReplay extends PikachuVolleyball {
-  /**
-   * @param {import('@pixi/display').Container} stage
-   * @param {Object.<string,import('@pixi/loaders').LoaderResource>} resources
-   * @param {{roomID: string, inputs: number[], options: any[]}} pack replay file content
-   * @param {string} engineId
-   * @param {EngineModule} engineModule
-   */
-  constructor(stage, resources, pack, engineId, engineModule) {
+  constructor(
+    stage,
+    resources,
+    roomId,
+    nicknames,
+    partialPublicIPs,
+    inputs,
+    options,
+    chats
+  ) {
     super(stage, resources);
     this.noInputFrameTotal.menu = Infinity;
 
-    this.roomId = pack.roomID;
-    this.inputs = pack.inputs;
-    this.options = pack.options;
-    this.aiVersion = engineId;
-    this.engineModule = engineModule;
-    this.overlay = new ReplayOverlay(this.view.game.container);
-    this.drawOverlay = true;
-
-    const keyboard = () => ({
+    this.roomId = roomId;
+    this.nicknames = nicknames;
+    this.partialPublicIPs = partialPublicIPs;
+    this.inputs = inputs;
+    this.options = options;
+    this.chats = chats;
+    this.player1Keyboard = {
       xDirection: 0,
       yDirection: 0,
       powerHit: 0,
       getInput: () => {},
-    });
-    this.player1Keyboard = keyboard();
-    this.player2Keyboard = keyboard();
+    };
+    this.player2Keyboard = {
+      xDirection: 0,
+      yDirection: 0,
+      powerHit: 0,
+      getInput: () => {},
+    };
     this.keyboardArray = [this.player1Keyboard, this.player2Keyboard];
+    this.willDisplayChat = true;
+    this.overlay = new ReplayOverlay(this.view.game.container);
+    this.willDrawOverlay = true;
 
-    const fakeSound = { play: () => {}, stop: () => {} };
+    const fakeSound = {
+      play: () => {},
+      stop: () => {},
+    };
     const fakeBGM = {
       fake: true,
-      center: { isPlaying: false },
+      center: {
+        isPlaying: false,
+      },
       play: function () {
         this.center.isPlaying = true;
       },
@@ -79,19 +100,10 @@ export class PikachuVolleyballReplay extends PikachuVolleyball {
   }
 
   /**
-   * Use another physics engine from the next initializeForReplay on.
-   * @param {string} engineId
-   * @param {EngineModule} engineModule
-   */
-  setEngine(engineId, engineModule) {
-    this.aiVersion = engineId;
-    this.engineModule = engineModule;
-  }
-
-  /**
-   * Back to frame 0, ready to replay again (also used for every seek)
+   * This is mainly for reinitialization for reusing the PikachuVolleyballReplay object
    */
   initializeForReplay() {
+    // Stop if sounds are playing
     for (const prop in this.audio.sounds) {
       this.audio.sounds[prop].stop();
     }
@@ -100,13 +112,22 @@ export class PikachuVolleyballReplay extends PikachuVolleyball {
     this.timeBGM = 0;
     this.isBGMPlaying = false;
     this.replayFrameCounter = 0;
+    this.chatCounter = 0;
     this.optionsCounter = 0;
 
-    // The same RNG the recording game used (see PikachuVolleyball.restart)
-    setCustomRng(seedrandom.alea(this.roomId.slice(10)));
+    // Set the same RNG (used for the game) for both peers
+    const customRng = seedrandom.alea(this.roomId.slice(10));
+    setCustomRng(customRng);
 
+    // Set the same RNG (used for displaying chat messages) for both peers
+    const rngForPlayer1Chat = seedrandom.alea(this.roomId.slice(10, 15));
+    const rngForPlayer2Chat = seedrandom.alea(this.roomId.slice(15));
+    setChatRngs(rngForPlayer1Chat, rngForPlayer2Chat);
+
+    // Reinitialize things which needs exact RNG
     this.view.game.cloudArray = [];
-    for (let i = 0; i < 10; i++) {
+    const NUM_OF_CLOUDS = 10;
+    for (let i = 0; i < NUM_OF_CLOUDS; i++) {
       this.view.game.cloudArray.push(new Cloud());
     }
     this.view.game.wave = new Wave();
@@ -115,7 +136,7 @@ export class PikachuVolleyballReplay extends PikachuVolleyball {
     this.view.game.visible = false;
     this.view.fadeInOut.visible = false;
 
-    this.physics = new this.engineModule.PikaPhysics(true, true);
+    this.physics = new PikaPhysics(true, true);
 
     this.normalFPS = 25;
     this.slowMotionFPS = 5;
@@ -134,24 +155,81 @@ export class PikachuVolleyballReplay extends PikachuVolleyball {
     this.paused = false;
     this.isStereoSound = true;
     this._isPracticeMode = false;
+    this.isRoomCreatorPlayer2 = false;
     this.state = this.intro;
   }
 
   /**
-   * Game loop with no sound and no overlay drawing, for seeking
+   * Override the "intro" method in the super class.
+   * It is to ask for one more game with the peer after quick match game ends.
+   * @type {GameState}
+   */
+  intro() {
+    if (this.frameCounter === 0) {
+      this.selectedWithWho = 0;
+      if (this.nicknames) {
+        displayNicknameFor(this.nicknames[0], this.isRoomCreatorPlayer2);
+        displayNicknameFor(this.nicknames[1], !this.isRoomCreatorPlayer2);
+      }
+      if (this.partialPublicIPs) {
+        displayPartialIPFor(
+          this.partialPublicIPs[0],
+          this.isRoomCreatorPlayer2
+        );
+        displayPartialIPFor(
+          this.partialPublicIPs[1],
+          !this.isRoomCreatorPlayer2
+        );
+      }
+    }
+    super.intro();
+  }
+
+  /**
+   * Override the "menu" method in the super class.
+   * It changes "am I player 1 or player 2" setting accordingly.
+   * @type {GameState}
+   */
+  menu() {
+    const selectedWithWho = this.selectedWithWho;
+    super.menu();
+    if (this.selectedWithWho !== selectedWithWho) {
+      this.isRoomCreatorPlayer2 = !this.isRoomCreatorPlayer2;
+      if (this.nicknames) {
+        displayNicknameFor(this.nicknames[0], this.isRoomCreatorPlayer2);
+        displayNicknameFor(this.nicknames[1], !this.isRoomCreatorPlayer2);
+      }
+      if (this.partialPublicIPs) {
+        displayPartialIPFor(
+          this.partialPublicIPs[0],
+          this.isRoomCreatorPlayer2
+        );
+        displayPartialIPFor(
+          this.partialPublicIPs[1],
+          !this.isRoomCreatorPlayer2
+        );
+      }
+    }
+  }
+
+  /**
+   * Game loop which play no sound, display no chat, does not move scrubber
    */
   gameLoopSilent() {
     const audio = this.audio;
+    this.willDisplayChat = false;
+    this.willDrawOverlay = false;
     // @ts-ignore
     this.audio = this.fakeAudio;
-    this.drawOverlay = false;
     this.gameLoop();
-    this.drawOverlay = true;
+    this.willDisplayChat = true;
+    this.willDrawOverlay = true;
     this.audio = audio;
   }
 
   /**
-   * One frame of the replay
+   * Game loop
+   * This function should be called at regular intervals ( interval = (1 / FPS) second )
    */
   gameLoop() {
     if (this.replayFrameCounter >= this.inputs.length) {
@@ -166,24 +244,42 @@ export class PikachuVolleyballReplay extends PikachuVolleyball {
     const player2Input = convert5bitNumberToUserInput(
       usersInputNumber % (1 << 5)
     );
-    for (const [keyboard, input] of [
-      [this.player1Keyboard, player1Input],
-      [this.player2Keyboard, player2Input],
-    ]) {
-      keyboard.xDirection = input.xDirection;
-      keyboard.yDirection = input.yDirection;
-      keyboard.powerHit = input.powerHit;
-    }
+    this.player1Keyboard.xDirection = player1Input.xDirection;
+    this.player1Keyboard.yDirection = player1Input.yDirection;
+    this.player1Keyboard.powerHit = player1Input.powerHit;
+    this.player2Keyboard.xDirection = player2Input.xDirection;
+    this.player2Keyboard.yDirection = player2Input.yDirection;
+    this.player2Keyboard.powerHit = player2Input.powerHit;
     showKeyboardInputs(player1Input, player2Input);
 
     let options = this.options[this.optionsCounter];
     while (options && options[0] === this.replayFrameCounter) {
       if (options[1].speed) {
-        this.normalFPS = { slow: 20, medium: 25, fast: 30 }[options[1].speed];
+        switch (options[1].speed) {
+          case 'slow':
+            this.normalFPS = 20;
+            break;
+          case 'medium':
+            this.normalFPS = 25;
+            break;
+          case 'fast':
+            this.normalFPS = 30;
+            break;
+        }
         setTickerMaxFPSAccordingToNormalFPS(this.normalFPS);
       }
-      if ([5, 10, 15].includes(options[1].winningScore)) {
-        this.winningScore = options[1].winningScore;
+      if (options[1].winningScore) {
+        switch (options[1].winningScore) {
+          case 5:
+            this.winningScore = 5;
+            break;
+          case 10:
+            this.winningScore = 10;
+            break;
+          case 15:
+            this.winningScore = 15;
+            break;
+        }
       }
       this.optionsCounter++;
       options = this.options[this.optionsCounter];
@@ -197,12 +293,20 @@ export class PikachuVolleyballReplay extends PikachuVolleyball {
       this.timeBGM = 0;
     }
 
+    let chat = this.chats[this.chatCounter];
+    while (chat && chat[0] === this.replayFrameCounter) {
+      if (this.willDisplayChat) {
+        displayChatMessageAt(chat[2], chat[1]);
+      }
+      this.chatCounter++;
+      chat = this.chats[this.chatCounter];
+    }
+
     this.replayFrameCounter++;
-    // Inputs come from the file; the AI must not decide anything.
     this.physics.player1.isComputer = false;
     this.physics.player2.isComputer = false;
     super.gameLoop();
-    if (this.drawOverlay) {
+    if (this.willDrawOverlay) {
       this.overlay.update(this.physics);
     }
   }
