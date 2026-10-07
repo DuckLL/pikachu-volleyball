@@ -14,13 +14,13 @@ You can play this game on the website: https://pika.duckll.tw/
 
 Every released AI can be played with the current game: pick it under "AI Version" in the menu bar, or open `/en/?ai=<version>` (for example `/en/?ai=4.2`). The choice is remembered. Switching during a game asks first, since it restarts the game and clears the score and the replay record. Settings the selected AI does not read are greyed out (1.0–2.0 have none; 4.2 added anti-block and early ball; 6.0 added defense mode and delay).
 
-Each release is a git tag `vX.Y.YYYYMMDD`. The engine of a release is that tag's `src/resources/js/physics.js`, copied byte for byte into `src/resources/js/engines/vX.Y/` together with a small generated `ui.js` that maps today's settings onto the names that engine reads. `src/version.html` and `src/_redirects` (old `/version/<code>/` links) are generated from the same tags.
+Each release is a git tag `vX.Y.YYYYMMDD`. The engine of a release is that tag's `src/resources/js/physics.js`, copied byte for byte into `src/resources/js/engines/vX.Y/` together with a small generated `ui.js` that maps today's settings onto the names that engine reads. `src/_redirects` is generated from the same tags: the old `/version/<code>/` builds and the `/version.html` list are gone, and their links now open today's game (with that AI).
 
 To release a new version:
 
 ```sh
 git tag -a v9.0.20270101 -m "Pikachu Volleyball Super AI 9.0.20270101"
-node scripts/extract-engines.mjs   # regenerates engines/, version.html, _redirects
+node scripts/extract-engines.mjs   # regenerates engines/ and _redirects
 npm test                           # AI-vs-AI smoke test of every engine, plus the regression tests
 npm run build
 git push && git push --tags

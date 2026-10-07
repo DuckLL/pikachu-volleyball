@@ -101,8 +101,9 @@ export function setUpAIVersionSelect() {
   for (const engine of AI_ENGINES) {
     const option = document.createElement('option');
     option.value = engine.id;
-    option.textContent = engine.id;
-    option.title = engine.date;
+    option.textContent = engine.date
+      ? `${engine.id} (${engine.date})`
+      : engine.id;
     select.appendChild(option);
   }
   select.addEventListener('change', () => {

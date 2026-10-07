@@ -35,7 +35,6 @@ module.exports = {
         { from: 'src/zh/manifest.json', to: 'zh/manifest.json' },
         { from: 'src/resources/style.css', to: 'resources/style.css' },
         { from: 'src/index.html', to: 'index.html' },
-        { from: 'src/version.html', to: 'version.html' },
         { from: 'src/_redirects', to: '_redirects', toType: 'file' }, // Cloudflare Pages
       ],
     }),
