@@ -10,6 +10,7 @@ import { replaySaver } from './replay/replay_saver.js';
 import seedrandom from 'seedrandom';
 import { true_rand, setCustomRng, rand } from './rand.js';
 import { Cloud, Wave } from './cloud_and_wave.js';
+import { DEFAULT_AI_ENGINE } from './engines/index.js';
 
 /** @typedef {import('@pixi/display').Container} Container */
 /** @typedef {import('@pixi/loaders').LoaderResource} LoaderResource */
@@ -43,6 +44,8 @@ export class PikachuVolleyball {
 
     this.audio = new PikaAudio(resources);
     this.physics = new PikaPhysics(true, true);
+    /** @type {string} id of the AI engine in this.physics (engines/index.js) */
+    this.aiVersion = DEFAULT_AI_ENGINE.id;
     this.keyboardArray = [
       new PikaKeyboard('KeyD', 'KeyG', 'KeyR', 'KeyV', 'KeyZ', 'KeyF'), // for player1
       new PikaKeyboard( // for player2
@@ -384,9 +387,13 @@ export class PikachuVolleyball {
       this.keyboardArray[0].powerHit =
         this.keyboardArray[0].powerHit || this.keyboardArray[1].powerHit;
     }
-    const isBallTouchingGround = this.physics.runEngineForNextFrame(
+    let isBallTouchingGround = this.physics.runEngineForNextFrame(
       this.keyboardArray
     );
+    // 4.0 and 4.1 engines return [isBallTouchingGround, userInputArray].
+    if (Array.isArray(isBallTouchingGround)) {
+      isBallTouchingGround = isBallTouchingGround[0];
+    }
     if (!PlayerMove) {
       replaySaver.recordInputs(this.keyboardArray[0], this.keyboardArray[1]);
     }
@@ -554,7 +561,7 @@ export class PikachuVolleyball {
     this.view.game.visible = false;
     this.state = this.intro;
     replaySaver.cleanRecord();
-    const roomId = 'DuckLL_AI_8.0_' + true_rand();
+    const roomId = 'DuckLL_AI_' + this.aiVersion + '_' + true_rand();
     replaySaver.recordRoomID(roomId);
     const customRng = seedrandom.alea(roomId.slice(10));
     setCustomRng(customRng);
@@ -565,6 +572,22 @@ export class PikachuVolleyball {
     this.view.game.wave = new Wave();
     rand();
     rand();
+  }
+
+  /**
+   * Swap in another AI engine (see engines/index.js) and start a new game.
+   * Who is human and who is computer carries over.
+   * @param {string} id engine id, e.g. '7.0'
+   * @param {{PikaPhysics: typeof PikaPhysics}} engineModule the engine's physics.js
+   */
+  setAIEngine(id, engineModule) {
+    const physics = new engineModule.PikaPhysics(
+      this.physics.player1.isComputer,
+      this.physics.player2.isComputer
+    );
+    this.physics = physics;
+    this.aiVersion = id;
+    this.restart();
   }
 
   /** @return {boolean} */

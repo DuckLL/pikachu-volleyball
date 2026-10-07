@@ -36,6 +36,7 @@ module.exports = {
         { from: 'src/resources/style.css', to: 'resources/style.css' },
         { from: 'src/index.html', to: 'index.html' },
         { from: 'src/version.html', to: 'version.html' },
+        { from: 'src/_redirects', to: '_redirects', toType: 'file' }, // Cloudflare Pages
       ],
     }),
     new HtmlWebpackPlugin({
@@ -117,6 +118,7 @@ module.exports = {
     new WorkboxPlugin.GenerateSW({
       swDest: 'sw.js',
       cleanupOutdatedCaches: true,
+      exclude: [/\.map$/, /^manifest.*\.js$/, /^_redirects$/],
       skipWaiting: false,
     }),
   ],

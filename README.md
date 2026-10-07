@@ -10,6 +10,26 @@ Thank pxter7777 for the serve machine. Thank CBKM for testing.
 
 You can play this game on the website: https://pika.duckll.tw/
 
+## AI versions
+
+Every released AI can be played with the current game: pick it under "AI Version" in the menu bar, or open `/en/?ai=<version>` (for example `/en/?ai=4.2`). The choice is remembered. Settings the selected AI does not read are greyed out (1.0–2.0 have none; 4.2 added anti-block and early ball; 6.0 added defense mode and delay).
+
+Each release is a git tag `vX.Y.YYYYMMDD`. The engine of a release is that tag's `src/resources/js/physics.js`, copied byte for byte into `src/resources/js/engines/vX.Y/` together with a small generated `ui.js` that maps today's settings onto the names that engine reads. `src/version.html` and `src/_redirects` (old `/version/<code>/` links) are generated from the same tags.
+
+To release a new version:
+
+```sh
+git tag -a v9.0.20270101 -m "Pikachu Volleyball Super AI 9.0.20270101"
+node scripts/extract-engines.mjs   # regenerates engines/, version.html, _redirects
+npm test                           # AI-vs-AI smoke test of every engine, plus the regression tests
+npm run build
+git push && git push --tags
+```
+
+`npm test` also fails when main's `physics.js` has changed since the newest tag; running the extract script fixes that by listing main's engine as `dev`.
+
+Until main's `physics.js` changes after a tag, the newest tag is served by `physics.js` itself; once it does, the tag is extracted like the others and main's engine shows up as `dev`.
+
 ---
 
 # Pikachu Volleyball

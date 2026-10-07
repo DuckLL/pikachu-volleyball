@@ -4,7 +4,7 @@
   "description": "Pikachu Volleyball implemented into JavaScript by reverse engineering the original game",
   "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node --test test/",
     "start": "webpack serve --config webpack.dev.js",
     "build": "webpack --config webpack.prod.js"
   },

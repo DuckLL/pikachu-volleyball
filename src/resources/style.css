@@ -556,6 +556,13 @@ input.toggle-switch:checked + label::before {
   justify-content: space-around;
   width: 100%;
 }
+#ai-version {
+  margin-right: 8px;
+}
+/* AI settings the selected AI version does not read (see ai_version.js) */
+#capability .unsupported {
+  opacity: 0.35;
+}
 .serve {
   display: flex;
   justify-content: center;
