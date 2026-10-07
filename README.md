@@ -32,7 +32,7 @@ Until main's `physics.js` changes after a tag, the newest tag is served by `phys
 
 ### Replay viewer
 
-`/en/replay/` (and `/ko/replay/`; `/replay/` redirects) plays replay files: this game's "Save replay" files and the P2P online version's alike. It is the P2P online version's replay viewer, on this game's modules: the same controls, chat, nicknames and IPs, plus the analysis overlay from DuckLL's `predict` branch of the P2P fork, each part switchable: "Path" (where the ball is going), "Predict" (the six paths it could take after a hit) and "Hitboxes" (players and net pillar). Space plays/pauses, ←/→ seek 3 seconds.
+`/en/replay/` (also `/zh/replay/` and `/ko/replay/`; `/replay/` redirects to English) plays replay files: this game's "Save replay" files and the P2P online version's alike. It is the P2P online version's replay viewer, on this game's modules: the same controls, chat, nicknames and IPs, plus the analysis overlay from DuckLL's `predict` branch of the P2P fork, each part switchable: "Path" (where the ball is going), "Predict" (the six paths it could take after a hit) and "Hitboxes" (players and net pillar). Space plays/pauses, ←/→ seek 3 seconds.
 
 A replay is the recorded inputs fed through `physics.js` with the game's RNG seed, nobody computer controlled. The ball and the players move the same in every version and in the P2P game, so one engine plays every file. For that to hold, the AI must never draw from the seeded RNG (it uses `true_rand()`): 1.0–3.0 did, so the extract script rewrites their AI's `rand()` calls (`scripts/engine_transform.mjs`), and a test records a game with every engine and checks the replay frame by frame.
 

@@ -97,6 +97,16 @@ module.exports = {
       },
     }),
     new HtmlWebpackPlugin({
+      template: 'src/zh/replay/index.html',
+      filename: 'zh/replay/index.html',
+      chunks: ['runtime', 'replay', 'dark_color_scheme'],
+      chunksSortMode: 'manual',
+      minify: {
+        collapseWhitespace: true,
+        removeComments: true,
+      },
+    }),
+    new HtmlWebpackPlugin({
       template: 'src/ko/replay/index.html',
       filename: 'ko/replay/index.html',
       chunks: ['runtime', 'ko', 'replay', 'dark_color_scheme'],

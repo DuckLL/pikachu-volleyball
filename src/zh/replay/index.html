@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>皮卡丘打排球 重播播放器</title>
+    <meta name="description" content="皮卡丘打排球 重播播放器" />
+    <meta name="author" content="Kyutae Lee" />
+
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="../../resources/assets/images/IDI_PIKAICON-0.png"
+    />
+    <link rel="stylesheet" href="../../resources/style.css" />
+    <link rel="stylesheet" href="../../resources/replay.css" />
+    <script
+      defer
+      src="https://health.duckll.tw/health"
+      data-website-id="80b986e1-e6b2-4556-8c23-412ae4a03903"
+    ></script>
+  </head>
+  <body>
+    <div id="flex-container">
+      <div id="game-canvas-container">
+        <div id="player1-chat-box" class="chat-box pre-wrap"></div>
+        <div id="player2-chat-box" class="chat-box pre-wrap"></div>
+        <div class="nicknames-container">
+          <div class="nickname-and-partial-ip left">
+            <span id="player1-nickname" class="nickname"></span>
+            <span id="player1-partial-ip" class="partial-ip"></span>
+          </div>
+          <div class="nickname-and-partial-ip right">
+            <span id="player2-nickname" class="nickname"></span>
+            <span id="player2-partial-ip" class="partial-ip"></span>
+          </div>
+        </div>
+        <div class="fade-in-box loading black hidden" id="loading-box">
+          <div>
+            <p>載入遊戲資源中...</p>
+            <div id="progress-bar-border">
+              <div id="progress-bar" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+        <div id="dropbox" class="fade-in-box">
+          <label class="custom-file-upload">
+            開啟檔案
+            <input id="file-input" type="file" />
+          </label>
+          <p>點「開啟檔案」或把重播檔拖到這裡</p>
+        </div>
+        <div class="fade-in-box notice hidden" id="notice-end-of-replay">
+          <p>重播結束</p>
+          <button
+            type="button"
+            id="notice-end-of-replay-ok-btn"
+            class="btn-in-box"
+          >
+            確定
+          </button>
+        </div>
+        <div class="fade-in-box notice hidden" id="notice-file-open-error">
+          <p>無法開啟檔案。<br />這不是重播檔，或是檔案已損毀。</p>
+          <button
+            type="button"
+            id="notice-file-open-error-ok-btn"
+            class="btn-in-box"
+          >
+            確定
+          </button>
+        </div>
+      </div>
+      <div id="keyboard-container" class="flex-for-keyboard">
+        <div class="grid-for-keyboard">
+          <div id="z-key" class="keyboard-key">Z</div>
+          <div id="r-key" class="keyboard-key">R</div>
+          <div id="d-key" class="keyboard-key">D</div>
+          <div id="v-key" class="keyboard-key">V</div>
+          <div id="g-key" class="keyboard-key">G</div>
+        </div>
+        <div class="grid-for-keyboard">
+          <div id="enter-key" class="keyboard-key">Enter</div>
+          <div id="up-key" class="keyboard-key">&uarr;</div>
+          <div id="left-key" class="keyboard-key">&larr;</div>
+          <div id="down-key" class="keyboard-key">&darr;</div>
+          <div id="right-key" class="keyboard-key">&rarr;</div>
+        </div>
+      </div>
+      <div>
+        <input
+          id="scrubber-range-input"
+          class="disable-dbl-tap-zoom"
+          type="range"
+          min="0"
+          max="100"
+          value="0"
+        />
+      </div>
+      <div>
+        <button
+          type="button"
+          id="play-pause-btn"
+          class="btn-for-replay disable-dbl-tap-zoom"
+        >
+          &#x25b6;&#xfe0e;
+        </button>
+        <span class="margin-left-right"
+          ><span id="time-current">0:00</span> /
+          <span id="time-duration">0:00</span></span
+        >
+        <div class="inline">
+          <button
+            type="button"
+            id="seek-backward-3"
+            class="btn-for-replay disable-dbl-tap-zoom"
+          >
+            &lt;&lt; 3
+          </button>
+          <button
+            type="button"
+            id="seek-backward-1"
+            class="btn-for-replay disable-dbl-tap-zoom"
+          >
+            &lt;&lt; 1
+          </button>
+          <button
+            type="button"
+            id="seek-forward-1"
+            class="btn-for-replay disable-dbl-tap-zoom"
+          >
+            1 &gt;&gt;
+          </button>
+          <button
+            type="button"
+            id="seek-forward-3"
+            class="btn-for-replay disable-dbl-tap-zoom"
+          >
+            3 &gt;&gt;
+          </button>
+        </div>
+        <div class="margin-top-little">
+          <button
+            type="button"
+            id="speed-btn-5-fps"
+            class="btn-for-replay disable-dbl-tap-zoom"
+          >
+            5 fps
+          </button>
+          <button
+            type="button"
+            id="speed-btn-half-times"
+            class="btn-for-replay disable-dbl-tap-zoom"
+          >
+            &times;0.5
+          </button>
+          <button
+            type="button"
+            id="speed-btn-1-times"
+            class="btn-for-replay disable-dbl-tap-zoom selected"
+          >
+            &times;1
+          </button>
+          <button
+            type="button"
+            id="speed-btn-2-times"
+            class="btn-for-replay disable-dbl-tap-zoom"
+          >
+            &times;2
+          </button>
+          <label for="fps-input">FPS:</label>
+          <input
+            id="fps-input"
+            type="number"
+            inputmode="numeric"
+            min="1"
+            max="60"
+          />
+        </div>
+        <div class="margin-top-little show-checkboxes-container">
+          <label>
+            <input id="show-keyboard-checkbox" type="checkbox" checked />
+            鍵盤
+          </label>
+          <label>
+            <input id="show-chat-checkbox" type="checkbox" checked />
+            聊天
+          </label>
+          <label>
+            <input id="show-nicknames-checkbox" type="checkbox" checked />
+            暱稱
+          </label>
+          <label>
+            <input id="show-ip-addresses-checkbox" type="checkbox" checked />
+            IP
+          </label>
+          <label>
+            <input id="turn-on-bgm-checkbox" type="checkbox" checked />
+            背景音樂
+          </label>
+          <label>
+            <input id="turn-on-sfx-checkbox" type="checkbox" checked />
+            音效
+          </label>
+          <label>
+            <input id="graphic-sharp-checkbox" type="checkbox" checked />
+            畫面 - 銳利
+          </label>
+          <label
+            ><input
+              id="turn-on-path-checkbox"
+              type="checkbox"
+              checked="checked"
+            />
+            路徑</label
+          >
+          <label
+            ><input
+              id="turn-on-predict-checkbox"
+              type="checkbox"
+              checked="checked"
+            />
+            預測</label
+          >
+          <label>
+            <input id="turn-on-hitboxes-checkbox" type="checkbox" checked />
+            碰撞框
+          </label>
+        </div>
+        <div class="margin-top-little">
+          <div class="color-scheme-toggle-switch-container">
+            <input
+              type="checkbox"
+              id="dark-color-scheme-checkbox-1"
+              class="toggle-switch dark-color-scheme-checkbox"
+            />
+            <label for="dark-color-scheme-checkbox-1"></label>
+          </div>
+        </div>
+      </div>
+      <div id="play-mark" class="hidden">&#x25b6;&#xfe0e;</div>
+      <div id="pause-mark" class="hidden">&#x275a;&#x275a;</div>
+    </div>
+  </body>
+</html>
