@@ -28,6 +28,7 @@
  *  - "ui.js": For the user interface (menu bar, buttons etc.) of the html page.
  */
 'use strict';
+import './utils/console_log_switch.js'; // first, so it covers everything below
 import { settings } from '@pixi/settings';
 import { SCALE_MODES } from '@pixi/constants';
 import { Renderer, BatchRenderer, autoDetectRenderer } from '@pixi/core';

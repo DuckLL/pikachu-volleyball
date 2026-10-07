@@ -590,6 +590,15 @@ export class PikachuVolleyball {
     this.restart();
   }
 
+  /**
+   * Whether a game is under way (anything past the intro and the menu), i.e.
+   * whether restarting would throw away a score and its replay record.
+   * @return {boolean}
+   */
+  get isInGame() {
+    return this.state !== this.intro && this.state !== this.menu;
+  }
+
   /** @return {boolean} */
   get isPracticeMode() {
     return this._isPracticeMode;

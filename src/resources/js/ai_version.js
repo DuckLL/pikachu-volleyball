@@ -15,6 +15,13 @@ import { localStorageWrapper } from './utils/local_storage_wrapper.js';
 
 const STORAGE_KEY = 'pv-offline-aiVersion';
 
+/** Asked before switching AI in the middle of a game, by page language. */
+const CONFIRM_RESTART = {
+  zh: '更換 AI 版本會重新開始遊戲，目前的比分與對戰紀錄（存檔）都會清除。確定要更換嗎？',
+  en: 'Changing the AI version restarts the game and clears the current score and replay record. Change it?',
+  ko: 'AI 버전을 바꾸면 게임이 다시 시작되고 현재 점수와 리플레이 기록이 지워집니다. 바꾸시겠습니까?',
+};
+
 /** Every AI setting in the about box; an engine's "options" name the ones it reads. */
 const AI_OPTION_IDS = [
   'serve',
@@ -102,6 +109,13 @@ export function setUpAIVersionSelect() {
     // Hand the keyboard back to the game; arrow keys are player 2's controls.
     select.blur();
     const engine = findEngine(select.value);
+    if (engine && game && game.isInGame && engine.id !== game.aiVersion) {
+      const lang = document.documentElement.lang;
+      if (!window.confirm(CONFIRM_RESTART[lang] || CONFIRM_RESTART.en)) {
+        select.value = game.aiVersion;
+        return;
+      }
+    }
     if (engine) {
       localStorageWrapper.set(STORAGE_KEY, engine.id);
       apply(engine);
