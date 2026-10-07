@@ -32,7 +32,7 @@ Until main's `physics.js` changes after a tag, the newest tag is served by `phys
 
 ### Console logging
 
-The AI engines call `console.log` every frame (logging only occasionally made play stutter). Open the game with `?log=0` to turn `console.log` off, `?log=1` to turn it back on; the choice is remembered. The default is in `src/resources/js/utils/console_log_switch.js`.
+The AI engines call `console.log` every frame (logging only occasionally made play stutter). `console.log` is off by default; open the game with `?log=1` to turn it on, `?log=0` to turn it off again. The choice is remembered. The default is in `src/resources/js/utils/console_log_switch.js`.
 
 ---
 
