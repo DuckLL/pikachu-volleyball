@@ -111,13 +111,14 @@ function play(engineModule, seed) {
   const physics = new engineModule.PikaPhysics(true, true);
   const scores = [0, 0];
   let stalled = 0;
-  let netCrossings = 0;
+  let stuck = 0;
   let isPlayer2Serve = false;
   for (let round = 0; round < ROUNDS; round++) {
     physics.player1.initializeForNewRound();
     physics.player2.initializeForNewRound();
     physics.ball.initializeForNewRound(isPlayer2Serve);
     let ended = false;
+    let crossings = 0;
     let onLeft = physics.ball.x < 216;
     for (let frame = 0; frame < MAX_FRAMES_PER_ROUND; frame++) {
       const inputs = [0, 1].map(() => ({
@@ -140,7 +141,7 @@ function play(engineModule, seed) {
       }
       if (physics.ball.x < 216 !== onLeft) {
         onLeft = !onLeft;
-        netCrossings++;
+        crossings++;
       }
       if (touched) {
         // As in pikavolley.js: landing on player 1's side scores for player 2.
@@ -150,9 +151,14 @@ function play(engineModule, seed) {
         break;
       }
     }
-    if (!ended) stalled++;
+    if (!ended) {
+      stalled++;
+      // Hitting the cap mid-rally is fine; hitting it with the ball not
+      // going back and forth means the game got stuck.
+      if (crossings < 2) stuck++;
+    }
   }
-  return { scores, stalled, netCrossings };
+  return { scores, stalled, stuck };
 }
 
 for (const engine of AI_ENGINES) {
@@ -164,15 +170,16 @@ for (const engine of AI_ENGINES) {
     try {
       for (const [i, setting] of SETTINGS.entries()) {
         configure(setting.caps, setting.delay, setting.defense);
-        const { scores, stalled, netCrossings } = play(engineModule, 1000 + i);
-        // Two AIs can rally past the frame cap (4.0-4.2 with everything off
-        // do so almost every round), so what is checked is that the game keeps
-        // moving: the ball goes back and forth and nothing throws.
-        assert.ok(
-          netCrossings >= 2 * ROUNDS,
-          `${setting.name}: ball crossed the net only ${netCrossings} times (${
+        const { scores, stalled, stuck } = play(engineModule, 1000 + i);
+        // Rounds may end fast (a strong attack) or rally past the frame cap
+        // (4.0-4.2 with everything off do); neither is a failure. A round
+        // stuck with the ball not moving between the sides is.
+        assert.equal(
+          stuck,
+          0,
+          `${setting.name}: ${stuck} round(s) stuck (${
             scores[0] + scores[1]
-          } rounds ended, ${stalled} hit the cap)`
+          } ended, ${stalled} hit the cap)`
         );
       }
     } finally {
