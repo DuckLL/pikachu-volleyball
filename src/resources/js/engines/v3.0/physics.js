@@ -27,7 +27,7 @@
  *
  */
 'use strict';
-import { rand } from './rand.js';
+import { rand, true_rand } from './rand.js';
 import {
   serveMode,
   SkillTypeForPlayer2Available,
@@ -1379,7 +1379,7 @@ function letAIDecideUserInput(player, ball, theOtherPlayer, userInput) {
               continue;
             }
             // random;
-            if (rand() % 10 < 1) {
+            if (true_rand() % 10 < 1) {
               continue;
             }
             const predict = copyball.predict[direct];
@@ -1473,7 +1473,7 @@ function letAIDecideUserInput(player, ball, theOtherPlayer, userInput) {
               if (direct === 0 && ball.yVelocity > 60) {
                 continue;
               }
-              if (rand() % 10 < 1) {
+              if (true_rand() % 10 < 1) {
                 continue;
               }
               const predict = copyball.predict[direct];
@@ -1542,7 +1542,7 @@ function letAIDecideUserInput(player, ball, theOtherPlayer, userInput) {
                 if (
                   samesideloss(theOtherPlayer, predict[predict.length - 1].x) &&
                   (predict.length < shortPath ||
-                    (predict.length === shortPath && rand() % 2 < 1))
+                    (predict.length === shortPath && true_rand() % 2 < 1))
                 ) {
                   shortPath = predict.length;
                   player.goodtime = 0;
@@ -1557,8 +1557,8 @@ function letAIDecideUserInput(player, ball, theOtherPlayer, userInput) {
             }
           } else {
             // normal
-            const lock2 = rand() % 10;
-            const lock3 = rand() % 20;
+            const lock2 = true_rand() % 10;
+            const lock3 = true_rand() % 20;
             for (
               let frame = 1;
               frame < ball.path.length && frame < 31 && shortPath > -1;
@@ -1583,7 +1583,7 @@ function letAIDecideUserInput(player, ball, theOtherPlayer, userInput) {
                   direct++
                 ) {
                   // random;
-                  if (rand() % 10 < 1) {
+                  if (true_rand() % 10 < 1) {
                     continue;
                   }
                   if (shortPath === -1 && player.direction === 4) {
@@ -1705,7 +1705,7 @@ function letAIDecideUserInput(player, ball, theOtherPlayer, userInput) {
                           predict[predict.length - 1].x
                         ) &&
                         (predict.length < shortPath ||
-                          (predict.length === shortPath && rand() % 2 < 1))
+                          (predict.length === shortPath && true_rand() % 2 < 1))
                       ) {
                         shortPath = predict.length;
                         player.goodtime = frame;
@@ -1729,7 +1729,7 @@ function letAIDecideUserInput(player, ball, theOtherPlayer, userInput) {
                     // }
                     for (let direct = 2; direct < 6; direct++) {
                       // random;
-                      if (rand() % 10 < 2) {
+                      if (true_rand() % 10 < 2) {
                         continue;
                       }
                       // early hit
@@ -1758,7 +1758,7 @@ function letAIDecideUserInput(player, ball, theOtherPlayer, userInput) {
                           predict[predict.length - 1].x
                         ) &&
                         (predict.length < shortPath ||
-                          (predict.length === shortPath && rand() % 2 < 1))
+                          (predict.length === shortPath && true_rand() % 2 < 1))
                       ) {
                         shortPath = predict.length;
                         player.goodtime = frame;
@@ -1898,7 +1898,7 @@ function letAIDecideUserInput(player, ball, theOtherPlayer, userInput) {
                 if (predict.length < shortPath) {
                   player.direction = direct;
                   shortPath = predict.length;
-                } else if (predict.length === shortPath && rand() % 2 < 1) {
+                } else if (predict.length === shortPath && true_rand() % 2 < 1) {
                   player.direction = direct;
                   shortPath = predict.length;
                 }
@@ -1941,7 +1941,7 @@ function letAIDecideUserInput(player, ball, theOtherPlayer, userInput) {
           if (
             Math.abs(theOtherPlayer.x - org[org.length - 1].x) <=
               org.length * 6 + PLAYER_HALF_LENGTH &&
-            rand() % 10 < 2
+            true_rand() % 10 < 2
           ) {
             let farthest = 0;
             for (let direct = 0; direct < 6; direct++) {

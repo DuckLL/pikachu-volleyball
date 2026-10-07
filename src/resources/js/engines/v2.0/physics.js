@@ -27,7 +27,7 @@
  *
  */
 'use strict';
-import { rand } from './rand.js';
+import { rand, true_rand } from './rand.js';
 import {
   serveMode,
   SkillTypeForPlayer2Available,
@@ -1418,7 +1418,7 @@ function letAIDecideUserInput(player, ball, theOtherPlayer, userInput) {
               ) > PLAYER_HALF_LENGTH &&
               Math.abs(predictball.x - copyball.x) <=
                 6 * predictframe + PLAYER_HALF_LENGTH + 6 &&
-              rand() % 10 < 8
+              true_rand() % 10 < 8
             ) {
               shortPath = -1;
               player.goodtime = 0;
@@ -1456,7 +1456,7 @@ function letAIDecideUserInput(player, ball, theOtherPlayer, userInput) {
       // console.log(ball.path);
       if (!player.freestyle) {
         // 打最遠
-        const attackFar = rand() % 10 < 2;
+        const attackFar = true_rand() % 10 < 2;
         // console.log(attackFar);
         if (attackFar) {
           let far_diff = 0;
@@ -1801,8 +1801,8 @@ function letAIDecideUserInput(player, ball, theOtherPlayer, userInput) {
 //     } else {
 //       userInput.xDirection = -1;
 //     }
-//   } else if (rand() % 20 === 0) {
-//     player.computerWhereToStandBy = rand() % 2;
+//   } else if (true_rand() % 20 === 0) {
+//     player.computerWhereToStandBy = true_rand() % 2;
 //   }
 
 //   if (player.state === 0) {
@@ -1875,7 +1875,7 @@ function letAIDecideUserInput(player, ball, theOtherPlayer, userInput) {
 //  * @return {boolean} Will input power hit?
 //  */
 // function decideWhetherInputPowerHit(player, ball, theOtherPlayer, userInput) {
-//   if (rand() % 2 === 0) {
+//   if (true_rand() % 2 === 0) {
 //     for (let xDirection = 1; xDirection > -1; xDirection--) {
 //       for (let yDirection = -1; yDirection < 2; yDirection++) {
 //         const expectedLandingPointX = expectedLandingPointXWhenPowerHit(

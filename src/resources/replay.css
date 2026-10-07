@@ -1,0 +1,147 @@
+/* Replay viewer (src/replay/index.html), on top of style.css.
+   From gorisanson/pikachu-volleyball-p2p-online's style.css. */
+
+/* Button colours the replay controls use (light and dark schemes, as in style.css) */
+:root {
+  --btn-background-color-2: rgb(210, 210, 210);
+  --btn-background-image: linear-gradient(
+    rgb(250, 250, 250),
+    rgb(230, 230, 230)
+  );
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --btn-background-color-2: rgb(100, 100, 100);
+    --btn-background-image: linear-gradient(rgb(60, 60, 60), rgb(40, 40, 40));
+  }
+}
+:root[data-color-scheme='light'] {
+  --btn-background-color-2: rgb(210, 210, 210);
+  --btn-background-image: linear-gradient(
+    rgb(250, 250, 250),
+    rgb(230, 230, 230)
+  );
+}
+:root[data-color-scheme='dark'] {
+  --btn-background-color-2: rgb(100, 100, 100);
+  --btn-background-image: linear-gradient(rgb(60, 60, 60), rgb(40, 40, 40));
+}
+
+span.margin-left-right {
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.fade-in-box.black {
+  background-color: black;
+  color: white;
+  animation-duration: 0s;
+}
+
+/* CSS for replay is below */
+#dropbox {
+  border-style: solid;
+  border-color: var(--color);
+  border-width: 2px;
+}
+
+#scrubber-range-input {
+  width: var(--canvas-width);
+  height: var(--btn-height);
+}
+
+span.margin-left-right {
+  margin-left: calc(var(--font-size) / 1.5);
+  margin-right: calc(var(--font-size) / 1.5);
+}
+
+button.btn-for-replay {
+  height: var(--btn-height);
+  width: calc(var(--btn-width) / 2);
+  font-size: calc(var(--font-size) / 1.2);
+}
+
+button.btn-for-replay.selected {
+  background-color: rgb(50, 163, 255);
+  background-image: none;
+  color: white;
+  font-weight: bold;
+}
+
+#play-pause-btn {
+  font-size: var(--font-size);
+}
+
+div.inline {
+  display: inline;
+}
+
+div.margin-top-little {
+  margin-top: calc(var(--font-size) / 1.5);
+}
+
+input[type='file'] {
+  display: none;
+}
+
+label.custom-file-upload {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 2px solid rgb(50, 50, 50);
+  margin: 0;
+  padding: 0;
+  background-color: var(--btn-background-color-2);
+  background-image: var(--btn-background-image);
+  color: var(--color);
+  border-radius: 5px;
+  width: var(--btn-width);
+  height: var(--btn-height);
+  cursor: pointer;
+}
+
+.disable-dbl-tap-zoom {
+  touch-action: manipulation;
+}
+
+.flex-for-keyboard {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  margin-top: 10px;
+}
+
+.grid-for-keyboard {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 5px;
+  width: calc(5 * var(--btn-height));
+  height: calc(2.3 * var(--btn-height));
+}
+
+.keyboard-key {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 2px solid rgb(50, 50, 50);
+  font-size: var(--font-size);
+}
+
+.keyboard-key.pressed {
+  background-color: rgb(255, 0, 0);
+  color: white;
+}
+
+div.show-checkboxes-container {
+  font-size: calc(var(--font-size) / 1.2);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+#fps-input {
+  height: var(--btn-height);
+  width: calc(var(--btn-width) / 2);
+  font-size: calc(var(--font-size) / 1.2);
+}

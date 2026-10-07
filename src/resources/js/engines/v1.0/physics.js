@@ -27,7 +27,7 @@
  *
  */
 'use strict';
-import { rand } from './rand.js';
+import { rand, true_rand } from './rand.js';
 import {
   serveMode,
   SkillTypeForPlayer2Available,
@@ -1115,7 +1115,7 @@ function letAIDecideUserInput(player, ball, theOtherPlayer, userInput) {
 
     if (player.goodtime === 0 && player.state === 1) {
       userInput.powerHit = 1;
-      const attackFar = rand() % 5 === 0;
+      const attackFar = true_rand() % 5 === 0;
       // 打最遠
       // console.log(attackFar);
       if (attackFar) {
@@ -1353,8 +1353,8 @@ function letComputerDecideUserInput(player, ball, theOtherPlayer, userInput) {
     } else {
       userInput.xDirection = -1;
     }
-  } else if (rand() % 20 === 0) {
-    player.computerWhereToStandBy = rand() % 2;
+  } else if (true_rand() % 20 === 0) {
+    player.computerWhereToStandBy = true_rand() % 2;
   }
 
   if (player.state === 0) {
@@ -1427,7 +1427,7 @@ function letComputerDecideUserInput(player, ball, theOtherPlayer, userInput) {
  * @return {boolean} Will input power hit?
  */
 function decideWhetherInputPowerHit(player, ball, theOtherPlayer, userInput) {
-  if (rand() % 2 === 0) {
+  if (true_rand() % 2 === 0) {
     for (let xDirection = 1; xDirection > -1; xDirection--) {
       for (let yDirection = -1; yDirection < 2; yDirection++) {
         const expectedLandingPointX = expectedLandingPointXWhenPowerHit(

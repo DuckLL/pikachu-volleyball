@@ -10,6 +10,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { keepAIOffSeededRng } from '../scripts/engine_transform.mjs';
 
 const root = path.resolve(
   path.dirname(new URL(import.meta.url).pathname),
@@ -49,6 +50,7 @@ const load = (rel) => import(pathToFileURL(path.join(scratch, 'js', rel)).href);
 const { AI_ENGINES } = await load('engines/index.js');
 const { configure } = await load('ui.js');
 const { setCustomRng } = await load('rand.js');
+const { PikaPhysics: LatestPhysics } = await load('physics.js');
 
 /** Deterministic RNG so a failure can be reproduced. */
 function mulberry32(seed) {
@@ -189,7 +191,7 @@ for (const engine of AI_ENGINES) {
   });
 }
 
-test('every extracted engine is byte-identical to its git tag', (t) => {
+test('every extracted engine is its git tag with the AI kept off the seeded RNG', (t) => {
   for (const engine of AI_ENGINES) {
     const file = path.join(jsDir, 'engines', `v${engine.id}`, 'physics.js');
     const source = fs.existsSync(file) ? file : path.join(jsDir, 'physics.js');
@@ -210,10 +212,90 @@ test('every extracted engine is byte-identical to its git tag', (t) => {
     }
     assert.equal(
       fs.readFileSync(source, 'utf8'),
-      tagged,
+      keepAIOffSeededRng(tagged).source,
       fs.existsSync(file)
         ? `engines/v${engine.id}/physics.js differs from ${engine.tag}; rerun node scripts/extract-engines.mjs`
         : `main's physics.js changed since ${engine.tag}; run node scripts/extract-engines.mjs (main's engine is then listed as "dev")`
     );
+  }
+});
+
+// A replay is the recorded inputs fed through physics.js with the same RNG
+// seed and no computer players. Record AI vs AI with every engine and replay
+// it that way; any AI decision that drew from the seeded RNG while recording
+// (1.0-3.0 did, before engine_transform.mjs) shows up as a mismatch.
+test('games recorded with every engine replay exactly', async () => {
+  const log = console.log;
+  console.log = () => {};
+  const snapshot = (p) =>
+    [
+      p.ball.x,
+      p.ball.y,
+      p.ball.xVelocity,
+      p.ball.yVelocity,
+      p.player1.x,
+      p.player1.y,
+      p.player1.state,
+      p.player2.x,
+      p.player2.y,
+      p.player2.state,
+    ].join(',');
+  const FRAMES = 3000;
+  try {
+    for (const engine of AI_ENGINES) {
+      const engineModule = await engine.load();
+      for (const seed of [1, 2]) {
+        let isPlayer2Serve = false;
+        const newRound = (p) => {
+          p.player1.initializeForNewRound();
+          p.player2.initializeForNewRound();
+          p.ball.initializeForNewRound(isPlayer2Serve);
+        };
+
+        setCustomRng(mulberry32(seed));
+        const recording = new engineModule.PikaPhysics(true, true);
+        const inputs = [];
+        const states = [];
+        const rounds = [];
+        newRound(recording);
+        for (let frame = 0; frame < FRAMES; frame++) {
+          const keys = [0, 1].map(() => ({
+            xDirection: 0,
+            yDirection: 0,
+            powerHit: 0,
+          }));
+          let touched = recording.runEngineForNextFrame(keys);
+          if (Array.isArray(touched)) touched = touched[0];
+          inputs.push(keys.map((k) => ({ ...k })));
+          states.push(snapshot(recording));
+          if (touched) {
+            isPlayer2Serve = recording.ball.punchEffectX < 216;
+            rounds.push([frame, isPlayer2Serve]);
+            newRound(recording);
+          }
+        }
+
+        setCustomRng(mulberry32(seed));
+        const replay = new LatestPhysics(false, false);
+        isPlayer2Serve = false;
+        newRound(replay);
+        let round = 0;
+        for (let frame = 0; frame < FRAMES; frame++) {
+          replay.runEngineForNextFrame(inputs[frame].map((k) => ({ ...k })));
+          assert.equal(
+            snapshot(replay),
+            states[frame],
+            `AI ${engine.id}, seed ${seed}: the replay leaves the recording at frame ${frame}`
+          );
+          if (round < rounds.length && rounds[round][0] === frame) {
+            isPlayer2Serve = rounds[round][1];
+            round++;
+            newRound(replay);
+          }
+        }
+      }
+    }
+  } finally {
+    console.log = log;
   }
 });
