@@ -95,8 +95,8 @@ for (const prop in ASSETS_PATH.SOUNDS) {
 }
 
 setUpInitialUI();
+setUpTouchControls(); // before the AI version select, which reads <html class="touch">
 setUpAIVersionSelect();
-setUpTouchControls();
 
 /**
  * Set up the initial UI.

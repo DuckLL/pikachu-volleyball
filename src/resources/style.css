@@ -586,8 +586,8 @@ input.toggle-switch:checked + label::before {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  padding: 0 calc(env(safe-area-inset-left, 0px) + 12px) 0
-    calc(env(safe-area-inset-right, 0px) + 12px);
+  padding: 0 calc(env(safe-area-inset-right, 0px) + 12px) 0
+    calc(env(safe-area-inset-left, 0px) + 12px);
   pointer-events: none;
   user-select: none;
   -webkit-user-select: none;
@@ -601,71 +601,80 @@ input.toggle-switch:checked + label::before {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 10px;
+  gap: 12px;
 }
-.touch-buttons {
-  display: flex;
-  gap: 14px;
-  align-items: flex-end;
-}
-.touch-btn {
-  width: 68px;
-  height: 68px;
+.touch-btn.touch-hit {
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
-  border: 2px solid var(--btn-border-color, rgba(50, 50, 50, 0.6));
-  background-color: rgba(128, 128, 128, 0.35);
+  border: 3px solid rgba(160, 40, 40, 0.7);
+  background-color: rgba(255, 70, 70, 0.4);
   color: var(--color);
-  font-size: 18px;
+  font-size: 28px;
   font-weight: bold;
   touch-action: none;
 }
-.touch-btn.touch-hit {
-  width: 84px;
-  height: 84px;
-  background-color: rgba(255, 70, 70, 0.4);
-}
-.touch-btn.pressed {
-  background-color: rgba(128, 128, 128, 0.7);
-}
 .touch-btn.touch-hit.pressed {
-  background-color: rgba(255, 70, 70, 0.75);
+  background-color: rgba(255, 70, 70, 0.8);
 }
-.touch-joystick {
-  position: relative;
-  width: 130px;
-  height: 130px;
-  border-radius: 50%;
-  border: 2px solid rgba(128, 128, 128, 0.6);
-  background-color: rgba(128, 128, 128, 0.2);
+.touch-dpad {
+  display: grid;
+  grid-template-columns: repeat(3, 64px);
+  grid-template-rows: repeat(3, 64px);
+  gap: 4px;
   touch-action: none;
 }
-.touch-knob {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 56px;
-  height: 56px;
-  margin: -28px 0 0 -28px;
-  border-radius: 50%;
-  background-color: rgba(128, 128, 128, 0.6);
+.touch-dpad-cell {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 12px;
+  border: 2px solid rgba(128, 128, 128, 0.6);
+  background-color: rgba(128, 128, 128, 0.3);
+  color: var(--color);
+  font-size: 26px;
   pointer-events: none;
+}
+.touch-dpad-cell.pressed {
+  background-color: rgba(128, 128, 128, 0.75);
+}
+/* Phones held sideways: the canvas fills the height, so the pad must fit in
+   the margin beside it. */
+@media only screen and (orientation: landscape) and (max-height: 500px) {
+  .touch-dpad {
+    grid-template-columns: repeat(3, 56px);
+    grid-template-rows: repeat(3, 56px);
+  }
 }
 .touch-side-switch {
   display: flex;
   border: 1px solid rgba(128, 128, 128, 0.7);
-  border-radius: 6px;
+  border-radius: 8px;
   overflow: hidden;
 }
 .touch-side-switch button {
-  padding: 6px 10px;
+  padding: 10px 16px;
   border: none;
   background-color: rgba(128, 128, 128, 0.2);
   color: var(--color);
-  font-size: 14px;
+  font-size: 16px;
 }
 .touch-side-switch button.selected {
-  background-color: rgba(128, 128, 128, 0.6);
+  background-color: rgba(128, 128, 128, 0.65);
   font-weight: bold;
+}
+/* Phones with the touch controls: a compact menu bar, leaving the canvas
+   (sized from --btn-height) more room. */
+@media only screen and (max-width: 900px), only screen and (max-height: 600px) {
+  :root.touch {
+    --font-size: 14px;
+  }
+  :root.touch #menu-bar .relative-container label {
+    font-size: 12px;
+  }
+  :root.touch #menu-bar select {
+    font-size: 13px;
+  }
 }
 
 /* Narrow screens (phones held upright): the menu bar's left half (game,

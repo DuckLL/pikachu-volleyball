@@ -101,9 +101,11 @@ export function setUpAIVersionSelect() {
   for (const engine of AI_ENGINES) {
     const option = document.createElement('option');
     option.value = engine.id;
-    option.textContent = engine.date
-      ? `${engine.id} (${engine.date})`
-      : engine.id;
+    // The compact menu bar of the touch layout has no room for the date.
+    const compact = document.documentElement.classList.contains('touch');
+    option.textContent =
+      engine.date && !compact ? `${engine.id} (${engine.date})` : engine.id;
+    option.title = engine.date;
     select.appendChild(option);
   }
   select.addEventListener('change', () => {
