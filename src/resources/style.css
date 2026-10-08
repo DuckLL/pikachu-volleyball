@@ -547,13 +547,18 @@ input.toggle-switch:checked + label::before {
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  width: var(--canvas-width);
+  /* The about box's width inside its padding: --canvas-width overflowed it */
+  width: 100%;
   margin: auto;
 }
 
+/* Wraps on narrow screens, where one row (wider in English) made the page
+   wider than the screen */
 #capability {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-around;
+  gap: 4px 12px;
   width: 100%;
 }
 #ai-version {
@@ -574,4 +579,376 @@ input.toggle-switch:checked + label::before {
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+
+/* On-screen controls for touch screens (touch_controls.js) */
+#touch-controls {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 0 calc(env(safe-area-inset-right, 0px) + 12px) 0
+    calc(env(safe-area-inset-left, 0px) + 12px);
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  --cell: 64px; /* a pad cell or arrow key */
+  --stick: 160px; /* the joystick */
+  --hit-size: 120px;
+}
+#touch-controls > * {
+  pointer-events: auto;
+  touch-action: none;
+}
+#touch-controls:not([data-extra='none']) {
+  --hit-size: 100px;
+}
+/* The game is paused while the settings / about box is open, and the
+   controls would cover its text. */
+body:has(#about-box:not(.hidden)) #touch-controls {
+  display: none;
+}
+/* Phones held sideways: direction keys about the size of a keyboard's,
+   reaching over the canvas's edge (the controls are translucent). */
+@media only screen and (orientation: landscape) and (max-height: 500px) {
+  #touch-controls {
+    --cell: 88px;
+    --stick: 220px;
+  }
+}
+/* Phones held upright: hit, the extra button and the direction controls
+   share one row. */
+@media only screen and (max-width: 440px) {
+  #touch-controls {
+    --cell: 56px;
+  }
+  #touch-controls:not([data-extra='none']) {
+    --hit-size: 80px;
+  }
+}
+/* Direction controls on the left: everything mirrored */
+#touch-controls[data-direction-side='left'],
+#touch-controls[data-direction-side='left'] .touch-buttons {
+  flex-direction: row-reverse;
+}
+.touch-cluster {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+.touch-cluster.touch-direction,
+#touch-controls[data-direction-side='left'] .touch-cluster.touch-action {
+  align-items: flex-end;
+}
+#touch-controls[data-direction-side='left'] .touch-cluster.touch-direction {
+  align-items: flex-start;
+}
+/* Only the chosen direction control, and the extra button if any */
+#touch-controls:not([data-direction='joystick']) .touch-joystick,
+#touch-controls:not([data-direction='pad']) .touch-dpad,
+#touch-controls:not([data-direction='keys']) .touch-arrows,
+#touch-controls[data-extra='none'] .touch-extra {
+  display: none;
+}
+.touch-buttons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.touch-gear {
+  position: fixed;
+  top: calc(env(safe-area-inset-top, 0px) + 8px);
+  left: calc(env(safe-area-inset-left, 0px) + 8px);
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(128, 128, 128, 0.7);
+  background-color: rgba(128, 128, 128, 0.2);
+  color: var(--color);
+  font-size: 24px;
+  line-height: 1;
+}
+.touch-btn {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: var(--hit-size);
+  height: var(--hit-size);
+  border-radius: 50%;
+  color: var(--color);
+  font-size: 28px;
+  font-weight: bold;
+  touch-action: none;
+}
+.touch-btn.touch-hit {
+  border: 3px solid rgba(160, 40, 40, 0.7);
+  background-color: rgba(255, 70, 70, 0.4);
+}
+.touch-btn.touch-hit.pressed {
+  background-color: rgba(255, 70, 70, 0.8);
+}
+.touch-btn.touch-extra {
+  border: 3px solid rgba(40, 80, 160, 0.7);
+  background-color: rgba(70, 120, 255, 0.35);
+}
+.touch-btn.touch-extra.pressed {
+  background-color: rgba(70, 120, 255, 0.75);
+}
+#touch-controls[data-extra='down+hit'] .touch-extra {
+  font-size: 18px;
+  line-height: 1.15;
+}
+.touch-key-name {
+  font-size: 14px;
+  font-weight: normal;
+  opacity: 0.8;
+}
+.touch-joystick {
+  position: relative;
+  width: var(--stick);
+  height: var(--stick);
+  border-radius: 50%;
+  border: 2px solid rgba(128, 128, 128, 0.6);
+  background-color: rgba(128, 128, 128, 0.2);
+  touch-action: none;
+}
+.touch-knob {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 40%;
+  height: 40%;
+  transform-origin: center;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background-color: rgba(128, 128, 128, 0.6);
+  pointer-events: none;
+}
+.touch-dpad {
+  display: grid;
+  /* Six half-columns: three cells per row, but two (left, right) in the
+     middle row. */
+  grid-template-columns: repeat(6, calc((var(--cell) * 3 + 8px - 20px) / 6));
+  grid-template-rows: repeat(3, var(--cell));
+  gap: 4px;
+  touch-action: none;
+}
+.touch-dpad-cell {
+  grid-column: span 2;
+}
+.touch-dpad-cell[data-dir='4'],
+.touch-dpad-cell[data-dir='0'] {
+  grid-column: span 3;
+}
+.touch-dpad-cell,
+.touch-arrow {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 12px;
+  border: 2px solid rgba(128, 128, 128, 0.6);
+  background-color: rgba(128, 128, 128, 0.3);
+  color: var(--color);
+  font-size: 26px;
+}
+.touch-dpad-cell {
+  pointer-events: none;
+}
+.touch-dpad-cell.pressed,
+.touch-arrow.pressed {
+  background-color: rgba(128, 128, 128, 0.75);
+}
+/* Arrow keys in a keyboard's inverted T */
+.touch-arrows {
+  display: grid;
+  grid-template-columns: repeat(3, var(--cell));
+  grid-template-rows: repeat(2, var(--cell));
+  grid-template-areas:
+    '. up .'
+    'left down right';
+  gap: 4px;
+}
+.touch-arrow {
+  padding: 0;
+  touch-action: none;
+}
+.touch-arrow[data-key='up'] {
+  grid-area: up;
+}
+.touch-arrow[data-key='left'] {
+  grid-area: left;
+}
+.touch-arrow[data-key='down'] {
+  grid-area: down;
+}
+.touch-arrow[data-key='right'] {
+  grid-area: right;
+}
+.touch-switch {
+  display: flex;
+  border: 1px solid rgba(128, 128, 128, 0.7);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.touch-switch button {
+  flex: 1;
+  padding: 10px 12px;
+  border: none;
+  background-color: rgba(128, 128, 128, 0.2);
+  color: var(--color);
+  font-size: 16px;
+  white-space: nowrap;
+}
+.touch-switch button.selected {
+  background-color: rgba(128, 128, 128, 0.65);
+  font-weight: bold;
+}
+/* The gear's settings panel */
+#touch-settings {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+#touch-settings.hidden {
+  display: none;
+}
+.touch-settings-box {
+  /* Each setting's name beside its choices, to fit a phone held sideways */
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: center;
+  gap: 8px 12px;
+  max-width: calc(100vw - 32px);
+  max-height: calc(100vh - 32px);
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
+  padding: 16px;
+  border-radius: 12px;
+  background-color: var(--background-color);
+  color: var(--color);
+  font-size: 16px;
+}
+.touch-settings-box h3,
+.touch-settings-done {
+  grid-column: 1 / -1;
+}
+.touch-settings-box h3 {
+  margin: 0 0 4px;
+}
+.touch-settings-done {
+  margin-top: 8px;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  background-color: var(--btn-background-color);
+  color: var(--btn-color);
+  font-size: 16px;
+}
+/* With the touch controls, the menu bar is folded to its top right corner
+   (touch_controls.js adds the menu button that unfolds it) and floats over
+   the page, so the canvas no longer leaves room for it. */
+:root.touch #menu-bar {
+  position: fixed;
+  top: calc(env(safe-area-inset-top, 0px) + 8px);
+  right: calc(env(safe-area-inset-right, 0px) + 8px);
+  z-index: 15;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  width: auto;
+  height: auto;
+  margin: 0;
+}
+:root.touch #menu-bar:not(.touch-menu-open) .btn-container.left {
+  display: none;
+}
+:root.touch #menu-bar.touch-menu-open {
+  left: calc(env(safe-area-inset-left, 0px) + 8px);
+  padding: 8px;
+  border-radius: 12px;
+  background-color: var(--background-color);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+}
+:root.touch #menu-bar.touch-menu-open .btn-container.left {
+  order: 2;
+  width: 100%;
+  flex-wrap: wrap;
+  row-gap: 6px;
+}
+:root.touch #menu-bar .btn-container.right {
+  gap: 8px;
+}
+.touch-menu-btn {
+  width: var(--btn-height);
+  font-size: 22px;
+}
+@media only screen and (min-aspect-ratio: 432/304) {
+  :root.touch {
+    --canvas-height: calc(96vh - 10px);
+  }
+}
+/* On a phone, vh is the height with the browser's address bar hidden, so a
+   canvas sized from it runs off the bottom while the bar shows; dvh is the
+   height actually visible. */
+@supports (height: 100dvh) {
+  :root.touch #flex-container {
+    height: 100dvh;
+  }
+  @media only screen and (min-aspect-ratio: 432/304) {
+    :root.touch {
+      --canvas-height: calc(
+        100dvh - 16px - env(safe-area-inset-top, 0px) -
+          env(safe-area-inset-bottom, 0px)
+      );
+    }
+  }
+}
+/* Upright, the canvas goes to the top, just below the gear and the menu
+   button, leaving the rest of the screen to the controls. */
+@media only screen and (max-aspect-ratio: 432/304) {
+  :root.touch #flex-container {
+    justify-content: flex-start;
+    padding-top: calc(env(safe-area-inset-top, 0px) + 60px);
+  }
+}
+
+/* Phones with the touch controls: a compact menu bar, leaving the canvas
+   (sized from --btn-height) more room. */
+@media only screen and (max-width: 900px), only screen and (max-height: 600px) {
+  :root.touch {
+    --font-size: 14px;
+  }
+  :root.touch #menu-bar .relative-container label {
+    font-size: 12px;
+  }
+  :root.touch #menu-bar select {
+    font-size: 13px;
+  }
+}
+
+/* Narrow screens (phones held upright): the menu bar's left half (game,
+   options, save replay, colour scheme, AI version, AI level) is wider than
+   the screen, which made the browser lay the whole page out wider and zoom
+   out. Let it wrap onto a second row instead. */
+@media only screen and (max-width: 640px) {
+  #menu-bar {
+    height: auto;
+    min-height: var(--btn-height);
+  }
+  .btn-container.left {
+    flex-wrap: wrap;
+    row-gap: 6px;
+  }
 }
