@@ -682,7 +682,7 @@ body:has(#about-box:not(.hidden)) #touch-controls {
   align-items: center;
   width: var(--hit-size);
   height: var(--hit-size);
-  border-radius: 50%;
+  border-radius: 12px;
   color: var(--color);
   font-size: 28px;
   font-weight: bold;

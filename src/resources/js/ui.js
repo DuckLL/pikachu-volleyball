@@ -56,17 +56,16 @@ const level = [
   [false, true, true, true, true, false, false, 0, 4], // 無敵
 ];
 /**
- * Enum for "game paused by what?".
- * The greater the number, the higher the precedence.
+ * Reasons the game can be paused. More than one can be active at a time.
  *
  * @readonly
  * @enum {number}
  */
-const PauseResumePrecedence = {
+const PauseReason = {
   pauseBtn: 3,
   messageBox: 2,
   dropdown: 1,
-  notPaused: 0,
+  touchSettings: 4,
 };
 
 const DEFAULT_SHARED_OPTIONS = {
@@ -119,30 +118,25 @@ const SHARED_OPTION_BUTTON_IDS = {
  * Manages pausing and resuming of the game
  */
 const pauseResumeManager = {
-  /** @type {number} PauseResumePrecedence enum */
-  _precedence: PauseResumePrecedence.notPaused,
+  /** @type {Set<number>} */
+  _reasons: new Set(),
   /**
    * Pause game
    * @param {PikachuVolleyball} pikaVolley
-   * @param {number} precedence PauseResumePrecedence enum
+   * @param {number} reason PauseReason enum
    */
-  pause: function (pikaVolley, precedence) {
-    // @ts-ignore
-    if (precedence > this._precedence) {
-      pikaVolley.paused = true;
-      this._precedence = precedence;
-    }
+  pause: function (pikaVolley, reason) {
+    this._reasons.add(reason);
+    pikaVolley.paused = true;
   },
   /**
    * Resume game
    * @param {PikachuVolleyball} pikaVolley
-   * @param {number} precedence PauseResumePrecedence enum
+   * @param {number} reason PauseReason enum
    */
-  resume: function (pikaVolley, precedence) {
-    if (precedence === this._precedence) {
-      pikaVolley.paused = false;
-      this._precedence = PauseResumePrecedence.notPaused;
-    }
+  resume: function (pikaVolley, reason) {
+    this._reasons.delete(reason);
+    pikaVolley.paused = this._reasons.size > 0;
   },
 };
 
@@ -152,6 +146,16 @@ const pauseResumeManager = {
  * @param {Ticker} ticker
  */
 export function setUpUI(pikaVolley, ticker) {
+  const touchSettings = document.getElementById('touch-settings');
+  if (touchSettings) {
+    touchSettings.addEventListener('touchsettingschange', () => {
+      if (touchSettings.classList.contains('hidden')) {
+        pauseResumeManager.resume(pikaVolley, PauseReason.touchSettings);
+      } else {
+        pauseResumeManager.pause(pikaVolley, PauseReason.touchSettings);
+      }
+    });
+  }
   /**
    * @param {SharedOptions} options
    */
@@ -326,10 +330,10 @@ function setUpBtns(pikaVolley, ticker, applyAndSaveOptions) {
   pauseBtn.addEventListener('click', () => {
     if (pauseBtn.classList.contains('selected')) {
       pauseBtn.classList.remove('selected');
-      pauseResumeManager.resume(pikaVolley, PauseResumePrecedence.pauseBtn);
+      pauseResumeManager.resume(pikaVolley, PauseReason.pauseBtn);
     } else {
       pauseBtn.classList.add('selected');
-      pauseResumeManager.pause(pikaVolley, PauseResumePrecedence.pauseBtn);
+      pauseResumeManager.pause(pikaVolley, PauseReason.pauseBtn);
     }
   });
 
@@ -337,7 +341,7 @@ function setUpBtns(pikaVolley, ticker, applyAndSaveOptions) {
   restartBtn.addEventListener('click', () => {
     if (pauseBtn.classList.contains('selected')) {
       pauseBtn.classList.remove('selected');
-      pauseResumeManager.resume(pikaVolley, PauseResumePrecedence.pauseBtn);
+      pauseResumeManager.resume(pikaVolley, PauseReason.pauseBtn);
     }
     pikaVolley.restart();
   });
@@ -438,7 +442,7 @@ function setUpBtns(pikaVolley, ticker, applyAndSaveOptions) {
       optionsDropdownBtn.disabled = true;
       // @ts-ignore
       aboutBtn.disabled = true;
-      pauseResumeManager.pause(pikaVolley, PauseResumePrecedence.messageBox);
+      pauseResumeManager.pause(pikaVolley, PauseReason.messageBox);
       return;
     }
     if (isWinningScoreAlreadyReached(5)) {
@@ -450,7 +454,7 @@ function setUpBtns(pikaVolley, ticker, applyAndSaveOptions) {
       optionsDropdownBtn.disabled = true;
       // @ts-ignore
       aboutBtn.disabled = true;
-      pauseResumeManager.pause(pikaVolley, PauseResumePrecedence.messageBox);
+      pauseResumeManager.pause(pikaVolley, PauseReason.messageBox);
       return;
     }
     applyAndSaveOptions({ winningScore: '5' });
@@ -476,7 +480,7 @@ function setUpBtns(pikaVolley, ticker, applyAndSaveOptions) {
       optionsDropdownBtn.disabled = true;
       // @ts-ignore
       aboutBtn.disabled = true;
-      pauseResumeManager.pause(pikaVolley, PauseResumePrecedence.messageBox);
+      pauseResumeManager.pause(pikaVolley, PauseReason.messageBox);
       return;
     }
     if (isWinningScoreAlreadyReached(10)) {
@@ -488,7 +492,7 @@ function setUpBtns(pikaVolley, ticker, applyAndSaveOptions) {
       optionsDropdownBtn.disabled = true;
       // @ts-ignore
       aboutBtn.disabled = true;
-      pauseResumeManager.pause(pikaVolley, PauseResumePrecedence.messageBox);
+      pauseResumeManager.pause(pikaVolley, PauseReason.messageBox);
       return;
     }
     applyAndSaveOptions({ winningScore: '10' });
@@ -514,7 +518,7 @@ function setUpBtns(pikaVolley, ticker, applyAndSaveOptions) {
       optionsDropdownBtn.disabled = true;
       // @ts-ignore
       aboutBtn.disabled = true;
-      pauseResumeManager.pause(pikaVolley, PauseResumePrecedence.messageBox);
+      pauseResumeManager.pause(pikaVolley, PauseReason.messageBox);
       return;
     }
     if (isWinningScoreAlreadyReached(15)) {
@@ -526,7 +530,7 @@ function setUpBtns(pikaVolley, ticker, applyAndSaveOptions) {
       optionsDropdownBtn.disabled = true;
       // @ts-ignore
       aboutBtn.disabled = true;
-      pauseResumeManager.pause(pikaVolley, PauseResumePrecedence.messageBox);
+      pauseResumeManager.pause(pikaVolley, PauseReason.messageBox);
       return;
     }
     applyAndSaveOptions({ winningScore: '15' });
@@ -550,7 +554,7 @@ function setUpBtns(pikaVolley, ticker, applyAndSaveOptions) {
 
       // @ts-ignore
       aboutBtn.disabled = false;
-      pauseResumeManager.resume(pikaVolley, PauseResumePrecedence.messageBox);
+      pauseResumeManager.resume(pikaVolley, PauseReason.messageBox);
     }
   });
   noticeOKBtn2.addEventListener('click', () => {
@@ -563,7 +567,7 @@ function setUpBtns(pikaVolley, ticker, applyAndSaveOptions) {
 
       // @ts-ignore
       aboutBtn.disabled = false;
-      pauseResumeManager.resume(pikaVolley, PauseResumePrecedence.messageBox);
+      pauseResumeManager.resume(pikaVolley, PauseReason.messageBox);
     }
   });
 
@@ -595,7 +599,7 @@ function setUpBtns(pikaVolley, ticker, applyAndSaveOptions) {
       gameDropdownBtn.disabled = true;
       // @ts-ignore
       optionsDropdownBtn.disabled = true;
-      pauseResumeManager.pause(pikaVolley, PauseResumePrecedence.messageBox);
+      pauseResumeManager.pause(pikaVolley, PauseReason.messageBox);
     } else {
       aboutBox.classList.add('hidden');
       // @ts-ignore
@@ -603,7 +607,7 @@ function setUpBtns(pikaVolley, ticker, applyAndSaveOptions) {
       // @ts-ignore
       optionsDropdownBtn.disabled = false;
 
-      pauseResumeManager.resume(pikaVolley, PauseResumePrecedence.messageBox);
+      pauseResumeManager.resume(pikaVolley, PauseReason.messageBox);
     }
   });
   closeAboutBtn.addEventListener('click', () => {
@@ -614,7 +618,7 @@ function setUpBtns(pikaVolley, ticker, applyAndSaveOptions) {
       // @ts-ignore
       optionsDropdownBtn.disabled = false;
 
-      pauseResumeManager.resume(pikaVolley, PauseResumePrecedence.messageBox);
+      pauseResumeManager.resume(pikaVolley, PauseReason.messageBox);
     }
   });
 }
@@ -630,7 +634,7 @@ function setUpToShowDropdownsAndSubmenus(pikaVolley) {
     if (!event.target.matches('.dropdown-btn, .submenu-btn')) {
       hideSubmenus();
       hideDropdownsExcept('');
-      pauseResumeManager.resume(pikaVolley, PauseResumePrecedence.dropdown);
+      pauseResumeManager.resume(pikaVolley, PauseReason.dropdown);
     }
   });
 
@@ -712,9 +716,9 @@ function toggleDropdown(dropdownID, pikaVolley) {
   hideDropdownsExcept(dropdownID);
   const willShow = document.getElementById(dropdownID).classList.toggle('show');
   if (willShow) {
-    pauseResumeManager.pause(pikaVolley, PauseResumePrecedence.dropdown);
+    pauseResumeManager.pause(pikaVolley, PauseReason.dropdown);
   } else {
-    pauseResumeManager.resume(pikaVolley, PauseResumePrecedence.dropdown);
+    pauseResumeManager.resume(pikaVolley, PauseReason.dropdown);
   }
 }
 

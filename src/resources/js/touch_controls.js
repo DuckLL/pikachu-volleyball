@@ -319,10 +319,14 @@ export function setUpTouchControls() {
   const holdButtons = /** @type {HTMLElement[]} */ ([
     ...root.querySelectorAll('[data-key]'),
   ]);
+  const clearButtons = [];
   holdButtons.forEach((btn, i) => {
     const holder = `button${i}`;
+    const pointers = new Set();
     btn.addEventListener('pointerdown', (e) => {
       e.preventDefault();
+      if (pointers.has(e.pointerId)) return;
+      pointers.add(e.pointerId);
       btn.setPointerCapture(e.pointerId);
       btn.classList.add('pressed');
       // data-key names one key, or several joined by '+'
@@ -330,12 +334,25 @@ export function setUpTouchControls() {
         presser.set(holder, keys()[key], true);
       }
     });
-    const release = () => {
-      btn.classList.remove('pressed');
-      presser.releaseHolder(holder);
+    const release = (e) => {
+      if (!pointers.delete(e.pointerId)) return;
+      if (pointers.size === 0) {
+        btn.classList.remove('pressed');
+        presser.releaseHolder(holder);
+      }
     };
     btn.addEventListener('pointerup', release);
     btn.addEventListener('pointercancel', release);
+    btn.addEventListener('lostpointercapture', release);
+    clearButtons.push(() => {
+      const captured = [...pointers];
+      pointers.clear();
+      for (const pointerId of captured) {
+        if (btn.hasPointerCapture(pointerId))
+          btn.releasePointerCapture(pointerId);
+      }
+      btn.classList.remove('pressed');
+    });
   });
 
   /**
@@ -353,33 +370,49 @@ export function setUpTouchControls() {
   };
 
   /**
-   * A one-finger touch area: follow(event) as the finger moves, end() when
-   * it lifts.
+   * Follow the newest finger in an area. If it lifts while another finger is
+   * still down, restore the earlier finger's last position.
    * @param {HTMLElement} area
    * @param {(e: PointerEvent) => void} follow
    * @param {() => void} end
    * @return {() => void} lifts the finger
    */
   const trackFinger = (area, follow, end) => {
-    let pointer = null;
+    const pointers = new Map();
     area.addEventListener('pointerdown', (e) => {
       e.preventDefault();
-      pointer = e.pointerId;
+      pointers.set(e.pointerId, e);
       area.setPointerCapture(e.pointerId);
       follow(e);
     });
     area.addEventListener('pointermove', (e) => {
-      if (e.pointerId === pointer) {
-        follow(e);
-      }
+      if (!pointers.has(e.pointerId)) return;
+      pointers.set(e.pointerId, e);
+      if ([...pointers.keys()].pop() === e.pointerId) follow(e);
     });
-    const lift = () => {
-      pointer = null;
+    const release = (e) => {
+      if (!pointers.has(e.pointerId)) return;
+      const wasActive = [...pointers.keys()].pop() === e.pointerId;
+      pointers.delete(e.pointerId);
+      if (!wasActive) return;
+      if (pointers.size) {
+        follow([...pointers.values()].pop());
+      } else {
+        end();
+      }
+    };
+    area.addEventListener('pointerup', release);
+    area.addEventListener('pointercancel', release);
+    area.addEventListener('lostpointercapture', release);
+    return () => {
+      const captured = [...pointers.keys()];
+      pointers.clear();
+      for (const pointerId of captured) {
+        if (area.hasPointerCapture(pointerId))
+          area.releasePointerCapture(pointerId);
+      }
       end();
     };
-    area.addEventListener('pointerup', lift);
-    area.addEventListener('pointercancel', lift);
-    return lift;
   };
 
   // Joystick: the knob follows the finger within the base.
@@ -447,9 +480,7 @@ export function setUpTouchControls() {
     endJoystick();
     endPad();
     presser.releaseAll();
-    for (const btn of holdButtons) {
-      btn.classList.remove('pressed');
-    }
+    for (const clear of clearButtons) clear();
   };
 
   const extraBtn = /** @type {HTMLElement} */ (
@@ -483,6 +514,7 @@ export function setUpTouchControls() {
   const openSettings = (open) => {
     releaseAll();
     panel.classList.toggle('hidden', !open);
+    panel.dispatchEvent(new Event('touchsettingschange'));
   };
   root
     .querySelector('.touch-gear')
