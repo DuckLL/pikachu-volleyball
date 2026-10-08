@@ -13,13 +13,14 @@
  * - "keys": the keyboard's arrow keys in their usual inverted T, each its
  *   own button, so several can be held with several fingers.
  *
- * The gear opens settings for which side the direction controls are on,
- * which control, and the button beside "hit".
+ * The gear opens settings for which player (1P / 2P) the controls play,
+ * which side the direction controls are on, which control, and the button
+ * beside "hit".
  *
  * They press the same keys a keyboard would (keydown / keyup with the key's
  * `code`, which PikaKeyboard listens for), so the menu, the game and the AI
- * modes work unchanged. The 1P / 2P switch picks which player's keys: in the
- * menu, "hit" is then Z (play on the left) or Enter (play on the right).
+ * modes work unchanged. The 1P / 2P setting picks which player's keys: in
+ * the menu, "hit" is then Z (play on the left) or Enter (play on the right).
  *
  * Shown on touch screens; ?touch=1 forces it on (for trying on a desktop),
  * ?touch=0 off. All choices are remembered. While shown, <html> has the
@@ -29,12 +30,11 @@
 
 import { localStorageWrapper } from './utils/local_storage_wrapper.js';
 
-const SIDE_STORAGE_KEY = 'pv-offline-touchSide';
-
-/** The gear's settings: [storage key, values] */
+/** The gear's settings: [storage key, values (the first is the default)] */
 const SETTINGS = {
-  directionSide: ['pv-offline-touchDirectionSide', ['left', 'right']],
-  direction: ['pv-offline-touchLayout', ['joystick', 'pad', 'keys']],
+  side: ['pv-offline-touchSide', ['1', '2']],
+  directionSide: ['pv-offline-touchDirectionSide', ['right', 'left']],
+  direction: ['pv-offline-touchLayout', ['pad', 'joystick', 'keys']],
   // Unset, it follows the direction control: down for the keyboard layout
   // (where the keyboard's V / ↓ is), none otherwise.
   extra: ['pv-offline-touchExtra', ['none', 'up', 'down']],
@@ -63,8 +63,9 @@ const LABELS = {
     hit: '殺',
     up: '上',
     down: '下',
-    p1: '1P 左',
-    p2: '2P 右',
+    1: '1P 左',
+    2: '2P 右',
+    player: '玩家',
     settings: '觸控設定',
     directionSide: '方向控制在',
     left: '左邊',
@@ -81,8 +82,9 @@ const LABELS = {
     hit: 'Hit',
     up: 'Up',
     down: 'Down',
-    p1: '1P left',
-    p2: '2P right',
+    1: '1P left',
+    2: '2P right',
+    player: 'Player',
     settings: 'Touch controls',
     directionSide: 'Direction on the',
     left: 'Left',
@@ -99,8 +101,9 @@ const LABELS = {
     hit: '스파이크',
     up: '위',
     down: '아래',
-    p1: '1P 왼쪽',
-    p2: '2P 오른쪽',
+    1: '1P 왼쪽',
+    2: '2P 오른쪽',
+    player: '플레이어',
     settings: '터치 설정',
     directionSide: '방향 조작 위치',
     left: '왼쪽',
@@ -222,13 +225,13 @@ export function setUpTouchControls() {
   document.documentElement.classList.add('touch');
   const labels = LABELS[document.documentElement.lang] || LABELS.en;
   const presser = new KeyPresser();
-  let side = localStorageWrapper.get(SIDE_STORAGE_KEY) === '2' ? 2 : 1;
-  const keys = () => KEYS[side];
   const settings = {
+    side: loadSetting('side') || '1',
     directionSide: loadSetting('directionSide') || 'right',
     direction: loadSetting('direction') || 'pad',
     extra: loadSetting('extra'),
   };
+  const keys = () => KEYS[settings.side];
   const extra = () =>
     settings.extra || (settings.direction === 'keys' ? 'down' : 'none');
 
@@ -257,10 +260,6 @@ export function setUpTouchControls() {
   root.innerHTML = `
     <div class="touch-cluster touch-action">
       <div class="touch-top-row">
-        <div class="touch-switch touch-side-switch" role="group">
-          <button type="button" data-side="1">${labels.p1}</button>
-          <button type="button" data-side="2">${labels.p2}</button>
-        </div>
         <button type="button" class="touch-gear" aria-label="${
           labels.settings
         }">⚙</button>
@@ -300,10 +299,12 @@ export function setUpTouchControls() {
       labels.settings
     }">
       <h3>${labels.settings}</h3>
+      <div>${labels.player}</div>
+      ${switchHTML('side', SETTINGS.side[1])}
       <div>${labels.directionSide}</div>
-      ${switchHTML('direction-side', SETTINGS.directionSide[1])}
+      ${switchHTML('direction-side', ['left', 'right'])}
       <div>${labels.direction}</div>
-      ${switchHTML('direction', SETTINGS.direction[1])}
+      ${switchHTML('direction', ['joystick', 'pad', 'keys'])}
       <div>${labels.extra}</div>
       ${switchHTML('extra', SETTINGS.extra[1])}
       <button type="button" class="touch-settings-done">${labels.done}</button>
@@ -458,28 +459,16 @@ export function setUpTouchControls() {
       extraBtn.querySelector('.touch-extra-label').textContent =
         labels[extra()];
     }
-    const selected = { side: String(side), ...settings, extra: extra() };
-    for (const btn of document.querySelectorAll(
-      '#touch-controls .touch-switch button, #touch-settings .touch-switch button'
-    )) {
+    const selected = { ...settings, extra: extra() };
+    for (const btn of panel.querySelectorAll('.touch-switch button')) {
       const [name, value] = switchChoice(btn);
       btn.classList.toggle('selected', selected[name] === value);
     }
     for (const btn of root.querySelectorAll('.touch-buttons [data-key]')) {
       btn.querySelector('.touch-key-name').textContent =
-        KEY_NAMES[side][/** @type {HTMLElement} */ (btn).dataset.key];
+        KEY_NAMES[settings.side][/** @type {HTMLElement} */ (btn).dataset.key];
     }
   };
-
-  // The 1P / 2P switch
-  for (const btn of root.querySelectorAll('.touch-side-switch button')) {
-    btn.addEventListener('click', () => {
-      releaseAll();
-      side = Number(switchChoice(btn)[1]);
-      localStorageWrapper.set(SIDE_STORAGE_KEY, String(side));
-      show();
-    });
-  }
 
   // The gear's settings panel
   const openSettings = (open) => {
@@ -500,6 +489,7 @@ export function setUpTouchControls() {
   for (const btn of panel.querySelectorAll('.touch-switch button')) {
     btn.addEventListener('click', () => {
       const [name, value] = switchChoice(btn);
+      releaseAll();
       settings[name] = value;
       localStorageWrapper.set(SETTINGS[name][0], value);
       show();

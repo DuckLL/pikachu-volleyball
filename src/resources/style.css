@@ -817,9 +817,11 @@ body:has(#about-box:not(.hidden)) #touch-controls {
   display: none;
 }
 .touch-settings-box {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  /* Each setting's name beside its choices, to fit a phone held sideways */
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: center;
+  gap: 8px 12px;
   max-width: calc(100vw - 32px);
   max-height: calc(100vh - 32px);
   overflow: auto;
@@ -828,6 +830,10 @@ body:has(#about-box:not(.hidden)) #touch-controls {
   background-color: var(--background-color);
   color: var(--color);
   font-size: 16px;
+}
+.touch-settings-box h3,
+.touch-settings-done {
+  grid-column: 1 / -1;
 }
 .touch-settings-box h3 {
   margin: 0 0 4px;
