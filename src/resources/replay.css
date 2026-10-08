@@ -2,6 +2,44 @@
    The rules style.css lacks, from gorisanson/pikachu-volleyball-p2p-online's
    style.css. */
 
+/* Layout of the replay page, as in the P2P version: style.css sizes the canvas
+   for the game page (a menu bar above it, nothing below) and fixes
+   #flex-container at one screen high with its content centred, so the
+   keyboard and controls under the canvas pushed its top out of reach. Here
+   the canvas leaves room for them, and the page grows and scrolls instead. */
+:root {
+  --canvas-width: 92vmin;
+  --canvas-height: calc(92vmin * var(--inverse-aspect-ratio));
+}
+@media only screen and (min-aspect-ratio: 432/304) {
+  :root {
+    --canvas-height: calc(92vh - 2.5 * var(--btn-height) - 10px);
+    --canvas-width: calc(var(--canvas-height) * var(--aspect-ratio));
+  }
+}
+@media only screen and (max-aspect-ratio: 432/304) {
+  :root {
+    --canvas-width: 92vw;
+    --canvas-height: calc(var(--canvas-width) * var(--inverse-aspect-ratio));
+  }
+}
+#flex-container {
+  height: auto;
+  min-height: 100vh;
+}
+/* style.css hides only some kinds of .hidden elements; the replay page
+   toggles divs and buttons too (keyboard, chat boxes, play/pause marks). */
+div.hidden,
+button.hidden {
+  display: none;
+}
+#game-canvas-container {
+  margin-left: auto;
+  margin-right: auto;
+  width: var(--canvas-width);
+  height: var(--canvas-height);
+}
+
 /* Button colours the replay controls use (light and dark schemes, as in style.css) */
 :root {
   --color-black: #232629;
