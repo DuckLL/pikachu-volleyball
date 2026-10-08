@@ -895,6 +895,22 @@ body:has(#about-box:not(.hidden)) #touch-controls {
     --canvas-height: calc(96vh - 10px);
   }
 }
+/* On a phone, vh is the height with the browser's address bar hidden, so a
+   canvas sized from it runs off the bottom while the bar shows; dvh is the
+   height actually visible. */
+@supports (height: 100dvh) {
+  :root.touch #flex-container {
+    height: 100dvh;
+  }
+  @media only screen and (min-aspect-ratio: 432/304) {
+    :root.touch {
+      --canvas-height: calc(
+        100dvh - 16px - env(safe-area-inset-top, 0px) -
+          env(safe-area-inset-bottom, 0px)
+      );
+    }
+  }
+}
 /* Upright, the canvas goes to the top, just below the gear and the menu
    button, leaving the rest of the screen to the controls. */
 @media only screen and (max-aspect-ratio: 432/304) {
