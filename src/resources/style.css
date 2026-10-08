@@ -597,34 +597,108 @@ input.toggle-switch:checked + label::before {
   pointer-events: auto;
   touch-action: none;
 }
-.touch-cluster.touch-left {
+#touch-controls {
+  --cell: 64px; /* a pad cell or arrow key */
+  --hit-size: 120px;
+}
+/* The game is paused while the settings / about box is open, and the
+   controls would cover its text. */
+body:has(#about-box:not(.hidden)) #touch-controls {
+  display: none;
+}
+#touch-controls[data-layout='keys'] {
+  --hit-size: 100px;
+}
+/* Phones held sideways: the canvas fills the height, so the controls must
+   fit in the margins beside it. */
+@media only screen and (orientation: landscape) and (max-height: 500px) {
+  #touch-controls {
+    --cell: 56px;
+  }
+  #touch-controls[data-layout='keys'] {
+    --hit-size: 84px;
+  }
+}
+/* Phones held upright: hit, down and the arrow keys share one row. */
+@media only screen and (max-width: 440px) {
+  #touch-controls[data-layout='keys'] {
+    --hit-size: 80px;
+    --cell: 58px;
+  }
+}
+.touch-cluster {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 12px;
+  gap: 8px;
 }
-.touch-btn.touch-hit {
-  width: 120px;
-  height: 120px;
+.touch-cluster.touch-left {
+  align-items: flex-start;
+}
+.touch-cluster.touch-right {
+  align-items: flex-end;
+}
+.touch-buttons {
+  display: flex;
+  gap: 8px;
+}
+.touch-btn {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: var(--hit-size);
+  height: var(--hit-size);
   border-radius: 50%;
-  border: 3px solid rgba(160, 40, 40, 0.7);
-  background-color: rgba(255, 70, 70, 0.4);
   color: var(--color);
   font-size: 28px;
   font-weight: bold;
   touch-action: none;
 }
+.touch-btn.touch-hit {
+  border: 3px solid rgba(160, 40, 40, 0.7);
+  background-color: rgba(255, 70, 70, 0.4);
+}
 .touch-btn.touch-hit.pressed {
   background-color: rgba(255, 70, 70, 0.8);
 }
+.touch-btn.touch-down {
+  border: 3px solid rgba(40, 80, 160, 0.7);
+  background-color: rgba(70, 120, 255, 0.35);
+}
+.touch-btn.touch-down.pressed {
+  background-color: rgba(70, 120, 255, 0.75);
+}
+.touch-key-name {
+  font-size: 14px;
+  font-weight: normal;
+  opacity: 0.8;
+}
+/* Only the "keys" layout has the down button and the key names, only the
+   "pad" layout the pad, and only "keys" the arrow keys. */
+#touch-controls[data-layout='pad'] .touch-down,
+#touch-controls[data-layout='pad'] .touch-key-name,
+#touch-controls[data-layout='pad'] .touch-arrows,
+#touch-controls[data-layout='keys'] .touch-dpad {
+  display: none;
+}
 .touch-dpad {
   display: grid;
-  grid-template-columns: repeat(3, 64px);
-  grid-template-rows: repeat(3, 64px);
+  /* Six half-columns: three cells per row, but two (left, right) in the
+     middle row. */
+  grid-template-columns: repeat(6, calc((var(--cell) * 3 + 8px - 20px) / 6));
+  grid-template-rows: repeat(3, var(--cell));
   gap: 4px;
   touch-action: none;
 }
 .touch-dpad-cell {
+  grid-column: span 2;
+}
+.touch-dpad-cell[data-dir='4'],
+.touch-dpad-cell[data-dir='0'] {
+  grid-column: span 3;
+}
+.touch-dpad-cell,
+.touch-arrow {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -633,33 +707,54 @@ input.toggle-switch:checked + label::before {
   background-color: rgba(128, 128, 128, 0.3);
   color: var(--color);
   font-size: 26px;
+}
+.touch-dpad-cell {
   pointer-events: none;
 }
-.touch-dpad-cell.pressed {
+.touch-dpad-cell.pressed,
+.touch-arrow.pressed {
   background-color: rgba(128, 128, 128, 0.75);
 }
-/* Phones held sideways: the canvas fills the height, so the pad must fit in
-   the margin beside it. */
-@media only screen and (orientation: landscape) and (max-height: 500px) {
-  .touch-dpad {
-    grid-template-columns: repeat(3, 56px);
-    grid-template-rows: repeat(3, 56px);
-  }
+/* Arrow keys in a keyboard's inverted T */
+.touch-arrows {
+  display: grid;
+  grid-template-columns: repeat(3, var(--cell));
+  grid-template-rows: repeat(2, var(--cell));
+  grid-template-areas:
+    '. up .'
+    'left down right';
+  gap: 4px;
 }
-.touch-side-switch {
+.touch-arrow {
+  padding: 0;
+  touch-action: none;
+}
+.touch-arrow[data-key='up'] {
+  grid-area: up;
+}
+.touch-arrow[data-key='left'] {
+  grid-area: left;
+}
+.touch-arrow[data-key='down'] {
+  grid-area: down;
+}
+.touch-arrow[data-key='right'] {
+  grid-area: right;
+}
+.touch-switch {
   display: flex;
   border: 1px solid rgba(128, 128, 128, 0.7);
   border-radius: 8px;
   overflow: hidden;
 }
-.touch-side-switch button {
+.touch-switch button {
   padding: 10px 16px;
   border: none;
   background-color: rgba(128, 128, 128, 0.2);
   color: var(--color);
   font-size: 16px;
 }
-.touch-side-switch button.selected {
+.touch-switch button.selected {
   background-color: rgba(128, 128, 128, 0.65);
   font-weight: bold;
 }
