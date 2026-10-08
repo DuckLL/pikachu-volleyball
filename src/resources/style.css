@@ -597,15 +597,13 @@ input.toggle-switch:checked + label::before {
   user-select: none;
   -webkit-user-select: none;
   -webkit-touch-callout: none;
+  --cell: 64px; /* a pad cell or arrow key */
+  --stick: 160px; /* the joystick */
+  --hit-size: 120px;
 }
 #touch-controls > * {
   pointer-events: auto;
   touch-action: none;
-}
-#touch-controls {
-  --cell: 64px; /* a pad cell or arrow key */
-  --stick: 160px; /* the joystick */
-  --hit-size: 120px;
 }
 #touch-controls:not([data-extra='none']) {
   --hit-size: 100px;
@@ -834,6 +832,7 @@ body:has(#about-box:not(.hidden)) #touch-controls {
   gap: 8px 12px;
   max-width: calc(100vw - 32px);
   max-height: calc(100vh - 32px);
+  max-height: calc(100dvh - 32px);
   overflow: auto;
   padding: 16px;
   border-radius: 12px;

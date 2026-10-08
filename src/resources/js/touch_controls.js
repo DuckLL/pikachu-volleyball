@@ -28,7 +28,8 @@
  *
  * Shown on touch screens; ?touch=1 forces it on (for trying on a desktop),
  * ?touch=0 off. All choices are remembered. While shown, <html> has the
- * class "touch", which style.css uses for a compact menu bar.
+ * class "touch", which style.css uses for the folded menu bar and the
+ * canvas's size.
  */
 'use strict';
 
