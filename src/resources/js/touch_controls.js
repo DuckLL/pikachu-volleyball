@@ -1,6 +1,7 @@
 /**
  * On-screen controls for phones and tablets: direction controls on one side,
- * a hit button (and optionally an up or down button) on the other.
+ * a hit button and optionally a second one on the other: down, or down + hit
+ * (pressed together, as is common; a one-handed player needs it).
  *
  * The direction control is one of:
  * - "joystick": a knob that follows the finger; past a dead zone it presses
@@ -37,7 +38,7 @@ const SETTINGS = {
   direction: ['pv-offline-touchLayout', ['pad', 'joystick', 'keys']],
   // Unset, it follows the direction control: down for the keyboard layout
   // (where the keyboard's V / ↓ is), none otherwise.
-  extra: ['pv-offline-touchExtra', ['none', 'up', 'down']],
+  extra: ['pv-offline-touchExtra', ['none', 'down', 'down+hit']],
 };
 
 /** The keys PikaKeyboard listens for (see pikavolley.js). */
@@ -52,17 +53,17 @@ const KEYS = {
   },
 };
 
-/** What the hit, up and down buttons show of their key */
+/** What the hit and down buttons show of their key */
 const KEY_NAMES = {
-  1: { hit: 'Z', up: 'R', down: 'V' },
-  2: { hit: 'Enter', up: '↑', down: '↓' },
+  1: { hit: 'Z', down: 'V' },
+  2: { hit: 'Enter', down: '↓' },
 };
 
 const LABELS = {
   zh: {
     hit: '殺',
-    up: '上',
     down: '下',
+    'down+hit': '下+殺',
     1: '1P 左',
     2: '2P 右',
     player: '玩家',
@@ -80,8 +81,8 @@ const LABELS = {
   },
   en: {
     hit: 'Hit',
-    up: 'Up',
     down: 'Down',
+    'down+hit': 'Down+Hit',
     1: '1P left',
     2: '2P right',
     player: 'Player',
@@ -99,8 +100,8 @@ const LABELS = {
   },
   ko: {
     hit: '스파이크',
-    up: '위',
     down: '아래',
+    'down+hit': '아래+스파이크',
     1: '1P 왼쪽',
     2: '2P 오른쪽',
     player: '플레이어',
@@ -323,7 +324,10 @@ export function setUpTouchControls() {
       e.preventDefault();
       btn.setPointerCapture(e.pointerId);
       btn.classList.add('pressed');
-      presser.set(holder, keys()[btn.dataset.key], true);
+      // data-key names one key, or several joined by '+'
+      for (const key of btn.dataset.key.split('+')) {
+        presser.set(holder, keys()[key], true);
+      }
     });
     const release = () => {
       btn.classList.remove('pressed');
@@ -456,8 +460,10 @@ export function setUpTouchControls() {
     root.dataset.extra = extra();
     if (extra() !== 'none') {
       extraBtn.dataset.key = extra();
-      extraBtn.querySelector('.touch-extra-label').textContent =
-        labels[extra()];
+      // "Down+Hit" as two lines, "Down" and "+Hit"
+      extraBtn.querySelector('.touch-extra-label').innerHTML = labels[
+        extra()
+      ].replace('+', '<br>+');
     }
     const selected = { ...settings, extra: extra() };
     for (const btn of panel.querySelectorAll('.touch-switch button')) {
@@ -466,7 +472,10 @@ export function setUpTouchControls() {
     }
     for (const btn of root.querySelectorAll('.touch-buttons [data-key]')) {
       btn.querySelector('.touch-key-name').textContent =
-        KEY_NAMES[settings.side][/** @type {HTMLElement} */ (btn).dataset.key];
+        /** @type {HTMLElement} */ (btn).dataset.key
+          .split('+')
+          .map((key) => KEY_NAMES[settings.side][key])
+          .join('+');
     }
   };
 

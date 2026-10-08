@@ -698,6 +698,10 @@ body:has(#about-box:not(.hidden)) #touch-controls {
 .touch-btn.touch-extra.pressed {
   background-color: rgba(70, 120, 255, 0.75);
 }
+#touch-controls[data-extra='down+hit'] .touch-extra {
+  font-size: 18px;
+  line-height: 1.15;
+}
 .touch-key-name {
   font-size: 14px;
   font-weight: normal;
