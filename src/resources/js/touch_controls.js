@@ -34,14 +34,15 @@
 
 import { localStorageWrapper } from './utils/local_storage_wrapper.js';
 
-/** The gear's settings: [storage key, values (the first is the default)] */
+/**
+ * The gear's settings: [storage key, values in the panel's order, default].
+ * A choice is stored when made; until then the default applies.
+ */
 const SETTINGS = {
-  side: ['pv-offline-touchSide', ['1', '2']],
-  directionSide: ['pv-offline-touchDirectionSide', ['right', 'left']],
-  direction: ['pv-offline-touchLayout', ['pad', 'joystick', 'keys']],
-  // Unset, it follows the direction control: down for the keyboard layout
-  // (where the keyboard's V / ↓ is), none otherwise.
-  extra: ['pv-offline-touchExtra', ['none', 'down', 'down+hit']],
+  side: ['pv-offline-touchSide', ['1', '2'], '1'],
+  directionSide: ['pv-offline-touchDirectionSide', ['left', 'right'], 'right'],
+  direction: ['pv-offline-touchLayout', ['joystick', 'pad', 'keys'], 'pad'],
+  extra: ['pv-offline-touchExtra', ['none', 'down', 'down+hit'], 'down'],
 };
 
 /** The keys PikaKeyboard listens for (see pikavolley.js). */
@@ -207,12 +208,12 @@ class KeyPresser {
 
 /**
  * @param {string} name a SETTINGS name
- * @return {string|null} the stored value, if it is a valid one
+ * @return {string} the stored value if it is a valid one, else the default
  */
 function loadSetting(name) {
-  const [storageKey, values] = SETTINGS[name];
+  const [storageKey, values, defaultValue] = SETTINGS[name];
   const value = localStorageWrapper.get(storageKey);
-  return values.includes(value) ? value : null;
+  return values.includes(value) ? value : defaultValue;
 }
 
 /**
@@ -232,15 +233,10 @@ export function setUpTouchControls() {
   document.documentElement.classList.add('touch');
   const labels = LABELS[document.documentElement.lang] || LABELS.en;
   const presser = new KeyPresser();
-  const settings = {
-    side: loadSetting('side') || '1',
-    directionSide: loadSetting('directionSide') || 'right',
-    direction: loadSetting('direction') || 'pad',
-    extra: loadSetting('extra'),
-  };
+  const settings = Object.fromEntries(
+    Object.keys(SETTINGS).map((name) => [name, loadSetting(name)])
+  );
   const keys = () => KEYS[settings.side];
-  const extra = () =>
-    settings.extra || (settings.direction === 'keys' ? 'down' : 'none');
 
   /**
    * @param {string} attribute the buttons' data attribute (kebab-case)
@@ -307,9 +303,9 @@ export function setUpTouchControls() {
       <div>${labels.player}</div>
       ${switchHTML('side', SETTINGS.side[1])}
       <div>${labels.directionSide}</div>
-      ${switchHTML('direction-side', ['left', 'right'])}
+      ${switchHTML('direction-side', SETTINGS.directionSide[1])}
       <div>${labels.direction}</div>
-      ${switchHTML('direction', ['joystick', 'pad', 'keys'])}
+      ${switchHTML('direction', SETTINGS.direction[1])}
       <div>${labels.extra}</div>
       ${switchHTML('extra', SETTINGS.extra[1])}
       <button type="button" class="touch-settings-done">${labels.done}</button>
@@ -461,18 +457,17 @@ export function setUpTouchControls() {
   const show = () => {
     root.dataset.directionSide = settings.directionSide;
     root.dataset.direction = settings.direction;
-    root.dataset.extra = extra();
-    if (extra() !== 'none') {
-      extraBtn.dataset.key = extra();
+    root.dataset.extra = settings.extra;
+    if (settings.extra !== 'none') {
+      extraBtn.dataset.key = settings.extra;
       // "Down+Hit" as two lines, "Down" and "+Hit"
       extraBtn.querySelector('.touch-extra-label').innerHTML = labels[
-        extra()
+        settings.extra
       ].replace('+', '<br>+');
     }
-    const selected = { ...settings, extra: extra() };
     for (const btn of panel.querySelectorAll('.touch-switch button')) {
       const [name, value] = switchChoice(btn);
-      btn.classList.toggle('selected', selected[name] === value);
+      btn.classList.toggle('selected', settings[name] === value);
     }
     for (const btn of root.querySelectorAll('.touch-buttons [data-key]')) {
       btn.querySelector('.touch-key-name').textContent =
