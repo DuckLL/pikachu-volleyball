@@ -14,9 +14,12 @@
  * - "keys": the keyboard's arrow keys in their usual inverted T, each its
  *   own button, so several can be held with several fingers.
  *
- * The gear opens settings for which player (1P / 2P) the controls play,
- * which side the direction controls are on, which control, and the button
- * beside "hit".
+ * The gear (top left) opens settings for which player (1P / 2P) the
+ * controls play, which side the direction controls are on, which control,
+ * and the button beside "hit".
+ *
+ * The menu bar is folded away to its top right corner: a menu button, which
+ * unfolds the rest over the top of the screen, and the start / about button.
  *
  * They press the same keys a keyboard would (keydown / keyup with the key's
  * `code`, which PikaKeyboard listens for), so the menu, the game and the AI
@@ -68,6 +71,7 @@ const LABELS = {
     2: '2P 右',
     player: '玩家',
     settings: '觸控設定',
+    menu: '選單',
     directionSide: '方向控制在',
     left: '左邊',
     right: '右邊',
@@ -87,6 +91,7 @@ const LABELS = {
     2: '2P right',
     player: 'Player',
     settings: 'Touch controls',
+    menu: 'Menu',
     directionSide: 'Direction on the',
     left: 'Left',
     right: 'Right',
@@ -106,6 +111,7 @@ const LABELS = {
     2: '2P 오른쪽',
     player: '플레이어',
     settings: '터치 설정',
+    menu: '메뉴',
     directionSide: '방향 조작 위치',
     left: '왼쪽',
     right: '오른쪽',
@@ -259,12 +265,10 @@ export function setUpTouchControls() {
   const root = document.createElement('div');
   root.id = 'touch-controls';
   root.innerHTML = `
+    <button type="button" class="touch-gear" aria-label="${
+      labels.settings
+    }">⚙</button>
     <div class="touch-cluster touch-action">
-      <div class="touch-top-row">
-        <button type="button" class="touch-gear" aria-label="${
-          labels.settings
-        }">⚙</button>
-      </div>
       <div class="touch-buttons">
         <button type="button" class="touch-btn touch-hit" data-key="hit">
           ${labels.hit}<small class="touch-key-name"></small>
@@ -505,6 +509,21 @@ export function setUpTouchControls() {
     });
   }
   show();
+
+  // The menu bar, folded to a menu button beside the start / about button
+  const menuBar = document.getElementById('menu-bar');
+  const aboutBtn = document.getElementById('about-btn');
+  if (menuBar && aboutBtn) {
+    const menuBtn = document.createElement('button');
+    menuBtn.type = 'button';
+    menuBtn.className = 'btn touch-menu-btn';
+    menuBtn.setAttribute('aria-label', labels.menu);
+    menuBtn.textContent = '☰';
+    aboutBtn.before(menuBtn);
+    menuBtn.addEventListener('click', () => {
+      menuBar.classList.toggle('touch-menu-open');
+    });
+  }
 
   // A finger lifted while the page lost focus must not leave a key held.
   window.addEventListener('blur', releaseAll);

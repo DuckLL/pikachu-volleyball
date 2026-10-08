@@ -630,7 +630,6 @@ body:has(#about-box:not(.hidden)) #touch-controls {
 }
 /* Direction controls on the left: everything mirrored */
 #touch-controls[data-direction-side='left'],
-#touch-controls[data-direction-side='left'] .touch-top-row,
 #touch-controls[data-direction-side='left'] .touch-buttons {
   flex-direction: row-reverse;
 }
@@ -654,13 +653,15 @@ body:has(#about-box:not(.hidden)) #touch-controls {
 #touch-controls[data-extra='none'] .touch-extra {
   display: none;
 }
-.touch-top-row,
 .touch-buttons {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 .touch-gear {
+  position: fixed;
+  top: calc(env(safe-area-inset-top, 0px) + 8px);
+  left: calc(env(safe-area-inset-left, 0px) + 8px);
   width: 44px;
   height: 44px;
   padding: 0;
@@ -851,6 +852,58 @@ body:has(#about-box:not(.hidden)) #touch-controls {
   color: var(--btn-color);
   font-size: 16px;
 }
+/* With the touch controls, the menu bar is folded to its top right corner
+   (touch_controls.js adds the menu button that unfolds it) and floats over
+   the page, so the canvas no longer leaves room for it. */
+:root.touch #menu-bar {
+  position: fixed;
+  top: calc(env(safe-area-inset-top, 0px) + 8px);
+  right: calc(env(safe-area-inset-right, 0px) + 8px);
+  z-index: 15;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  width: auto;
+  height: auto;
+  margin: 0;
+}
+:root.touch #menu-bar:not(.touch-menu-open) .btn-container.left {
+  display: none;
+}
+:root.touch #menu-bar.touch-menu-open {
+  left: calc(env(safe-area-inset-left, 0px) + 8px);
+  padding: 8px;
+  border-radius: 12px;
+  background-color: var(--background-color);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+}
+:root.touch #menu-bar.touch-menu-open .btn-container.left {
+  order: 2;
+  width: 100%;
+  flex-wrap: wrap;
+  row-gap: 6px;
+}
+:root.touch #menu-bar .btn-container.right {
+  gap: 8px;
+}
+.touch-menu-btn {
+  width: var(--btn-height);
+  font-size: 22px;
+}
+@media only screen and (min-aspect-ratio: 432/304) {
+  :root.touch {
+    --canvas-height: calc(96vh - 10px);
+  }
+}
+/* Upright, the canvas goes to the top, just below the gear and the menu
+   button, leaving the rest of the screen to the controls. */
+@media only screen and (max-aspect-ratio: 432/304) {
+  :root.touch #flex-container {
+    justify-content: flex-start;
+    padding-top: calc(env(safe-area-inset-top, 0px) + 60px);
+  }
+}
+
 /* Phones with the touch controls: a compact menu bar, leaving the canvas
    (sized from --btn-height) more room. */
 @media only screen and (max-width: 900px), only screen and (max-height: 600px) {
