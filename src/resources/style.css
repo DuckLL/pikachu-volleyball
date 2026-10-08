@@ -547,13 +547,18 @@ input.toggle-switch:checked + label::before {
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  width: var(--canvas-width);
+  /* The about box's width inside its padding: --canvas-width overflowed it */
+  width: 100%;
   margin: auto;
 }
 
+/* Wraps on narrow screens, where one row (wider in English) made the page
+   wider than the screen */
 #capability {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-around;
+  gap: 4px 12px;
   width: 100%;
 }
 #ai-version {
