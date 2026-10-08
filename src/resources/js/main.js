@@ -45,6 +45,7 @@ import { PikachuVolleyball } from './pikavolley.js';
 import { ASSETS_PATH } from './assets_path.js';
 import { setUpUI } from './ui.js';
 import { setUpAIVersion, setUpAIVersionSelect } from './ai_version.js';
+import { setUpTouchControls } from './touch_controls.js';
 import { replaySaver } from './replay/replay_saver.js';
 import seedrandom from 'seedrandom';
 import { true_rand, setCustomRng } from './rand.js';
@@ -95,6 +96,7 @@ for (const prop in ASSETS_PATH.SOUNDS) {
 
 setUpInitialUI();
 setUpAIVersionSelect();
+setUpTouchControls();
 
 /**
  * Set up the initial UI.

@@ -575,3 +575,110 @@ input.toggle-switch:checked + label::before {
   flex-direction: column;
   align-items: center;
 }
+
+/* On-screen controls for touch screens (touch_controls.js) */
+#touch-controls {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 0 calc(env(safe-area-inset-left, 0px) + 12px) 0
+    calc(env(safe-area-inset-right, 0px) + 12px);
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+#touch-controls > * {
+  pointer-events: auto;
+  touch-action: none;
+}
+.touch-cluster.touch-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+.touch-buttons {
+  display: flex;
+  gap: 14px;
+  align-items: flex-end;
+}
+.touch-btn {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  border: 2px solid var(--btn-border-color, rgba(50, 50, 50, 0.6));
+  background-color: rgba(128, 128, 128, 0.35);
+  color: var(--color);
+  font-size: 18px;
+  font-weight: bold;
+  touch-action: none;
+}
+.touch-btn.touch-hit {
+  width: 84px;
+  height: 84px;
+  background-color: rgba(255, 70, 70, 0.4);
+}
+.touch-btn.pressed {
+  background-color: rgba(128, 128, 128, 0.7);
+}
+.touch-btn.touch-hit.pressed {
+  background-color: rgba(255, 70, 70, 0.75);
+}
+.touch-joystick {
+  position: relative;
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  border: 2px solid rgba(128, 128, 128, 0.6);
+  background-color: rgba(128, 128, 128, 0.2);
+  touch-action: none;
+}
+.touch-knob {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 56px;
+  height: 56px;
+  margin: -28px 0 0 -28px;
+  border-radius: 50%;
+  background-color: rgba(128, 128, 128, 0.6);
+  pointer-events: none;
+}
+.touch-side-switch {
+  display: flex;
+  border: 1px solid rgba(128, 128, 128, 0.7);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.touch-side-switch button {
+  padding: 6px 10px;
+  border: none;
+  background-color: rgba(128, 128, 128, 0.2);
+  color: var(--color);
+  font-size: 14px;
+}
+.touch-side-switch button.selected {
+  background-color: rgba(128, 128, 128, 0.6);
+  font-weight: bold;
+}
+
+/* Narrow screens (phones held upright): the menu bar's left half (game,
+   options, save replay, colour scheme, AI version, AI level) is wider than
+   the screen, which made the browser lay the whole page out wider and zoom
+   out. Let it wrap onto a second row instead. */
+@media only screen and (max-width: 640px) {
+  #menu-bar {
+    height: auto;
+    min-height: var(--btn-height);
+  }
+  .btn-container.left {
+    flex-wrap: wrap;
+    row-gap: 6px;
+  }
+}
