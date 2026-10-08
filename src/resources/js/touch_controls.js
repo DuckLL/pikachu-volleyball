@@ -1,15 +1,20 @@
 /**
- * On-screen controls for phones and tablets, in two layouts:
+ * On-screen controls for phones and tablets: direction controls on one side,
+ * a hit button (and optionally an up or down button) on the other.
  *
- * - "pad": a hit button on the left, an eight-way direction pad on the
- *   right. The pad is one touch area: the direction follows the finger as it
- *   slides, so it can roll from one direction to the next without lifting;
- *   diagonals press two keys. Left and right share the middle row, so the
- *   pad has no dead spot: lifting the finger is the only way to press
- *   nothing.
- * - "keys": the keyboard's way of playing. Hit and down on the left, arrow
- *   keys in their usual inverted T on the right, each its own button, so
- *   several can be held with several fingers.
+ * The direction control is one of:
+ * - "joystick": a knob that follows the finger; past a dead zone it presses
+ *   left / right and up / down.
+ * - "pad": an eight-way pad. It is one touch area: the direction follows the
+ *   finger as it slides, so it can roll from one direction to the next
+ *   without lifting; diagonals press two keys. Left and right share the
+ *   middle row, so the pad has no dead spot: lifting the finger is the only
+ *   way to press nothing.
+ * - "keys": the keyboard's arrow keys in their usual inverted T, each its
+ *   own button, so several can be held with several fingers.
+ *
+ * The gear opens settings for which side the direction controls are on,
+ * which control, and the button beside "hit".
  *
  * They press the same keys a keyboard would (keydown / keyup with the key's
  * `code`, which PikaKeyboard listens for), so the menu, the game and the AI
@@ -17,15 +22,23 @@
  * menu, "hit" is then Z (play on the left) or Enter (play on the right).
  *
  * Shown on touch screens; ?touch=1 forces it on (for trying on a desktop),
- * ?touch=0 off. The 1P / 2P and layout choices are remembered. While shown,
- * <html> has the class "touch", which style.css uses for a compact menu bar.
+ * ?touch=0 off. All choices are remembered. While shown, <html> has the
+ * class "touch", which style.css uses for a compact menu bar.
  */
 'use strict';
 
 import { localStorageWrapper } from './utils/local_storage_wrapper.js';
 
 const SIDE_STORAGE_KEY = 'pv-offline-touchSide';
-const LAYOUT_STORAGE_KEY = 'pv-offline-touchLayout';
+
+/** The gear's settings: [storage key, values] */
+const SETTINGS = {
+  directionSide: ['pv-offline-touchDirectionSide', ['left', 'right']],
+  direction: ['pv-offline-touchLayout', ['joystick', 'pad', 'keys']],
+  // Unset, it follows the direction control: down for the keyboard layout
+  // (where the keyboard's V / ↓ is), none otherwise.
+  extra: ['pv-offline-touchExtra', ['none', 'up', 'down']],
+};
 
 /** The keys PikaKeyboard listens for (see pikavolley.js). */
 const KEYS = {
@@ -39,36 +52,66 @@ const KEYS = {
   },
 };
 
-/** What the hit and down buttons show of their key in the "keys" layout */
+/** What the hit, up and down buttons show of their key */
 const KEY_NAMES = {
-  1: { hit: 'Z', down: 'V' },
-  2: { hit: 'Enter', down: '↓' },
+  1: { hit: 'Z', up: 'R', down: 'V' },
+  2: { hit: 'Enter', up: '↑', down: '↓' },
 };
 
 const LABELS = {
   zh: {
     hit: '殺',
+    up: '上',
     down: '下',
     p1: '1P 左',
     p2: '2P 右',
+    settings: '觸控設定',
+    directionSide: '方向控制在',
+    left: '左邊',
+    right: '右邊',
+    direction: '方向控制',
+    joystick: '搖桿',
     pad: '八方位',
     keys: '鍵盤',
+    extra: '殺旁邊的按鈕',
+    none: '無',
+    done: '完成',
   },
   en: {
     hit: 'Hit',
+    up: 'Up',
     down: 'Down',
     p1: '1P left',
     p2: '2P right',
+    settings: 'Touch controls',
+    directionSide: 'Direction on the',
+    left: 'Left',
+    right: 'Right',
+    direction: 'Direction control',
+    joystick: 'Joystick',
     pad: '8-way',
     keys: 'Keys',
+    extra: 'Button beside hit',
+    none: 'None',
+    done: 'Done',
   },
   ko: {
     hit: '스파이크',
+    up: '위',
     down: '아래',
     p1: '1P 왼쪽',
     p2: '2P 오른쪽',
+    settings: '터치 설정',
+    directionSide: '방향 조작 위치',
+    left: '왼쪽',
+    right: '오른쪽',
+    direction: '방향 조작',
+    joystick: '조이스틱',
     pad: '8방향',
     keys: '키보드',
+    extra: '스파이크 옆 버튼',
+    none: '없음',
+    done: '완료',
   },
 };
 
@@ -83,6 +126,9 @@ const DIRECTIONS = [
   [0, -1, '↑'],
   [1, -1, '↗'],
 ];
+
+/** Fraction of the joystick radius the knob must travel to press a direction */
+const JOYSTICK_DEAD_ZONE = 0.35;
 
 /**
  * Whether to show the controls on this device / page.
@@ -99,8 +145,8 @@ export function touchControlsWanted() {
 /**
  * Holds and releases keys. A key can be held by more than one control (the
  * down button and the ↓ arrow both hold down); it is released when the last
- * lets go. Remembering what is held means switching sides or layouts, or
- * lifting a finger, never leaves a key stuck.
+ * lets go. Remembering what is held means changing a setting, or lifting a
+ * finger, never leaves a key stuck.
  */
 class KeyPresser {
   constructor() {
@@ -130,6 +176,16 @@ class KeyPresser {
     }
   }
 
+  /**
+   * Let go of the keys a control holds.
+   * @param {string} holder
+   */
+  releaseHolder(holder) {
+    for (const code of this.holders.keys()) {
+      this.set(holder, code, false);
+    }
+  }
+
   releaseAll() {
     for (const [code, holders] of this.holders) {
       for (const holder of [...holders]) {
@@ -137,6 +193,26 @@ class KeyPresser {
       }
     }
   }
+}
+
+/**
+ * @param {string} name a SETTINGS name
+ * @return {string|null} the stored value, if it is a valid one
+ */
+function loadSetting(name) {
+  const [storageKey, values] = SETTINGS[name];
+  const value = localStorageWrapper.get(storageKey);
+  return values.includes(value) ? value : null;
+}
+
+/**
+ * The name and value of a switch button (its one data attribute)
+ * @param {Element} btn
+ * @return {[string, string]}
+ */
+function switchChoice(btn) {
+  // @ts-ignore
+  return Object.entries(/** @type {HTMLElement} */ (btn).dataset)[0];
 }
 
 export function setUpTouchControls() {
@@ -147,9 +223,27 @@ export function setUpTouchControls() {
   const labels = LABELS[document.documentElement.lang] || LABELS.en;
   const presser = new KeyPresser();
   let side = localStorageWrapper.get(SIDE_STORAGE_KEY) === '2' ? 2 : 1;
-  let layout =
-    localStorageWrapper.get(LAYOUT_STORAGE_KEY) === 'keys' ? 'keys' : 'pad';
   const keys = () => KEYS[side];
+  const settings = {
+    directionSide: loadSetting('directionSide') || 'right',
+    direction: loadSetting('direction') || 'pad',
+    extra: loadSetting('extra'),
+  };
+  const extra = () =>
+    settings.extra || (settings.direction === 'keys' ? 'down' : 'none');
+
+  /**
+   * @param {string} attribute the buttons' data attribute (kebab-case)
+   * @param {string[]} values
+   * @return {string} a row of buttons, one per value
+   */
+  const switchHTML = (attribute, values) =>
+    `<div class="touch-switch" role="group">${values
+      .map(
+        (v) =>
+          `<button type="button" data-${attribute}="${v}">${labels[v]}</button>`
+      )
+      .join('')}</div>`;
 
   // Pad cells row by row (DIRECTIONS indexes); left and right split the
   // middle row between them.
@@ -161,25 +255,27 @@ export function setUpTouchControls() {
   const root = document.createElement('div');
   root.id = 'touch-controls';
   root.innerHTML = `
-    <div class="touch-cluster touch-left">
-      <div class="touch-switch touch-side-switch" role="group">
-        <button type="button" data-side="1">${labels.p1}</button>
-        <button type="button" data-side="2">${labels.p2}</button>
-      </div>
-      <div class="touch-switch touch-layout-switch" role="group">
-        <button type="button" data-layout="pad">${labels.pad}</button>
-        <button type="button" data-layout="keys">${labels.keys}</button>
+    <div class="touch-cluster touch-action">
+      <div class="touch-top-row">
+        <div class="touch-switch touch-side-switch" role="group">
+          <button type="button" data-side="1">${labels.p1}</button>
+          <button type="button" data-side="2">${labels.p2}</button>
+        </div>
+        <button type="button" class="touch-gear" aria-label="${
+          labels.settings
+        }">⚙</button>
       </div>
       <div class="touch-buttons">
         <button type="button" class="touch-btn touch-hit" data-key="hit">
           ${labels.hit}<small class="touch-key-name"></small>
         </button>
-        <button type="button" class="touch-btn touch-down" data-key="down">
-          ${labels.down}<small class="touch-key-name"></small>
+        <button type="button" class="touch-btn touch-extra" data-key="down">
+          <span class="touch-extra-label"></span><small class="touch-key-name"></small>
         </button>
       </div>
     </div>
-    <div class="touch-cluster touch-right">
+    <div class="touch-cluster touch-direction">
+      <div class="touch-joystick"><div class="touch-knob"></div></div>
       <div class="touch-dpad">${padRows
         .flat()
         .map(
@@ -196,38 +292,129 @@ export function setUpTouchControls() {
     </div>`;
   document.body.appendChild(root);
 
-  // Buttons that hold their key while a finger is on them: hit, down and
-  // the arrow keys. Each is its own holder, so they can be held together.
+  const panel = document.createElement('div');
+  panel.id = 'touch-settings';
+  panel.className = 'hidden';
+  panel.innerHTML = `
+    <div class="touch-settings-box" role="dialog" aria-label="${
+      labels.settings
+    }">
+      <h3>${labels.settings}</h3>
+      <div>${labels.directionSide}</div>
+      ${switchHTML('direction-side', SETTINGS.directionSide[1])}
+      <div>${labels.direction}</div>
+      ${switchHTML('direction', SETTINGS.direction[1])}
+      <div>${labels.extra}</div>
+      ${switchHTML('extra', SETTINGS.extra[1])}
+      <button type="button" class="touch-settings-done">${labels.done}</button>
+    </div>`;
+  document.body.appendChild(panel);
+
+  // Buttons that hold their key while a finger is on them: hit, the extra
+  // button and the arrow keys. Each is its own holder, so they can be held
+  // together; each lets go of the key it pressed, even if its key changed.
   const holdButtons = /** @type {HTMLElement[]} */ ([
     ...root.querySelectorAll('[data-key]'),
   ]);
   holdButtons.forEach((btn, i) => {
     const holder = `button${i}`;
-    const press = (pressed) => {
-      btn.classList.toggle('pressed', pressed);
-      presser.set(holder, keys()[btn.dataset.key], pressed);
-    };
     btn.addEventListener('pointerdown', (e) => {
       e.preventDefault();
       btn.setPointerCapture(e.pointerId);
-      press(true);
+      btn.classList.add('pressed');
+      presser.set(holder, keys()[btn.dataset.key], true);
     });
-    btn.addEventListener('pointerup', () => press(false));
-    btn.addEventListener('pointercancel', () => press(false));
+    const release = () => {
+      btn.classList.remove('pressed');
+      presser.releaseHolder(holder);
+    };
+    btn.addEventListener('pointerup', release);
+    btn.addEventListener('pointercancel', release);
   });
+
+  /**
+   * Press the direction keys for x, y in -1, 0, 1.
+   * @param {string} holder
+   * @param {number} x
+   * @param {number} y
+   */
+  const pressXY = (holder, x, y) => {
+    const k = keys();
+    presser.set(holder, k.left, x < 0);
+    presser.set(holder, k.right, x > 0);
+    presser.set(holder, k.up, y < 0);
+    presser.set(holder, k.down, y > 0);
+  };
+
+  /**
+   * A one-finger touch area: follow(event) as the finger moves, end() when
+   * it lifts.
+   * @param {HTMLElement} area
+   * @param {(e: PointerEvent) => void} follow
+   * @param {() => void} end
+   * @return {() => void} lifts the finger
+   */
+  const trackFinger = (area, follow, end) => {
+    let pointer = null;
+    area.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      pointer = e.pointerId;
+      area.setPointerCapture(e.pointerId);
+      follow(e);
+    });
+    area.addEventListener('pointermove', (e) => {
+      if (e.pointerId === pointer) {
+        follow(e);
+      }
+    });
+    const lift = () => {
+      pointer = null;
+      end();
+    };
+    area.addEventListener('pointerup', lift);
+    area.addEventListener('pointercancel', lift);
+    return lift;
+  };
+
+  // Joystick: the knob follows the finger within the base.
+  const base = /** @type {HTMLElement} */ (
+    root.querySelector('.touch-joystick')
+  );
+  const knob = /** @type {HTMLElement} */ (root.querySelector('.touch-knob'));
+  const endJoystick = trackFinger(
+    base,
+    (e) => {
+      const rect = base.getBoundingClientRect();
+      const radius = rect.width / 2;
+      let dx = (e.clientX - (rect.left + radius)) / radius;
+      let dy = (e.clientY - (rect.top + radius)) / radius;
+      const length = Math.hypot(dx, dy);
+      if (length > 1) {
+        dx /= length;
+        dy /= length;
+      }
+      knob.style.transform = `translate(${dx * radius * 0.6}px, ${
+        dy * radius * 0.6
+      }px)`;
+      pressXY(
+        'joystick',
+        Math.abs(dx) > JOYSTICK_DEAD_ZONE ? Math.sign(dx) : 0,
+        Math.abs(dy) > JOYSTICK_DEAD_ZONE ? Math.sign(dy) : 0
+      );
+    },
+    () => {
+      knob.style.transform = '';
+      pressXY('joystick', 0, 0);
+    }
+  );
 
   // Direction pad
   const pad = /** @type {HTMLElement} */ (root.querySelector('.touch-dpad'));
   const cells = [...pad.querySelectorAll('.touch-dpad-cell')];
-  let padPointer = null;
   /** @param {number} dir DIRECTIONS index, or -1 for none */
   const pressDirection = (dir) => {
     const [x, y] = dir < 0 ? [0, 0] : DIRECTIONS[dir];
-    const k = keys();
-    presser.set('pad', k.left, x < 0);
-    presser.set('pad', k.right, x > 0);
-    presser.set('pad', k.up, y < 0);
-    presser.set('pad', k.down, y > 0);
+    pressXY('pad', x, y);
     for (const cell of cells) {
       cell.classList.toggle(
         'pressed',
@@ -235,35 +422,23 @@ export function setUpTouchControls() {
       );
     }
   };
-  const followFinger = (e) => {
-    // The cell under the finger, or the nearest one if it slid off the pad.
-    const rect = pad.getBoundingClientRect();
-    const clamp = (v) => Math.min(Math.max(v, 0), 0.999);
-    const row =
-      padRows[Math.floor(clamp((e.clientY - rect.top) / rect.height) * 3)];
-    const x = clamp((e.clientX - rect.left) / rect.width);
-    pressDirection(row[Math.floor(x * row.length)]);
-  };
-  const endPad = () => {
-    padPointer = null;
-    pressDirection(-1);
-  };
-  pad.addEventListener('pointerdown', (e) => {
-    e.preventDefault();
-    padPointer = e.pointerId;
-    pad.setPointerCapture(e.pointerId);
-    followFinger(e);
-  });
-  pad.addEventListener('pointermove', (e) => {
-    if (e.pointerId === padPointer) {
-      followFinger(e);
-    }
-  });
-  pad.addEventListener('pointerup', endPad);
-  pad.addEventListener('pointercancel', endPad);
+  const endPad = trackFinger(
+    pad,
+    (e) => {
+      // The cell under the finger, or the nearest one if it slid off.
+      const rect = pad.getBoundingClientRect();
+      const clamp = (v) => Math.min(Math.max(v, 0), 0.999);
+      const row =
+        padRows[Math.floor(clamp((e.clientY - rect.top) / rect.height) * 3)];
+      const x = clamp((e.clientX - rect.left) / rect.width);
+      pressDirection(row[Math.floor(x * row.length)]);
+    },
+    () => pressDirection(-1)
+  );
 
   /** Let go of everything, e.g. before the keys change meaning */
   const releaseAll = () => {
+    endJoystick();
     endPad();
     presser.releaseAll();
     for (const btn of holdButtons) {
@@ -271,30 +446,62 @@ export function setUpTouchControls() {
     }
   };
 
-  // The 1P / 2P and layout switches
+  const extraBtn = /** @type {HTMLElement} */ (
+    root.querySelector('.touch-extra')
+  );
   const show = () => {
-    root.dataset.layout = layout;
-    for (const btn of root.querySelectorAll('.touch-switch button')) {
-      const { side: s, layout: l } = /** @type {HTMLElement} */ (btn).dataset;
-      btn.classList.toggle('selected', s === String(side) || l === layout);
+    root.dataset.directionSide = settings.directionSide;
+    root.dataset.direction = settings.direction;
+    root.dataset.extra = extra();
+    if (extra() !== 'none') {
+      extraBtn.dataset.key = extra();
+      extraBtn.querySelector('.touch-extra-label').textContent =
+        labels[extra()];
+    }
+    const selected = { side: String(side), ...settings, extra: extra() };
+    for (const btn of document.querySelectorAll(
+      '#touch-controls .touch-switch button, #touch-settings .touch-switch button'
+    )) {
+      const [name, value] = switchChoice(btn);
+      btn.classList.toggle('selected', selected[name] === value);
     }
     for (const btn of root.querySelectorAll('.touch-buttons [data-key]')) {
-      const name =
+      btn.querySelector('.touch-key-name').textContent =
         KEY_NAMES[side][/** @type {HTMLElement} */ (btn).dataset.key];
-      btn.querySelector('.touch-key-name').textContent = name;
     }
   };
-  for (const btn of root.querySelectorAll('.touch-switch button')) {
+
+  // The 1P / 2P switch
+  for (const btn of root.querySelectorAll('.touch-side-switch button')) {
     btn.addEventListener('click', () => {
       releaseAll();
-      const { side: s, layout: l } = /** @type {HTMLElement} */ (btn).dataset;
-      if (s) {
-        side = Number(s);
-        localStorageWrapper.set(SIDE_STORAGE_KEY, s);
-      } else {
-        layout = l;
-        localStorageWrapper.set(LAYOUT_STORAGE_KEY, l);
-      }
+      side = Number(switchChoice(btn)[1]);
+      localStorageWrapper.set(SIDE_STORAGE_KEY, String(side));
+      show();
+    });
+  }
+
+  // The gear's settings panel
+  const openSettings = (open) => {
+    releaseAll();
+    panel.classList.toggle('hidden', !open);
+  };
+  root
+    .querySelector('.touch-gear')
+    .addEventListener('click', () => openSettings(true));
+  panel
+    .querySelector('.touch-settings-done')
+    .addEventListener('click', () => openSettings(false));
+  panel.addEventListener('click', (e) => {
+    if (e.target === panel) {
+      openSettings(false); // a tap outside the box
+    }
+  });
+  for (const btn of panel.querySelectorAll('.touch-switch button')) {
+    btn.addEventListener('click', () => {
+      const [name, value] = switchChoice(btn);
+      settings[name] = value;
+      localStorageWrapper.set(SETTINGS[name][0], value);
       show();
     });
   }

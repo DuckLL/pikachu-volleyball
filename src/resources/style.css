@@ -599,47 +599,77 @@ input.toggle-switch:checked + label::before {
 }
 #touch-controls {
   --cell: 64px; /* a pad cell or arrow key */
+  --stick: 160px; /* the joystick */
   --hit-size: 120px;
+}
+#touch-controls:not([data-extra='none']) {
+  --hit-size: 100px;
 }
 /* The game is paused while the settings / about box is open, and the
    controls would cover its text. */
 body:has(#about-box:not(.hidden)) #touch-controls {
   display: none;
 }
-#touch-controls[data-layout='keys'] {
-  --hit-size: 100px;
-}
-/* Phones held sideways: the canvas fills the height, so the controls must
-   fit in the margins beside it. */
+/* Phones held sideways: direction keys about the size of a keyboard's,
+   reaching over the canvas's edge (the controls are translucent). */
 @media only screen and (orientation: landscape) and (max-height: 500px) {
+  #touch-controls {
+    --cell: 88px;
+    --stick: 220px;
+  }
+}
+/* Phones held upright: hit, the extra button and the direction controls
+   share one row. */
+@media only screen and (max-width: 440px) {
   #touch-controls {
     --cell: 56px;
   }
-  #touch-controls[data-layout='keys'] {
-    --hit-size: 84px;
+  #touch-controls:not([data-extra='none']) {
+    --hit-size: 80px;
   }
 }
-/* Phones held upright: hit, down and the arrow keys share one row. */
-@media only screen and (max-width: 440px) {
-  #touch-controls[data-layout='keys'] {
-    --hit-size: 80px;
-    --cell: 58px;
-  }
+/* Direction controls on the left: everything mirrored */
+#touch-controls[data-direction-side='left'],
+#touch-controls[data-direction-side='left'] .touch-top-row,
+#touch-controls[data-direction-side='left'] .touch-buttons {
+  flex-direction: row-reverse;
 }
 .touch-cluster {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   gap: 8px;
 }
-.touch-cluster.touch-left {
-  align-items: flex-start;
-}
-.touch-cluster.touch-right {
+.touch-cluster.touch-direction,
+#touch-controls[data-direction-side='left'] .touch-cluster.touch-action {
   align-items: flex-end;
 }
+#touch-controls[data-direction-side='left'] .touch-cluster.touch-direction {
+  align-items: flex-start;
+}
+/* Only the chosen direction control, and the extra button if any */
+#touch-controls:not([data-direction='joystick']) .touch-joystick,
+#touch-controls:not([data-direction='pad']) .touch-dpad,
+#touch-controls:not([data-direction='keys']) .touch-arrows,
+#touch-controls[data-extra='none'] .touch-extra {
+  display: none;
+}
+.touch-top-row,
 .touch-buttons {
   display: flex;
+  align-items: center;
   gap: 8px;
+}
+.touch-gear {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(128, 128, 128, 0.7);
+  background-color: rgba(128, 128, 128, 0.2);
+  color: var(--color);
+  font-size: 24px;
+  line-height: 1;
 }
 .touch-btn {
   display: flex;
@@ -661,11 +691,11 @@ body:has(#about-box:not(.hidden)) #touch-controls {
 .touch-btn.touch-hit.pressed {
   background-color: rgba(255, 70, 70, 0.8);
 }
-.touch-btn.touch-down {
+.touch-btn.touch-extra {
   border: 3px solid rgba(40, 80, 160, 0.7);
   background-color: rgba(70, 120, 255, 0.35);
 }
-.touch-btn.touch-down.pressed {
+.touch-btn.touch-extra.pressed {
   background-color: rgba(70, 120, 255, 0.75);
 }
 .touch-key-name {
@@ -673,13 +703,26 @@ body:has(#about-box:not(.hidden)) #touch-controls {
   font-weight: normal;
   opacity: 0.8;
 }
-/* Only the "keys" layout has the down button and the key names, only the
-   "pad" layout the pad, and only "keys" the arrow keys. */
-#touch-controls[data-layout='pad'] .touch-down,
-#touch-controls[data-layout='pad'] .touch-key-name,
-#touch-controls[data-layout='pad'] .touch-arrows,
-#touch-controls[data-layout='keys'] .touch-dpad {
-  display: none;
+.touch-joystick {
+  position: relative;
+  width: var(--stick);
+  height: var(--stick);
+  border-radius: 50%;
+  border: 2px solid rgba(128, 128, 128, 0.6);
+  background-color: rgba(128, 128, 128, 0.2);
+  touch-action: none;
+}
+.touch-knob {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 40%;
+  height: 40%;
+  transform-origin: center;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background-color: rgba(128, 128, 128, 0.6);
+  pointer-events: none;
 }
 .touch-dpad {
   display: grid;
@@ -748,15 +791,55 @@ body:has(#about-box:not(.hidden)) #touch-controls {
   overflow: hidden;
 }
 .touch-switch button {
-  padding: 10px 16px;
+  flex: 1;
+  padding: 10px 12px;
   border: none;
   background-color: rgba(128, 128, 128, 0.2);
   color: var(--color);
   font-size: 16px;
+  white-space: nowrap;
 }
 .touch-switch button.selected {
   background-color: rgba(128, 128, 128, 0.65);
   font-weight: bold;
+}
+/* The gear's settings panel */
+#touch-settings {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+#touch-settings.hidden {
+  display: none;
+}
+.touch-settings-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: calc(100vw - 32px);
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+  padding: 16px;
+  border-radius: 12px;
+  background-color: var(--background-color);
+  color: var(--color);
+  font-size: 16px;
+}
+.touch-settings-box h3 {
+  margin: 0 0 4px;
+}
+.touch-settings-done {
+  margin-top: 8px;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  background-color: var(--btn-background-color);
+  color: var(--btn-color);
+  font-size: 16px;
 }
 /* Phones with the touch controls: a compact menu bar, leaving the canvas
    (sized from --btn-height) more room. */
